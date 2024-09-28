@@ -1,0 +1,58 @@
+import 'package:connectcare/presentation/widgets/custom_button.dart';
+import 'package:connectcare/services/auth_service.dart';
+import 'package:flutter/material.dart';
+
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
+  @override
+  // ignore: library_private_types_in_public_api
+  _LoginScreenState createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final AuthService _authService = AuthService();
+
+  void _login() async {
+    String email = _emailController.text;
+    String password = _passwordController.text;
+    bool success = await _authService.login(email, password);
+    if (success) {
+      // Navegar a la pantalla principal
+    } else {
+      // Mostrar mensaje de error
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Login'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: <Widget>[
+            TextField(
+              controller: _emailController,
+              decoration: const InputDecoration(labelText: 'Email'),
+            ),
+            TextField(
+              controller: _passwordController,
+              decoration: const InputDecoration(labelText: 'Password'),
+              obscureText: true,
+            ),
+            const SizedBox(height: 20),
+            CustomButton(
+              text: 'Login',
+              onPressed: _login,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
