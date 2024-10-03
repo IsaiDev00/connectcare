@@ -1,5 +1,4 @@
 import 'package:connectcare/presentation/widgets/custom_button.dart';
-import 'package:connectcare/services/auth_service.dart';
 import 'package:flutter/material.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -13,18 +12,8 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final AuthService _authService = AuthService();
 
-  void _login() async {
-    String email = _emailController.text;
-    String password = _passwordController.text;
-    bool success = await _authService.login(email, password);
-    if (success) {
-      // Navegar a la pantalla principal
-    } else {
-      // Mostrar mensaje de error
-    }
-  }
+  void _login() async {}
 
   @override
   Widget build(BuildContext context) {
