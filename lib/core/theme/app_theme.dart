@@ -6,14 +6,22 @@ class AppTheme {
   static ThemeData lightTheme() {
     return ThemeData(
       brightness: Brightness.light,
-      primaryColor: Color(0xFF00A0A6),
+      primaryColor: const Color(0xFF00A0A6),
       fontFamily: 'Suisse_Intl',
-      colorScheme: ColorScheme.light(
-        primary: Color(0xFF00A0A6), // Color principal (Teal claro)
-        secondary: Color(0xFF018080), // Color secundario (Verde azulado oscuro)
+      colorScheme: const ColorScheme(
+        brightness: Brightness.light,
+        primary: Color(0xFF00A0A6),
+        onPrimary: Colors.white,
+        secondary: Color(0xFF018080),
+        onSecondary: Colors.white,
+        error: Colors.red,
+        onError: Colors.white,
+        surface: Colors.white,
+        onSurface: Colors.black,
+        // Eliminamos background y onBackground
       ),
-      scaffoldBackgroundColor: Colors.white, // Fondo blanco
-      appBarTheme: AppBarTheme(
+      scaffoldBackgroundColor: Colors.white,
+      appBarTheme: const AppBarTheme(
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
@@ -22,38 +30,40 @@ class AppTheme {
           fontSize: 22,
           fontWeight: FontWeight.w500,
         ),
-        iconTheme:
-            IconThemeData(color: Colors.black), // Íconos de AppBar negros
+        iconTheme: IconThemeData(color: Colors.black),
+        systemOverlayStyle: SystemUiOverlayStyle.dark,
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: Color(0xFF00A0A6), // Color del botón
-          foregroundColor: Colors.white, // Color del texto
+          backgroundColor: const Color(0xFF00A0A6),
+          foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10), // Bordes redondeados
+            borderRadius: BorderRadius.circular(10),
           ),
-          padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
+          padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 30),
         ),
       ),
-      textTheme: TextTheme(
+      textTheme: const TextTheme(
         headlineLarge: TextStyle(
           fontSize: 22.0,
           fontWeight: FontWeight.w500,
-          color: Color.fromARGB(255, 53, 53, 53), // Texto oscuro
+          color: Color.fromARGB(255, 53, 53, 53),
         ),
         headlineSmall: TextStyle(
           fontSize: 15.0,
           fontWeight: FontWeight.w400,
-          color: Color.fromARGB(255, 59, 59, 59), // Texto oscuro
+          color: Color.fromARGB(255, 59, 59, 59),
         ),
         bodyLarge: TextStyle(
           fontSize: 11.0,
           fontWeight: FontWeight.w400,
-          color: Color.fromARGB(255, 59, 59, 59), // Texto oscuro
+          color: Color.fromARGB(255, 59, 59, 59),
         ),
       ),
       inputDecorationTheme: _inputDecorationTheme(
-          Colors.black, Colors.pink), // Tema de los campos de texto
+        textColor: Colors.black,
+        borderColor: Colors.grey,
+      ),
     );
   }
 
@@ -61,102 +71,107 @@ class AppTheme {
   static ThemeData darkTheme() {
     return ThemeData(
       brightness: Brightness.dark,
-      primaryColor: Color(0xFF00A0A6),
-      colorScheme: ColorScheme.dark(
-        primary: Color(0xFF00A0A6), // Color principal (Teal claro)
-        secondary: Color(0xFF018080), // Color secundario (Verde azulado oscuro)
+      primaryColor: const Color(0xFF00A0A6),
+      fontFamily: 'Suisse_Intl',
+      colorScheme: const ColorScheme(
+        brightness: Brightness.dark,
+        primary: Color(0xFF00A0A6),
+        onPrimary: Colors.white,
+        secondary: Color(0xFF018080),
+        onSecondary: Colors.white,
+        error: Colors.red,
+        onError: Colors.white,
+        surface: Color(0xFF121212),
+        onSurface: Colors.white,
+        // Eliminamos background y onBackground
       ),
-      scaffoldBackgroundColor: Colors.black, // Fondo negro
-      appBarTheme: AppBarTheme(
+      scaffoldBackgroundColor: Colors.black,
+      appBarTheme: const AppBarTheme(
         backgroundColor: Colors.black,
         elevation: 0,
+        centerTitle: true,
         titleTextStyle: TextStyle(
           color: Colors.white,
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
+          fontSize: 22,
+          fontWeight: FontWeight.w500,
         ),
-        iconTheme:
-            IconThemeData(color: Colors.white), // Íconos de AppBar blancos
+        iconTheme: IconThemeData(color: Colors.white),
+        systemOverlayStyle: SystemUiOverlayStyle.light,
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: Color(0xFF00A0A6), // Color del botón
-          foregroundColor: Colors.white, // Color del texto
+          backgroundColor: const Color(0xFF00A0A6),
+          foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30),
+            borderRadius: BorderRadius.circular(10),
           ),
-          padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
+          padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 30),
         ),
       ),
-      textTheme: TextTheme(
+      textTheme: const TextTheme(
         headlineLarge: TextStyle(
           fontSize: 22.0,
           fontWeight: FontWeight.w500,
-          color: Colors.white, // Texto claro
+          color: Colors.white,
         ),
         headlineSmall: TextStyle(
           fontSize: 15.0,
           fontWeight: FontWeight.w400,
-          color: Colors.white, // Texto claro
+          color: Colors.white,
         ),
         bodyLarge: TextStyle(
           fontSize: 11.0,
           fontWeight: FontWeight.w400,
-          color: Colors.white, // Texto claro
+          color: Colors.white,
         ),
       ),
       inputDecorationTheme: _inputDecorationTheme(
-          Colors.white, Colors.teal), // Tema de los campos de texto
+        textColor: Colors.white,
+        borderColor: Colors.grey,
+      ),
     );
   }
 
-  // Método para actualizar el brillo de los íconos en la barra de estado
-  static void updateStatusBarBrightness(ThemeMode themeMode) {
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-      statusBarIconBrightness: themeMode == ThemeMode.dark
-          ? Brightness.light // Íconos blancos en tema oscuro
-          : Brightness.dark, // Íconos negros en tema claro
-    ));
-  }
-
   // Método para definir el InputDecorationTheme
-  static InputDecorationTheme _inputDecorationTheme(
-      Color textColor, Color borderColor) {
+  static InputDecorationTheme _inputDecorationTheme({
+    required Color textColor,
+    required Color borderColor,
+  }) {
     return InputDecorationTheme(
       labelStyle: TextStyle(
-          fontFamily: 'Suisse_Intl',
-          fontSize: 11,
-          fontWeight: FontWeight.w400,
-          color: textColor), // Actualización: Color dinámico según el tema
-      floatingLabelStyle: TextStyle(
-        color: Color(
-            0xFF00A0A6), // Color del labelText cuando el campo está enfocado
+        fontFamily: 'Suisse_Intl',
+        fontSize: 11,
+        fontWeight: FontWeight.w400,
+        color: textColor,
+      ),
+      floatingLabelStyle: const TextStyle(
+        color: Color(0xFF00A0A6),
         fontSize: 11,
         fontWeight: FontWeight.w400,
       ),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10.0), // Borde redondeado
+        borderRadius: BorderRadius.circular(10.0),
         borderSide: BorderSide(
-          color: textColor.withOpacity(0.5), // Color del borde
-          width: 1.5, // Grosor del borde
+          color: borderColor.withOpacity(0.5),
+          width: 1.5,
         ),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8.0),
-        borderSide: BorderSide(
-          color: Color(0xFF00A0A6), // Borde de color cuando está enfocado
+        borderSide: const BorderSide(
+          color: Color(0xFF00A0A6),
           width: 2.0,
         ),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8.0),
-        borderSide: BorderSide(
-          color: Colors.red, // Borde rojo en caso de error
+        borderSide: const BorderSide(
+          color: Colors.red,
           width: 1.5,
         ),
       ),
-      contentPadding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0),
+      contentPadding:
+          const EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0),
     );
   }
 }
