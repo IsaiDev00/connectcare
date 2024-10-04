@@ -4,10 +4,10 @@ class PasswordRecovery extends StatefulWidget {
   const PasswordRecovery({super.key});
 
   @override
-  _PasswordRecoveryState createState() => _PasswordRecoveryState();
+  PasswordRecoveryState createState() => PasswordRecoveryState();
 }
 
-class _PasswordRecoveryState extends State<PasswordRecovery> {
+class PasswordRecoveryState extends State<PasswordRecovery> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
 
@@ -17,7 +17,8 @@ class _PasswordRecoveryState extends State<PasswordRecovery> {
       final scaffoldMessenger = ScaffoldMessenger.of(context);
 
       // Mostrar el SnackBar y esperar hasta que desaparezca antes de navegar
-      ScaffoldFeatureController<SnackBar, SnackBarClosedReason> snackBarController = scaffoldMessenger.showSnackBar(
+      ScaffoldFeatureController<SnackBar, SnackBarClosedReason>
+          snackBarController = scaffoldMessenger.showSnackBar(
         const SnackBar(
           content: Text('Password recovery email sent!'),
           duration: Duration(seconds: 2), // Duración del SnackBar

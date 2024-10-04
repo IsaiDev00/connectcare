@@ -101,7 +101,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     onPressed: () {
                       // Navegar a la pantalla de "Forgot Password"
                       Navigator.pushNamed(context, '/forgotPassword');
-                      print('Forgot password pressed');
                     },
                     child: Text(
                       'Forgot password?',

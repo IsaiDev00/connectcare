@@ -26,7 +26,7 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
 
   // Controladores de texto para cada campo
   String? _selectedUserType;
-  final TextEditingController _IDController = TextEditingController();
+  final TextEditingController iDController = TextEditingController();
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNamePaternalController =
       TextEditingController();
@@ -93,7 +93,7 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
 
                 // Campo para el ID
                 TextFormField(
-                  controller: _IDController,
+                  controller: iDController,
                   decoration: const InputDecoration(
                     labelText: 'Staff ID',
                     border: OutlineInputBorder(),
