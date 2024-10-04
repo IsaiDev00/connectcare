@@ -71,7 +71,8 @@ class ChooseRoleScreen extends StatelessWidget {
               children: [
                 TextButton(
                   onPressed: () {
-                    // Acción para navegar a la pantalla de login
+                    Navigator.pushNamed(context, '/loginScreen');
+                    print('animal');
                   },
                   child: Text(
                     'Already have an account? Log in',

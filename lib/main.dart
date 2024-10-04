@@ -1,3 +1,6 @@
+import 'package:connectcare/presentation/screens/auth/login_screen.dart'; //Importar la pantalla de login
+import 'package:connectcare/presentation/screens/auth/password_recovery.dart';
+import 'package:connectcare/presentation/screens/auth/verification_code.dart';
 import 'package:flutter/material.dart';
 import 'presentation/screens/auth/choose_role_screen.dart'; // Importar la pantalla de selección de rol
 import 'presentation/screens/auth/hospital_staff_registration.dart'; // Importar la pantalla de registro del personal hospitalario
@@ -31,6 +34,9 @@ class MyApp extends StatelessWidget {
             TermsAndConditionsScreen(), // Ruta para términos de uso
         '/privacyPolicy': (context) =>
             PrivacyPolicyScreen(), // Ruta para el registro de familiares
+        '/loginScreen': (context) => LoginScreen(), 
+        '/forgotPassword': (context) => PasswordRecovery(), 
+        '/verificationCode': (context) => VerificationCode(), 
       },
     );
   }
