@@ -307,7 +307,7 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                           return;
                         }
                       }
-
+                      Navigator.pushNamed(context, '/mainScreen');
                       // Si todas las validaciones pasan, proceder con el registro
                       scaffoldMessenger.showSnackBar(
                         const SnackBar(

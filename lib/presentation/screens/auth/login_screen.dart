@@ -23,6 +23,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
       // Aquí puedes agregar la lógica para el inicio de sesión
       // Simulando un inicio de sesión exitoso
+      Navigator.pushNamed(context, '/mainScreen');
       scaffoldMessenger.showSnackBar(
         const SnackBar(
           content: Text('Login successful'),
