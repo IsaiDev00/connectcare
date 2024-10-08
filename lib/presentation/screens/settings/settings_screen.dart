@@ -26,7 +26,7 @@ class _SettingsScreen extends State<SettingsScreen> {
           children: <Widget>[
             OutlinedButton(
               onPressed: () {
-                Navigator.pushNamed(context, '/editProfile');
+                Navigator.pushNamed(context, '/editProfileScreen');
               },
               style: OutlinedButton.styleFrom(
                 foregroundColor: Colors.black, backgroundColor: Colors.white, // Fondo blanco

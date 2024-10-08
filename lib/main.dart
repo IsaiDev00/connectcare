@@ -5,6 +5,7 @@ import 'package:connectcare/presentation/screens/hospital_reg/enter_hospital_scr
 import 'package:connectcare/presentation/screens/hospital_reg/register_hospital_screen.dart';
 import 'package:connectcare/presentation/screens/principal/main_screen.dart';
 import 'package:connectcare/presentation/screens/principal/profile_screen.dart';
+import 'package:connectcare/presentation/screens/settings/edit_profile_screen.dart';
 import 'package:connectcare/presentation/screens/settings/settings_screen.dart';
 import 'package:flutter/material.dart';
 import 'presentation/screens/auth/choose_role_screen.dart'; // Importar la pantalla de selección de rol
@@ -47,6 +48,7 @@ class MyApp extends StatelessWidget {
         '/registerHospital': (context) => RegisterHospitalScreen(),
         '/enterHospital': (context) => EnterHospitalScreen(),
         '/mainScreen': (context) => MainScreen(),
+        '/editProfileScreen': (context) => EditProfileScreen(),
       },
     );
   }
