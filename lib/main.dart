@@ -3,6 +3,7 @@ import 'package:connectcare/presentation/screens/auth/password_recovery.dart';
 import 'package:connectcare/presentation/screens/auth/verification_code.dart';
 import 'package:connectcare/presentation/screens/hospital_reg/enter_hospital_screen.dart';
 import 'package:connectcare/presentation/screens/hospital_reg/register_hospital_screen.dart';
+import 'package:connectcare/presentation/screens/hospital_reg/submit_clues_screen.dart';
 import 'package:connectcare/presentation/screens/principal/main_screen.dart';
 import 'package:connectcare/presentation/screens/principal/profile_screen.dart';
 import 'package:connectcare/presentation/screens/settings/edit_profile_screen.dart';
@@ -49,6 +50,7 @@ class MyApp extends StatelessWidget {
         '/enterHospital': (context) => EnterHospitalScreen(),
         '/mainScreen': (context) => MainScreen(),
         '/editProfileScreen': (context) => EditProfileScreen(),
+        '/submitCluesScreen': (context) => SubmitCluesScreen(),
       },
     );
   }
