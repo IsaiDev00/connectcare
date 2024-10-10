@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:connectcare/data/repositories/familiar_repository.dart';
+import 'package:connectcare/data/providers/database_helper.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class FamilyRegistration extends StatefulWidget {
@@ -25,6 +27,8 @@ class FamilyRegistrationState extends State<FamilyRegistration> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
+
+  final FamiliarRepository _familiarRepository = FamiliarRepository();
 
   // Función para validar si el email ya está en uso (RQNF4)
   Future<bool> _isEmailInUse(String email) async {
@@ -207,6 +211,7 @@ class FamilyRegistrationState extends State<FamilyRegistration> {
                 const SizedBox(height: 30),
 
                 // Botón para continuar
+                // Botón para continuar
                 ElevatedButton(
                   onPressed: () async {
                     if (_formKey.currentState!.validate()) {
@@ -247,16 +252,45 @@ class FamilyRegistrationState extends State<FamilyRegistration> {
                         }
                       }
 
-                      // Si todas las validaciones pasan, proceder con el registro
-                      scaffoldMessenger.showSnackBar(
-                        const SnackBar(
-                          content: Text('Registration successful'),
-                        ),
-                      );
+                      // Si todas las validaciones pasan, proceder con el registro en la base de datos
+                      try {
+                        await _familiarRepository.insert({
+                          'nombre': _firstNameController.text,
+                          'apellido_paterno': _lastNamePaternalController.text,
+                          'apellido_materno': _lastNameMaternalController.text,
+                          'correo_electronico':
+                              isEmailMode ? _emailOrPhoneController.text : null,
+                          'telefono':
+                              isEmailMode ? null : _emailOrPhoneController.text,
+                          'contrasena': _passwordController.text,
+                          'tipo':
+                              'familiar', // Suponiendo que el tipo es "familiar"
+                        });
+                        try {
+                          var connection = await DatabaseHelper.getConnection();
+                          print("Conexión exitosa a la base de datos");
+                          await connection.close();
+                        } catch (e) {
+                          print("Error de conexión: $e");
+                        }
+
+                        scaffoldMessenger.showSnackBar(
+                          const SnackBar(
+                            content: Text('Registration successful'),
+                          ),
+                        );
+                      } catch (e) {
+                        scaffoldMessenger.showSnackBar(
+                          SnackBar(
+                            content: Text('Registration failed: $e'),
+                          ),
+                        );
+                      }
                     }
                   },
                   child: const Text('Continue'),
                 ),
+
                 const SizedBox(height: 20),
 
                 // Texto "or"

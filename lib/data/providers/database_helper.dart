@@ -10,7 +10,7 @@ class DatabaseHelper {
       'F9)qnFKTmujNz|=N'; // Contraseña del usuario de la base de datos
   static final _dbName = 'connectcare-db'; // Nombre de tu base de datos
 
-  // Método estático para obtener una conexión
+  // Método estático para obtener una conexión con SSL
   static Future<MySqlConnection> getConnection() async {
     var settings = ConnectionSettings(
       host: _host,
@@ -19,6 +19,7 @@ class DatabaseHelper {
       password: _password,
       db: _dbName,
     );
+
     return await MySqlConnection.connect(settings);
   }
 
