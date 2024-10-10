@@ -7,7 +7,7 @@ class FamiliarRepository {
   // Obtener todos los registros de la tabla Familiar
   Future<List<Map<String, dynamic>>> getAll() async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
-    var results = await conn.query('SELECT * FROM Familiar');
+    var results = await conn.query('SELECT * FROM familiar');
 
     List<Map<String, dynamic>> familiares = [];
     for (var row in results) {
@@ -31,7 +31,7 @@ class FamiliarRepository {
   Future<Map<String, dynamic>?> getById(int id) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     var results =
-        await conn.query('SELECT * FROM Familiar WHERE id_familiar = ?', [id]);
+        await conn.query('SELECT * fROM Familiar WHERE id_familiar = ?', [id]);
 
     if (results.isNotEmpty) {
       var row = results.first;
@@ -56,7 +56,7 @@ class FamiliarRepository {
   Future<void> insert(Map<String, dynamic> familiar) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'INSERT INTO Familiar (nombre, apellido_paterno, apellido_materno, correo_electronico, contrasena, telefono, tipo) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      'INSERT INTO familiar (nombre, apellido_paterno, apellido_materno, correo_electronico, contrasena, telefono, tipo) VALUES (?, ?, ?, ?, ?, ?, ?)',
       [
         familiar['nombre'],
         familiar['apellido_paterno'],
@@ -74,7 +74,7 @@ class FamiliarRepository {
   Future<void> update(int id, Map<String, dynamic> familiar) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'UPDATE Familiar SET nombre = ?, apellido_paterno = ?, apellido_materno = ?, correo_electronico = ?, contrasena = ?, telefono = ?, tipo = ? WHERE id_familiar = ?',
+      'UPDATE familiar SET nombre = ?, apellido_paterno = ?, apellido_materno = ?, correo_electronico = ?, contrasena = ?, telefono = ?, tipo = ? WHERE id_familiar = ?',
       [
         familiar['nombre'],
         familiar['apellido_paterno'],
@@ -92,7 +92,7 @@ class FamiliarRepository {
   // Eliminar un registro en la tabla Familiar
   Future<void> delete(int id) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
-    await conn.query('DELETE FROM Familiar WHERE id_familiar = ?', [id]);
+    await conn.query('DELETE FROM familiar WHERE id_familiar = ?', [id]);
     await DatabaseHelper.closeConnection(conn);
   }
 }

@@ -32,6 +32,9 @@ flutter:
   assets:
     - assets/config/connectcareproject-6102d762b62b.json
     - assets/images/
+    - assets/certs/server-ca.pem
+    - assets/certs/client-cert.pem
+    - assets/certs/client-key.pem
 
   fonts:
     - family: Suisse_Intl
