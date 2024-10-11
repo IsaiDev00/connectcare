@@ -62,18 +62,16 @@ class PersonalRepository {
   Future<void> insert(Map<String, dynamic> personal) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'INSERT INTO personal (nombre, apellido_paterno, apellido_materno, tipo, correo_electronico, contrasena, telefono, estatus, clues) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      'INSERT INTO personal (id_personal, nombre, apellido_paterno, apellido_materno, tipo, correo_electronico, contrasena, telefono) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
       [
+        personal['id_personal'],
         personal['nombre'],
         personal['apellido_paterno'],
         personal['apellido_materno'],
         personal['tipo'],
         personal['correo_electronico'],
-        personal['contrasena'],
         personal['telefono'],
-        personal['estatus'],
-        personal['asignado'],
-        personal['clues'],
+        personal['contrasena'],
       ],
     );
     await DatabaseHelper.closeConnection(conn);
