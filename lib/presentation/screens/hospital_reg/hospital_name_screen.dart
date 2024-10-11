@@ -9,6 +9,17 @@ class HospitalNameScreen extends StatefulWidget {
 
 class _HospitalNameScreen extends State<HospitalNameScreen> {
   final TextEditingController _nameController = TextEditingController();
+  bool isButtonEnabled = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController.addListener(() {
+      setState(() {
+        isButtonEnabled = _nameController.text.isNotEmpty;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,9 +49,9 @@ class _HospitalNameScreen extends State<HospitalNameScreen> {
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: _nameController.text.isNotEmpty
+              onPressed: isButtonEnabled
                   ? () {
-                      // Lógica para ir a la siguiente pantalla
+                      Navigator.pushNamed(context, '/adminHomeScreen');
                     }
                   : null,
               child: const Text('Siguiente'),

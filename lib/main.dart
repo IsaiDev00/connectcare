@@ -1,3 +1,8 @@
+import 'package:connectcare/presentation/screens/admin/admin_home_screen.dart';
+import 'package:connectcare/presentation/screens/admin/hospital_features_screen.dart';
+import 'package:connectcare/presentation/screens/admin/manage_procedure_screen.dart';
+import 'package:connectcare/presentation/screens/admin/manage_room_screen.dart';
+import 'package:connectcare/presentation/screens/admin/manage_service_screen.dart';
 import 'package:connectcare/presentation/screens/auth/login_screen.dart'; //Importar la pantalla de login
 import 'package:connectcare/presentation/screens/auth/password_recovery.dart';
 import 'package:connectcare/presentation/screens/auth/verification_code.dart';
@@ -57,6 +62,11 @@ class MyApp extends StatelessWidget {
         '/cluesErrScreen': (context) => CluesErrScreen(),
         '/verificationCodeScreen': (context) => VerificationCodeScreen(),
         '/hospitalNameScreen': (context) => HospitalNameScreen(),
+        '/adminHomeScreen': (context) => AdminHomeScreen(),
+        '/manageRoomScreen': (context) => ManageRoomScreen(),
+        '/manageProcedureScreen': (context) => ManageProcedureScreen(),
+        '/manageServiceScreen': (context) => ManageServiceScreen(),
+        '/hospitalFeaturesScreen': (context) => HospitalFeaturesScreen(),
       },
     );
   }
