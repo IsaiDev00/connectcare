@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:connectcare/data/repositories/table/personal_repository.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:connectcare/services/shared_preferences_service.dart';
 
 class HospitalStaffRegistration extends StatefulWidget {
   const HospitalStaffRegistration({super.key});
@@ -40,23 +41,29 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
       TextEditingController();
 
   final PersonalRepository _personalRepository = PersonalRepository();
+  final SharedPreferencesService _sharedPreferencesService =
+      SharedPreferencesService();
 
   // Función para validar si el email ya está en uso (RQNF4)
   Future<bool> _isEmailInUse(String email) async {
-    // Aquí iría la lógica para verificar si el email está en uso
-    // Por ahora, simulamos que el email "test@example.com" ya está en uso
-    await Future.delayed(
-        const Duration(seconds: 1)); // Simular una llamada a la API
-    return email == 'test@example.com';
+    try {
+      final result = await _personalRepository.getByEmail(email);
+      return result != null;
+    } catch (e) {
+      debugPrint("Error al verificar el email: $e");
+      return false;
+    }
   }
 
   // Función para validar si el teléfono ya está en uso (RQNF5)
   Future<bool> _isPhoneInUse(String phone) async {
-    // Aquí iría la lógica para verificar si el teléfono está en uso
-    // Por ahora, simulamos que el teléfono "1234567890" ya está en uso
-    await Future.delayed(
-        const Duration(seconds: 1)); // Simular una llamada a la API
-    return phone == '1234567890';
+    try {
+      final result = await _personalRepository.getByPhone(phone);
+      return result != null;
+    } catch (e) {
+      debugPrint("Error al verificar el teléfono: $e");
+      return false;
+    }
   }
 
   @override
@@ -219,7 +226,7 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                       }
                     } else {
                       // RQNF3: Validar número de teléfono de 10 dígitos numéricos
-                      final phoneRegex = RegExp(r'^\d{10}$');
+                      final phoneRegex = RegExp(r'^\d{10}\$');
                       if (!phoneRegex.hasMatch(value)) {
                         return 'Please enter a valid 10-digit phone number';
                       }
@@ -244,7 +251,7 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                     }
                     // RQNF6: Validar que la contraseña cumpla con los requisitos
                     final passwordRegex = RegExp(
-                        r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[¡@#\$%^&*~`+\-/<>,.]).{8,}$');
+                        r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\u00a1@#\$%^&*~`+\-/<>,.]).{8,}\$');
                     if (!passwordRegex.hasMatch(value)) {
                       return 'Password must be at least 8 characters and include uppercase, lowercase, numbers, and symbols';
                     }
@@ -326,6 +333,11 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                               isEmailMode ? null : _emailOrPhoneController.text,
                           'contrasena': _passwordController.text,
                         });
+
+                        // Guardar el ID del usuario de forma local
+                        await _sharedPreferencesService
+                            .saveUserId(idController.text);
+
                         Navigator.pushNamed(context, '/mainScreen');
                         scaffoldMessenger.showSnackBar(
                           const SnackBar(

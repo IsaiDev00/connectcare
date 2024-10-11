@@ -70,8 +70,8 @@ class PersonalRepository {
         personal['apellido_materno'],
         personal['tipo'],
         personal['correo_electronico'],
-        personal['telefono'],
         personal['contrasena'],
+        personal['telefono'],
       ],
     );
     await DatabaseHelper.closeConnection(conn);
@@ -105,5 +105,87 @@ class PersonalRepository {
     await conn
         .query('DELETE FROM personal WHERE id_personal = ?', [idPersonal]);
     await DatabaseHelper.closeConnection(conn);
+  }
+
+  // Obtener un registro por correo electrónico de la tabla Personal
+  Future<Map<String, dynamic>?> getByEmail(String email) async {
+    MySqlConnection conn = await DatabaseHelper.getConnection();
+    var results = await conn
+        .query('SELECT * FROM personal WHERE correo_electronico = ?', [email]);
+
+    if (results.isNotEmpty) {
+      var row = results.first;
+      await DatabaseHelper.closeConnection(conn);
+      return {
+        'id_personal': row['id_personal'],
+        'nombre': row['nombre'],
+        'apellido_paterno': row['apellido_paterno'],
+        'apellido_materno': row['apellido_materno'],
+        'tipo': row['tipo'],
+        'correo_electronico': row['correo_electronico'],
+        'contrasena': row['contrasena'],
+        'telefono': row['telefono'],
+        'estatus': row['estatus'],
+        'asignado': row['asignado'],
+        'clues': row['clues'],
+      };
+    }
+
+    await DatabaseHelper.closeConnection(conn);
+    return null;
+  }
+
+  // Obtener un registro por teléfono de la tabla Personal
+  Future<Map<String, dynamic>?> getByPhone(String phone) async {
+    MySqlConnection conn = await DatabaseHelper.getConnection();
+    var results =
+        await conn.query('SELECT * FROM personal WHERE telefono = ?', [phone]);
+
+    if (results.isNotEmpty) {
+      var row = results.first;
+      await DatabaseHelper.closeConnection(conn);
+      return {
+        'id_personal': row['id_personal'],
+        'nombre': row['nombre'],
+        'apellido_paterno': row['apellido_paterno'],
+        'apellido_materno': row['apellido_materno'],
+        'tipo': row['tipo'],
+        'correo_electronico': row['correo_electronico'],
+        'contrasena': row['contrasena'],
+        'telefono': row['telefono'],
+        'estatus': row['estatus'],
+        'asignado': row['asignado'],
+        'clues': row['clues'],
+      };
+    }
+
+    await DatabaseHelper.closeConnection(conn);
+    return null;
+  }
+
+  Future<Map<String, dynamic>?> getByEmailOrPhone(String emailOrPhone) async {
+    MySqlConnection conn = await DatabaseHelper.getConnection();
+    var results = await conn.query(
+      'SELECT * FROM personal WHERE correo_electronico = ? OR telefono = ?',
+      [emailOrPhone, emailOrPhone],
+    );
+
+    if (results.isNotEmpty) {
+      var row = results.first;
+      await DatabaseHelper.closeConnection(conn);
+      return {
+        'id_personal': row['id_personal'],
+        'nombre': row['nombre'],
+        'apellido_paterno': row['apellido_paterno'],
+        'apellido_materno': row['apellido_materno'],
+        'correo_electronico': row['correo_electronico'],
+        'contrasena': row['contrasena'],
+        'telefono': row['telefono'],
+        'tipo': row['tipo'],
+      };
+    }
+
+    await DatabaseHelper.closeConnection(conn);
+    return null;
   }
 }

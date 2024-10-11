@@ -1,34 +1,74 @@
 import 'package:flutter/material.dart';
 import 'package:connectcare/presentation/widgets/custom_button.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:connectcare/data/repositories/table/personal_repository.dart';
+import 'package:connectcare/data/repositories/table/familiar_repository.dart';
+import 'package:connectcare/services/shared_preferences_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
-  _LoginScreenState createState() => _LoginScreenState();
+  LoginScreenState createState() => LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _emailOrPhoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+
+  final PersonalRepository _personalRepository = PersonalRepository();
+  final FamiliarRepository _familiarRepository = FamiliarRepository();
+  final SharedPreferencesService _sharedPreferencesService =
+      SharedPreferencesService();
 
   // Función para iniciar sesión
   void _login() async {
     if (_formKey.currentState!.validate()) {
       final scaffoldMessenger = ScaffoldMessenger.of(context);
 
-      // Aquí puedes agregar la lógica para el inicio de sesión
-      // Simulando un inicio de sesión exitoso
-      Navigator.pushNamed(context, '/mainScreen');
-      scaffoldMessenger.showSnackBar(
-        const SnackBar(
-          content: Text('Login successful'),
-        ),
-      );
+      try {
+        final String emailOrPhone = _emailOrPhoneController.text.trim();
+        final String password = _passwordController.text.trim();
+
+        // Verificar credenciales en la tabla `personal`
+        var personalUser =
+            await _personalRepository.getByEmailOrPhone(emailOrPhone);
+        if (personalUser != null && personalUser['contrasena'] == password) {
+          // Guardar el ID del usuario de forma local
+          await _sharedPreferencesService
+              .saveUserId(personalUser['id_personal']);
+          Navigator.pushNamed(context, '/mainScreen');
+          scaffoldMessenger.showSnackBar(
+            const SnackBar(content: Text('Login successful')),
+          );
+          return;
+        }
+
+        // Verificar credenciales en la tabla `familiar`
+        var familiarUser =
+            await _familiarRepository.getByEmailOrPhone(emailOrPhone);
+        if (familiarUser != null && familiarUser['contrasena'] == password) {
+          // Guardar el ID del usuario de forma local
+          await _sharedPreferencesService
+              .saveUserId(familiarUser['id_familiar']);
+          Navigator.pushNamed(context, '/mainScreen');
+          scaffoldMessenger.showSnackBar(
+            const SnackBar(content: Text('Login successful')),
+          );
+          return;
+        }
+
+        // Si no se encontró ningún usuario
+        scaffoldMessenger.showSnackBar(
+          const SnackBar(content: Text('Invalid email/phone or password')),
+        );
+      } catch (e) {
+        scaffoldMessenger.showSnackBar(
+          SnackBar(content: Text('Login failed: $e')),
+        );
+      }
     }
   }
 
@@ -44,29 +84,22 @@ class _LoginScreenState extends State<LoginScreen> {
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
           child: Form(
-            key: _formKey, // Añadimos el GlobalKey al Form
+            key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
                 const SizedBox(height: 30),
 
-                // Campo de email
+                // Campo de email o número de teléfono
                 TextFormField(
-                  controller: _emailController,
+                  controller: _emailOrPhoneController,
                   decoration: const InputDecoration(
-                    labelText: 'Email',
+                    labelText: 'Email or Phone',
                     border: OutlineInputBorder(),
                   ),
-                  keyboardType: TextInputType.emailAddress,
                   validator: (value) {
-                    // Validar que el campo no esté vacío
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your email';
-                    }
-                    // Validar formato de email
-                    final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
-                    if (!emailRegex.hasMatch(value)) {
-                      return 'Please enter a valid email address';
+                      return 'Please enter your email or phone number';
                     }
                     return null;
                   },
@@ -82,11 +115,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   obscureText: true,
                   validator: (value) {
-                    // Validar que el campo no esté vacío
                     if (value == null || value.isEmpty) {
                       return 'Please enter your password';
                     }
-                    // Validar que la contraseña tenga al menos 8 caracteres
                     if (value.length < 8) {
                       return 'Password must be at least 8 characters long';
                     }
@@ -100,7 +131,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   alignment: Alignment.centerRight,
                   child: TextButton(
                     onPressed: () {
-                      // Navegar a la pantalla de "Forgot Password"
                       Navigator.pushNamed(context, '/forgotPassword');
                     },
                     child: Text(

@@ -52,10 +52,10 @@ class FamiliarRepository {
     return null;
   }
 
-  // Insertar un nuevo registro en la tabla Familiar
-  Future<void> insert(Map<String, dynamic> familiar) async {
+// Insertar un nuevo registro en la tabla Familiar y retornar el ID generado
+  Future<int> insert(Map<String, dynamic> familiar) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
-    await conn.query(
+    var result = await conn.query(
       'INSERT INTO familiar (nombre, apellido_paterno, apellido_materno, correo_electronico, contrasena, telefono, tipo) VALUES (?, ?, ?, ?, ?, ?, ?)',
       [
         familiar['nombre'],
@@ -68,6 +68,9 @@ class FamiliarRepository {
       ],
     );
     await DatabaseHelper.closeConnection(conn);
+
+    // Retornar el ID generado
+    return result.insertId!;
   }
 
   // Actualizar un registro en la tabla Familiar
@@ -94,5 +97,65 @@ class FamiliarRepository {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query('DELETE FROM familiar WHERE id_familiar = ?', [id]);
     await DatabaseHelper.closeConnection(conn);
+  }
+
+  // Función para verificar si un email ya está en uso
+  Future<bool> isEmailInUse(String email) async {
+    MySqlConnection conn = await DatabaseHelper.getConnection();
+    try {
+      var results = await conn.query(
+        'SELECT * FROM familiar WHERE correo_electronico = ?',
+        [email],
+      );
+      return results.isNotEmpty;
+    } catch (e) {
+      return false;
+    } finally {
+      await DatabaseHelper.closeConnection(conn);
+    }
+  }
+
+  // Función para verificar si un teléfono ya está en uso
+  Future<bool> isPhoneInUse(String phone) async {
+    MySqlConnection conn = await DatabaseHelper.getConnection();
+    try {
+      var results = await conn.query(
+        'SELECT * FROM familiar WHERE telefono = ?',
+        [phone],
+      );
+      return results.isNotEmpty;
+    } catch (e) {
+      return false;
+    } finally {
+      await DatabaseHelper.closeConnection(conn);
+    }
+  }
+
+  // Obtener un registro por email o teléfono de la tabla Familiar
+  Future<Map<String, dynamic>?> getByEmailOrPhone(String emailOrPhone) async {
+    MySqlConnection conn = await DatabaseHelper.getConnection();
+    try {
+      var results = await conn.query(
+        'SELECT * FROM familiar WHERE correo_electronico = ? OR telefono = ?',
+        [emailOrPhone, emailOrPhone],
+      );
+
+      if (results.isNotEmpty) {
+        var row = results.first;
+        return {
+          'id_familiar': row['id_familiar'],
+          'nombre': row['nombre'],
+          'apellido_paterno': row['apellido_paterno'],
+          'apellido_materno': row['apellido_materno'],
+          'correo_electronico': row['correo_electronico'],
+          'contrasena': row['contrasena'],
+          'telefono': row['telefono'],
+          'tipo': row['tipo'],
+        };
+      }
+    } finally {
+      await DatabaseHelper.closeConnection(conn);
+    }
+    return null;
   }
 }
