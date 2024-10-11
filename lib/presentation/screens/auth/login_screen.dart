@@ -1,3 +1,4 @@
+// Correcciones para el archivo login_screen.dart
 import 'package:flutter/material.dart';
 import 'package:connectcare/presentation/widgets/custom_button.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -35,10 +36,12 @@ class LoginScreenState extends State<LoginScreen> {
         // Verificar credenciales en la tabla `personal`
         var personalUser =
             await _personalRepository.getByEmailOrPhone(emailOrPhone);
-        if (personalUser != null && personalUser['contrasena'] == password) {
+        if (personalUser != null &&
+            personalUser['contrasena'].toString() == password) {
           // Guardar el ID del usuario de forma local
           await _sharedPreferencesService
-              .saveUserId(personalUser['id_personal']);
+              .saveUserId(personalUser['id_personal'].toString());
+          if (!mounted) return;
           Navigator.pushNamed(context, '/mainScreen');
           scaffoldMessenger.showSnackBar(
             const SnackBar(content: Text('Login successful')),
@@ -49,10 +52,12 @@ class LoginScreenState extends State<LoginScreen> {
         // Verificar credenciales en la tabla `familiar`
         var familiarUser =
             await _familiarRepository.getByEmailOrPhone(emailOrPhone);
-        if (familiarUser != null && familiarUser['contrasena'] == password) {
+        if (familiarUser != null &&
+            familiarUser['contrasena'].toString() == password) {
           // Guardar el ID del usuario de forma local
           await _sharedPreferencesService
-              .saveUserId(familiarUser['id_familiar']);
+              .saveUserId(familiarUser['id_familiar'].toString());
+          if (!mounted) return;
           Navigator.pushNamed(context, '/mainScreen');
           scaffoldMessenger.showSnackBar(
             const SnackBar(content: Text('Login successful')),

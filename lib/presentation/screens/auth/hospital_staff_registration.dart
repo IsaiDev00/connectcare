@@ -226,7 +226,7 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                       }
                     } else {
                       // RQNF3: Validar número de teléfono de 10 dígitos numéricos
-                      final phoneRegex = RegExp(r'^\d{10}\$');
+                      final phoneRegex = RegExp(r'^\d{10}$');
                       if (!phoneRegex.hasMatch(value)) {
                         return 'Please enter a valid 10-digit phone number';
                       }
@@ -251,7 +251,7 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                     }
                     // RQNF6: Validar que la contraseña cumpla con los requisitos
                     final passwordRegex = RegExp(
-                        r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\u00a1@#\$%^&*~`+\-/<>,.]).{8,}\$');
+                        r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\u00a1@#\\$%^&*~`+\-/<>,.]).{8,}$');
                     if (!passwordRegex.hasMatch(value)) {
                       return 'Password must be at least 8 characters and include uppercase, lowercase, numbers, and symbols';
                     }
