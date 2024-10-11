@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:connectcare/data/repositories/familiar_repository.dart';
-import 'package:connectcare/data/providers/database_helper.dart';
+import 'package:connectcare/data/repositories/table/familiar_repository.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class FamilyRegistration extends StatefulWidget {
@@ -211,7 +210,6 @@ class FamilyRegistrationState extends State<FamilyRegistration> {
                 const SizedBox(height: 30),
 
                 // Botón para continuar
-                // Botón para continuar
                 ElevatedButton(
                   onPressed: () async {
                     if (_formKey.currentState!.validate()) {
@@ -266,13 +264,6 @@ class FamilyRegistrationState extends State<FamilyRegistration> {
                           'tipo':
                               'familiar', // Suponiendo que el tipo es "familiar"
                         });
-                        try {
-                          var connection = await DatabaseHelper.getConnection();
-                          print("Conexión exitosa a la base de datos");
-                          await connection.close();
-                        } catch (e) {
-                          print("Error de conexión: $e");
-                        }
 
                         scaffoldMessenger.showSnackBar(
                           const SnackBar(
