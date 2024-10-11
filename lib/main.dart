@@ -1,9 +1,12 @@
 import 'package:connectcare/presentation/screens/auth/login_screen.dart'; //Importar la pantalla de login
 import 'package:connectcare/presentation/screens/auth/password_recovery.dart';
 import 'package:connectcare/presentation/screens/auth/verification_code.dart';
+import 'package:connectcare/presentation/screens/hospital_reg/clues_err_screen.dart';
 import 'package:connectcare/presentation/screens/hospital_reg/enter_hospital_screen.dart';
+import 'package:connectcare/presentation/screens/hospital_reg/hospital_name_screen.dart';
 import 'package:connectcare/presentation/screens/hospital_reg/register_hospital_screen.dart';
 import 'package:connectcare/presentation/screens/hospital_reg/submit_clues_screen.dart';
+import 'package:connectcare/presentation/screens/hospital_reg/verification_code_screen.dart';
 import 'package:connectcare/presentation/screens/principal/main_screen.dart';
 import 'package:connectcare/presentation/screens/principal/profile_screen.dart';
 import 'package:connectcare/presentation/screens/settings/edit_profile_screen.dart';
@@ -31,7 +34,7 @@ class MyApp extends StatelessWidget {
       darkTheme: AppTheme.darkTheme(), // Tema oscuro
       themeMode:
           ThemeMode.system, // Cambia según la configuración del dispositivo
-      initialRoute: '/', // Ruta inicial
+      initialRoute: '/submitCluesScreen', // Ruta inicial
       routes: {
         '/': (context) => ChooseRoleScreen(),
         '/hospitalStaffRegistration': (context) =>
@@ -51,6 +54,9 @@ class MyApp extends StatelessWidget {
         '/mainScreen': (context) => MainScreen(),
         '/editProfileScreen': (context) => EditProfileScreen(),
         '/submitCluesScreen': (context) => SubmitCluesScreen(),
+        '/cluesErrScreen': (context) => CluesErrScreen(),
+        '/verificationCodeScreen': (context) => VerificationCodeScreen(),
+        '/hospitalNameScreen': (context) => HospitalNameScreen(),
       },
     );
   }
