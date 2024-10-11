@@ -8,6 +8,7 @@ class Personal {
   final String contrasena;
   final String telefono;
   final String estatus;
+  final String asignado;
   final int clues;
 
   Personal({
@@ -20,6 +21,7 @@ class Personal {
     required this.contrasena,
     required this.telefono,
     required this.estatus,
+    required this.asignado,
     required this.clues,
   });
 
@@ -34,6 +36,7 @@ class Personal {
       contrasena: map['contrasena'],
       telefono: map['telefono'],
       estatus: map['estatus'],
+      asignado: map['asignado'],
       clues: map['clues'],
     );
   }
@@ -49,6 +52,7 @@ class Personal {
       'contrasena': contrasena,
       'telefono': telefono,
       'estatus': estatus,
+      'asignado': asignado,
       'clues': clues,
     };
   }

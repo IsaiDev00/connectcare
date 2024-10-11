@@ -111,6 +111,7 @@ CREATE TABLE personal (
     contrasena VARCHAR(255),
     telefono VARCHAR(20),
     estatus VARCHAR(50),
+    asignado CHAR(1),
     clues BIGINT,
     FOREIGN KEY (clues) REFERENCES Hospital(clues)
 );
@@ -193,16 +194,6 @@ CREATE TABLE medicamento (
     FOREIGN KEY (id_administrador) REFERENCES Administrador(id_administrador)
 );
 
-CREATE TABLE personal_no_asignado (
-    id_personal_no_asignado BIGINT AUTO_INCREMENT PRIMARY KEY,
-    nombre VARCHAR(255),
-    apellido_paterno VARCHAR(255),
-    apellido_materno VARCHAR(255),
-    correo_electronico VARCHAR(255),
-    tipo VARCHAR(50),
-    telefono VARCHAR(20)
-);
-
 CREATE TABLE solicitud_a_hospital (
     id_solicitud_a_hospital BIGINT AUTO_INCREMENT PRIMARY KEY,
     fecha DATE,
@@ -210,7 +201,7 @@ CREATE TABLE solicitud_a_hospital (
     clues BIGINT,
     id_personal_no_asignado BIGINT,
     FOREIGN KEY (clues) REFERENCES Hospital(clues),
-    FOREIGN KEY (id_personal_no_asignado) REFERENCES Personal_No_Asignado(id_personal_no_asignado)
+    FOREIGN KEY (id_personal) REFERENCES Personal_No_Asignado(id_personal)
 );
 
 CREATE TABLE movimiento (

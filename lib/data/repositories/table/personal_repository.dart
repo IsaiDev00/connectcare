@@ -21,6 +21,7 @@ class PersonalRepository {
         'contrasena': row['contrasena'],
         'telefono': row['telefono'],
         'estatus': row['estatus'],
+        'asignado': row['asignado'],
         'clues': row['clues'],
       });
     }
@@ -48,6 +49,7 @@ class PersonalRepository {
         'contrasena': row['contrasena'],
         'telefono': row['telefono'],
         'estatus': row['estatus'],
+        'asignado': row['asignado'],
         'clues': row['clues'],
       };
     }
@@ -70,6 +72,7 @@ class PersonalRepository {
         personal['contrasena'],
         personal['telefono'],
         personal['estatus'],
+        personal['asignado'],
         personal['clues'],
       ],
     );
@@ -90,6 +93,7 @@ class PersonalRepository {
         personal['contrasena'],
         personal['telefono'],
         personal['estatus'],
+        personal['asignado'],
         personal['clues'],
         idPersonal,
       ],

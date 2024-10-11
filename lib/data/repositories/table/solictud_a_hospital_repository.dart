@@ -16,7 +16,7 @@ class SolicitudAHospitalRepository {
         'fecha': row['fecha'],
         'peticion': row['peticion'],
         'clues': row['clues'],
-        'id_personal_no_asignado': row['id_personal_no_asignado'],
+        'id_personal': row['id_personal'],
       });
     }
 
@@ -39,7 +39,7 @@ class SolicitudAHospitalRepository {
         'fecha': row['fecha'],
         'peticion': row['peticion'],
         'clues': row['clues'],
-        'id_personal_no_asignado': row['id_personal_no_asignado'],
+        'id_personal': row['id_personal'],
       };
     }
 
@@ -51,12 +51,12 @@ class SolicitudAHospitalRepository {
   Future<void> insert(Map<String, dynamic> solicitudAHospital) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'INSERT INTO solicitud_a_hospital (fecha, peticion, clues, id_personal_no_asignado) VALUES (?, ?, ?, ?)',
+      'INSERT INTO solicitud_a_hospital (fecha, peticion, clues, id_personal) VALUES (?, ?, ?, ?)',
       [
         solicitudAHospital['fecha'],
         solicitudAHospital['peticion'],
         solicitudAHospital['clues'],
-        solicitudAHospital['id_personal_no_asignado'],
+        solicitudAHospital['id_personal'],
       ],
     );
     await DatabaseHelper.closeConnection(conn);
@@ -67,12 +67,12 @@ class SolicitudAHospitalRepository {
       int idSolicitudAHospital, Map<String, dynamic> solicitudAHospital) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'UPDATE solicitud_a_hospital SET fecha = ?, peticion = ?, clues = ?, id_personal_no_asignado = ? WHERE id_solicitud_a_hospital = ?',
+      'UPDATE solicitud_a_hospital SET fecha = ?, peticion = ?, clues = ?, id_personal = ? WHERE id_solicitud_a_hospital = ?',
       [
         solicitudAHospital['fecha'],
         solicitudAHospital['peticion'],
         solicitudAHospital['clues'],
-        solicitudAHospital['id_personal_no_asignado'],
+        solicitudAHospital['id_personal'],
         idSolicitudAHospital,
       ],
     );
