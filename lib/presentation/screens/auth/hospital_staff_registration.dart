@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:connectcare/data/repositories/table/personal_repository.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class HospitalStaffRegistration extends StatefulWidget {
@@ -12,11 +13,12 @@ class HospitalStaffRegistration extends StatefulWidget {
 
 class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
   final List<String> userTypes = [
+    'Administrador',
     'Médico',
-    'Enfermería',
-    'Trabajo Social',
+    'Enfermero',
+    'Trabajador social',
     'Camillero',
-    'RH'
+    'Recursos humanos'
   ];
 
   final _formKey = GlobalKey<FormState>();
@@ -26,7 +28,7 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
 
   // Controladores de texto para cada campo
   String? _selectedUserType;
-  final TextEditingController iDController = TextEditingController();
+  final TextEditingController idController = TextEditingController();
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNamePaternalController =
       TextEditingController();
@@ -36,6 +38,8 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
+
+  final PersonalRepository _personalRepository = PersonalRepository();
 
   // Función para validar si el email ya está en uso (RQNF4)
   Future<bool> _isEmailInUse(String email) async {
@@ -93,7 +97,7 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
 
                 // Campo para el ID
                 TextFormField(
-                  controller: iDController,
+                  controller: idController,
                   decoration: const InputDecoration(
                     labelText: 'Staff ID',
                     border: OutlineInputBorder(),
@@ -307,13 +311,34 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                           return;
                         }
                       }
-                      Navigator.pushNamed(context, '/mainScreen');
+
                       // Si todas las validaciones pasan, proceder con el registro
-                      scaffoldMessenger.showSnackBar(
-                        const SnackBar(
-                          content: Text('Registration successful'),
-                        ),
-                      );
+                      try {
+                        await _personalRepository.insert({
+                          'id_personal': idController.text,
+                          'nombre': _firstNameController.text,
+                          'apellido_paterno': _lastNamePaternalController.text,
+                          'apellido_materno': _lastNameMaternalController.text,
+                          'tipo': _selectedUserType,
+                          'correo_electronico':
+                              isEmailMode ? _emailOrPhoneController.text : null,
+                          'telefono':
+                              isEmailMode ? null : _emailOrPhoneController.text,
+                          'contrasena': _passwordController.text,
+                        });
+                        Navigator.pushNamed(context, '/mainScreen');
+                        scaffoldMessenger.showSnackBar(
+                          const SnackBar(
+                            content: Text('Registration successful'),
+                          ),
+                        );
+                      } catch (e) {
+                        scaffoldMessenger.showSnackBar(
+                          SnackBar(
+                            content: Text('Registration failed: $e'),
+                          ),
+                        );
+                      }
                     }
                   },
                   child: const Text('Continue'),

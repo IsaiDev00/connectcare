@@ -1,8 +1,8 @@
-CREATE TABLE Piso (
+CREATE TABLE piso (
     numero_piso BIGINT AUTO_INCREMENT PRIMARY KEY
 );
 
-CREATE TABLE Familiar (
+CREATE TABLE familiar (
     id_familiar BIGINT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(255),
     apellido_paterno VARCAR(255),
@@ -13,7 +13,7 @@ CREATE TABLE Familiar (
     tipo VARCHAR(50)
 );
 
-CREATE TABLE Paciente (
+CREATE TABLE paciente (
     nss_paciente BIGINT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(255),
     apellido_paterno VARCHAR(255),
@@ -33,14 +33,14 @@ CREATE TABLE Paciente (
     FOREIGN KEY (numero_piso) REFERENCES Piso(numero_piso)
 );
 
-CREATE TABLE Servicio (
+CREATE TABLE servicio (
     id_servicio BIGINT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(255),
     numero_piso BIGINT,
     FOREIGN KEY (numero_piso) REFERENCES Piso(numero_piso)
 );
 
-CREATE TABLE Sala (
+CREATE TABLE sala (
     numero_sala BIGINT AUTO_INCREMENT PRIMARY KEY,
     horario VARCHAR(255),
     nombre VARCHAR(255),
@@ -49,7 +49,7 @@ CREATE TABLE Sala (
     FOREIGN KEY (id_servicio) REFERENCES Servicio(id_servicio)
 );
 
-CREATE TABLE Horario_Visita (
+CREATE TABLE horario_visita (
     id_horario_visita BIGINT AUTO_INCREMENT PRIMARY KEY,
     inicio TIME,
     fin TIME,
@@ -58,7 +58,7 @@ CREATE TABLE Horario_Visita (
     FOREIGN KEY (id_sala) REFERENCES Sala(numero_sala)
 );
 
-CREATE TABLE Procedimiento (
+CREATE TABLE procedimiento (
     id_procedimiento BIGINT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(255),
     descripcion TEXT,
@@ -66,14 +66,14 @@ CREATE TABLE Procedimiento (
     cantidad_medicos INT
 );
 
-CREATE TABLE Sala_Procedimiento (
+CREATE TABLE sala_procedimiento (
     numero_sala BIGINT,
     id_procedimiento BIGINT,
     FOREIGN KEY (numero_sala) REFERENCES Sala(numero_sala),
     FOREIGN KEY (id_procedimiento) REFERENCES Procedimiento(id_procedimiento)
 );
 
-CREATE TABLE Cama (
+CREATE TABLE cama (
     numero_cama BIGINT AUTO_INCREMENT PRIMARY KEY,
     tipo VARCHAR(50),
     en_uso BOOLEAN,
@@ -81,7 +81,7 @@ CREATE TABLE Cama (
     FOREIGN KEY (numero_sala) REFERENCES Sala(numero_sala)
 );
 
-CREATE TABLE Agenda_Procedimiento (
+CREATE TABLE agenda_procedimiento (
     id_agenda_procedimiento BIGINT AUTO_INCREMENT PRIMARY KEY,
     fecha DATE,
     hora TIME,
@@ -89,7 +89,7 @@ CREATE TABLE Agenda_Procedimiento (
     FOREIGN KEY (id_procedimiento) REFERENCES Procedimiento(id_procedimiento)
 );
 
-CREATE TABLE Hospital (
+CREATE TABLE hospital (
     clues BIGINT AUTO_INCREMENT PRIMARY KEY,
     colonia VARCHAR(255),
     estatus VARCHAR(50),
@@ -101,7 +101,7 @@ CREATE TABLE Hospital (
     nombre VARCHAR(255)
 );
 
-CREATE TABLE Personal (
+CREATE TABLE personal (
     id_personal BIGINT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(255),
     apellido_paterno VARCHAR(255),
@@ -115,7 +115,7 @@ CREATE TABLE Personal (
     FOREIGN KEY (clues) REFERENCES Hospital(clues)
 );
 
-CREATE TABLE Medico (
+CREATE TABLE medico (
     id_medico BIGINT AUTO_INCREMENT PRIMARY KEY,
     especialidad VARCHAR(255),
     jerarquia VARCHAR(50),
@@ -126,7 +126,7 @@ CREATE TABLE Medico (
     FOREIGN KEY (id_personal) REFERENCES Personal(id_personal)
 );
 
-CREATE TABLE Camillero (
+CREATE TABLE camillero (
     id_camillero BIGINT AUTO_INCREMENT PRIMARY KEY,
     jerarquia VARCHAR(50),
     horario VARCHAR(255),
@@ -136,7 +136,7 @@ CREATE TABLE Camillero (
     FOREIGN KEY (id_personal) REFERENCES Personal(id_personal)
 );
 
-CREATE TABLE Enfermero (
+CREATE TABLE enfermero (
     id_enfermero BIGINT AUTO_INCREMENT PRIMARY KEY,
     horario VARCHAR(255),
     jerarquia VARCHAR(50),
@@ -146,14 +146,14 @@ CREATE TABLE Enfermero (
     FOREIGN KEY (id_personal) REFERENCES Personal(id_personal)
 );
 
-CREATE TABLE Trabajo_Social (
+CREATE TABLE trabajo_social (
     id_trabajo_social BIGINT AUTO_INCREMENT PRIMARY KEY,
     horario VARCHAR(255),
     id_personal BIGINT,
     FOREIGN KEY (id_personal) REFERENCES Personal(id_personal)
 );
 
-CREATE TABLE Paciente_Familiar (
+CREATE TABLE paciente_familiar (
     nss_paciente BIGINT,
     id_familiar BIGINT,
     fecha DATE,
@@ -164,14 +164,14 @@ CREATE TABLE Paciente_Familiar (
     FOREIGN KEY (id_trabajo_social) REFERENCES Trabajo_Social(id_trabajo_social)
 );
 
-CREATE TABLE RH (
+CREATE TABLE rh (
     id_rh BIGINT AUTO_INCREMENT PRIMARY KEY,
     horario VARCHAR(255),
     id_personal BIGINT,
     FOREIGN KEY (id_personal) REFERENCES Personal(id_personal)
 );
 
-CREATE TABLE Administrador (
+CREATE TABLE administrador (
     id_administrador BIGINT AUTO_INCREMENT PRIMARY KEY,
     horario VARCHAR(255),
     clues BIGINT,
@@ -180,7 +180,7 @@ CREATE TABLE Administrador (
     FOREIGN KEY (id_personal) REFERENCES Personal(id_personal)
 );
 
-CREATE TABLE Medicamento (
+CREATE TABLE medicamento (
     id_medicamento BIGINT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(255),
     marca VARCHAR(255),
@@ -193,7 +193,7 @@ CREATE TABLE Medicamento (
     FOREIGN KEY (id_administrador) REFERENCES Administrador(id_administrador)
 );
 
-CREATE TABLE Personal_No_Asignado (
+CREATE TABLE personal_no_asignado (
     id_personal_no_asignado BIGINT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(255),
     apellido_paterno VARCHAR(255),
@@ -203,7 +203,7 @@ CREATE TABLE Personal_No_Asignado (
     telefono VARCHAR(20)
 );
 
-CREATE TABLE Solicitud_A_Hospital (
+CREATE TABLE solicitud_a_hospital (
     id_solicitud_a_hospital BIGINT AUTO_INCREMENT PRIMARY KEY,
     fecha DATE,
     peticion TEXT,
@@ -213,7 +213,7 @@ CREATE TABLE Solicitud_A_Hospital (
     FOREIGN KEY (id_personal_no_asignado) REFERENCES Personal_No_Asignado(id_personal_no_asignado)
 );
 
-CREATE TABLE Movimiento (
+CREATE TABLE movimiento (
     id_movimiento BIGINT AUTO_INCREMENT PRIMARY KEY,
     fecha DATE,
     hora TIME,
@@ -223,14 +223,14 @@ CREATE TABLE Movimiento (
     FOREIGN KEY (id_personal) REFERENCES Personal(id_personal)
 );
 
-CREATE TABLE Padecimiento (
+CREATE TABLE padecimiento (
     id_padecimiento BIGINT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(255),
     gravedad VARCHAR(50),
     periodo_reposo VARCHAR(255)
 );
 
-CREATE TABLE Periodo_Padecimiento (
+CREATE TABLE periodo_padecimiento (
     id_periodo_padecimiento BIGINT AUTO_INCREMENT PRIMARY KEY,
     periodo_reposo VARCHAR(255),
     edad INT,
@@ -239,7 +239,7 @@ CREATE TABLE Periodo_Padecimiento (
     f_fin DATE
 );
 
-CREATE TABLE Traslado (
+CREATE TABLE traslado (
     id_traslado BIGINT AUTO_INCREMENT PRIMARY KEY,
     fecha DATE,
     hora TIME,
@@ -249,7 +249,7 @@ CREATE TABLE Traslado (
     FOREIGN KEY (numero_cama) REFERENCES Cama(numero_cama)
 );
 
-CREATE TABLE Indicaciones_Medicas (
+CREATE TABLE indicaciones_medicas (
     id_indicaciones_medicas BIGINT AUTO_INCREMENT PRIMARY KEY,
     solicitud_medicamento TEXT,
     formula TEXT,
@@ -268,7 +268,7 @@ CREATE TABLE Indicaciones_Medicas (
     FOREIGN KEY (nss_paciente) REFERENCES Paciente(nss_paciente)
 );
 
-CREATE TABLE Nota_De_Evolucion (
+CREATE TABLE nota_de_evolucion (
     id_nota_de_evolucion BIGINT AUTO_INCREMENT PRIMARY KEY,
     saturacion_oxigeno DECIMAL(5,2),
     temperatura DECIMAL(5,2),
@@ -296,7 +296,7 @@ CREATE TABLE Nota_De_Evolucion (
     FOREIGN KEY (nss_paciente) REFERENCES Paciente(nss_paciente)
 );
 
-CREATE TABLE Hoja_De_Enfermeria (
+CREATE TABLE hoja_de_enfermeria (
     id_hoja_de_enfermeria BIGINT AUTO_INCREMENT PRIMARY KEY,
     fecha DATE,
     codigo_temperatura VARCHAR(50),
@@ -322,7 +322,7 @@ CREATE TABLE Hoja_De_Enfermeria (
     FOREIGN KEY (nss_paciente) REFERENCES Paciente(nss_paciente)
 );
 
-CREATE TABLE Triage (
+CREATE TABLE triage (
     id_triage BIGINT AUTO_INCREMENT PRIMARY KEY,
     diagnostico TEXT,
     tratamiento TEXT,
@@ -348,7 +348,7 @@ CREATE TABLE Triage (
     FOREIGN KEY (nss_paciente) REFERENCES Paciente(nss_paciente)
 );
 
-CREATE TABLE Historial (
+CREATE TABLE historial (
     id_historial BIGINT AUTO_INCREMENT PRIMARY KEY,
     nss_paciente BIGINT,
     id_traslado BIGINT,
@@ -366,7 +366,7 @@ CREATE TABLE Historial (
     FOREIGN KEY (id_triage) REFERENCES Triage(id_triage)
 );
 
-CREATE TABLE Uso_Medicamento (
+CREATE TABLE uso_medicamento (
     id_uso_medicamento BIGINT AUTO_INCREMENT PRIMARY KEY,
     cantidad INT,
     id_medicamento BIGINT,
@@ -375,7 +375,7 @@ CREATE TABLE Uso_Medicamento (
     FOREIGN KEY (id_hoja_de_enfermeria) REFERENCES Hoja_De_Enfermeria(id_hoja_de_enfermeria)
 );
 
-CREATE TABLE Solicitud_Medicamento (
+CREATE TABLE solicitud_medicamento (
     id_solicitud_medicamento BIGINT AUTO_INCREMENT PRIMARY KEY,
     concentracion VARCHAR(50),
     cantidad_presentacion INT,
@@ -386,7 +386,7 @@ CREATE TABLE Solicitud_Medicamento (
     FOREIGN KEY (id_hoja_de_enfermeria) REFERENCES Hoja_De_Enfermeria(id_hoja_de_enfermeria)
 );
 
-CREATE TABLE Medicina_Pers (
+CREATE TABLE medicina_pers (
     id_medicina_pers BIGINT AUTO_INCREMENT PRIMARY KEY,
     id_solicitud_medicamento BIGINT,
     concentracion VARCHAR(50),

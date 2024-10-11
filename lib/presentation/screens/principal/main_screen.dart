@@ -4,10 +4,10 @@ class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
 
   @override
-  _MainScreenState createState() => _MainScreenState();
+  MainScreenState createState() => MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> {
+class MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -59,7 +59,8 @@ class _MainScreenState extends State<MainScreen> {
                 Navigator.pushNamed(context, '/registerHospital');
               },
               style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
                 textStyle: const TextStyle(fontSize: 18),
               ),
               child: const Text('Registrar Hospital'),
@@ -71,7 +72,8 @@ class _MainScreenState extends State<MainScreen> {
                 Navigator.pushNamed(context, '/enterHospital');
               },
               style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
                 textStyle: const TextStyle(fontSize: 18),
               ),
               child: const Text('Ingresar a Hospital'),
