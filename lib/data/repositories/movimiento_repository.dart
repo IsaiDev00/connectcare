@@ -7,7 +7,7 @@ class MovimientoRepository {
   // Obtener todos los registros de la tabla Movimiento
   Future<List<Map<String, dynamic>>> getAll() async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
-    var results = await conn.query('SELECT * FROM Movimiento');
+    var results = await conn.query('SELECT * FROM movimiento');
 
     List<Map<String, dynamic>> movimientos = [];
     for (var row in results) {
@@ -29,7 +29,7 @@ class MovimientoRepository {
   Future<Map<String, dynamic>?> getById(int id) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     var results = await conn
-        .query('SELECT * FROM Movimiento WHERE id_movimiento = ?', [id]);
+        .query('SELECT * FROM movimiento WHERE id_movimiento = ?', [id]);
 
     if (results.isNotEmpty) {
       var row = results.first;
@@ -52,7 +52,7 @@ class MovimientoRepository {
   Future<void> insert(Map<String, dynamic> movimiento) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'INSERT INTO Movimiento (fecha, hora, tipo, descripcion, id_personal) VALUES (?, ?, ?, ?, ?)',
+      'INSERT INTO movimiento (fecha, hora, tipo, descripcion, id_personal) VALUES (?, ?, ?, ?, ?)',
       [
         movimiento['fecha'],
         movimiento['hora'],
@@ -68,7 +68,7 @@ class MovimientoRepository {
   Future<void> update(int id, Map<String, dynamic> movimiento) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'UPDATE Movimiento SET fecha = ?, hora = ?, tipo = ?, descripcion = ?, id_personal = ? WHERE id_movimiento = ?',
+      'UPDATE movimiento SET fecha = ?, hora = ?, tipo = ?, descripcion = ?, id_personal = ? WHERE id_movimiento = ?',
       [
         movimiento['fecha'],
         movimiento['hora'],
@@ -84,7 +84,7 @@ class MovimientoRepository {
   // Eliminar un registro en la tabla Movimiento
   Future<void> delete(int id) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
-    await conn.query('DELETE FROM Movimiento WHERE id_movimiento = ?', [id]);
+    await conn.query('DELETE FROM movimiento WHERE id_movimiento = ?', [id]);
     await DatabaseHelper.closeConnection(conn);
   }
 }

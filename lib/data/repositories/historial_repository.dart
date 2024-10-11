@@ -7,7 +7,7 @@ class HistorialRepository {
   // Obtener todos los registros de la tabla Historial
   Future<List<Map<String, dynamic>>> getAll() async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
-    var results = await conn.query('SELECT * FROM Historial');
+    var results = await conn.query('SELECT * FROM historial');
 
     List<Map<String, dynamic>> historiales = [];
     for (var row in results) {
@@ -31,7 +31,7 @@ class HistorialRepository {
   Future<Map<String, dynamic>?> getById(int id) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     var results = await conn
-        .query('SELECT * FROM Historial WHERE id_historial = ?', [id]);
+        .query('SELECT * FROM historial WHERE id_historial = ?', [id]);
 
     if (results.isNotEmpty) {
       var row = results.first;
@@ -56,7 +56,7 @@ class HistorialRepository {
   Future<void> insert(Map<String, dynamic> historial) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'INSERT INTO Historial (nss_paciente, id_traslado, id_procedimiento, id_indicaciones_medicas, id_nota_de_evolucion, id_hoja_de_enfermeria, id_triage) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      'INSERT INTO historial (nss_paciente, id_traslado, id_procedimiento, id_indicaciones_medicas, id_nota_de_evolucion, id_hoja_de_enfermeria, id_triage) VALUES (?, ?, ?, ?, ?, ?, ?)',
       [
         historial['nss_paciente'],
         historial['id_traslado'],
@@ -74,7 +74,7 @@ class HistorialRepository {
   Future<void> update(int id, Map<String, dynamic> historial) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'UPDATE Historial SET nss_paciente = ?, id_traslado = ?, id_procedimiento = ?, id_indicaciones_medicas = ?, id_nota_de_evolucion = ?, id_hoja_de_enfermeria = ?, id_triage = ? WHERE id_historial = ?',
+      'UPDATE historial SET nss_paciente = ?, id_traslado = ?, id_procedimiento = ?, id_indicaciones_medicas = ?, id_nota_de_evolucion = ?, id_hoja_de_enfermeria = ?, id_triage = ? WHERE id_historial = ?',
       [
         historial['nss_paciente'],
         historial['id_traslado'],
@@ -92,7 +92,7 @@ class HistorialRepository {
   // Eliminar un registro en la tabla Historial
   Future<void> delete(int id) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
-    await conn.query('DELETE FROM Historial WHERE id_historial = ?', [id]);
+    await conn.query('DELETE FROM historial WHERE id_historial = ?', [id]);
     await DatabaseHelper.closeConnection(conn);
   }
 }

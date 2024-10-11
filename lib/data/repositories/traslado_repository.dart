@@ -7,7 +7,7 @@ class TrasladoRepository {
   // Obtener todos los registros de la tabla Traslado
   Future<List<Map<String, dynamic>>> getAll() async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
-    var results = await conn.query('SELECT * FROM Traslado');
+    var results = await conn.query('SELECT * FROM traslado');
 
     List<Map<String, dynamic>> traslados = [];
     for (var row in results) {
@@ -28,7 +28,7 @@ class TrasladoRepository {
   Future<Map<String, dynamic>?> getById(int idTraslado) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     var results = await conn
-        .query('SELECT * FROM Traslado WHERE id_traslado = ?', [idTraslado]);
+        .query('SELECT * FROM traslado WHERE id_traslado = ?', [idTraslado]);
 
     if (results.isNotEmpty) {
       var row = results.first;
@@ -50,7 +50,7 @@ class TrasladoRepository {
   Future<void> insert(Map<String, dynamic> traslado) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'INSERT INTO Traslado (fecha, hora, nss_paciente, numero_cama) VALUES (?, ?, ?, ?)',
+      'INSERT INTO traslado (fecha, hora, nss_paciente, numero_cama) VALUES (?, ?, ?, ?)',
       [
         traslado['fecha'],
         traslado['hora'],
@@ -65,7 +65,7 @@ class TrasladoRepository {
   Future<void> update(int idTraslado, Map<String, dynamic> traslado) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'UPDATE Traslado SET fecha = ?, hora = ?, nss_paciente = ?, numero_cama = ? WHERE id_traslado = ?',
+      'UPDATE traslado SET fecha = ?, hora = ?, nss_paciente = ?, numero_cama = ? WHERE id_traslado = ?',
       [
         traslado['fecha'],
         traslado['hora'],
@@ -81,7 +81,7 @@ class TrasladoRepository {
   Future<void> delete(int idTraslado) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn
-        .query('DELETE FROM Traslado WHERE id_traslado = ?', [idTraslado]);
+        .query('DELETE FROM traslado WHERE id_traslado = ?', [idTraslado]);
     await DatabaseHelper.closeConnection(conn);
   }
 }

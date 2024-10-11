@@ -7,7 +7,7 @@ class AdministradorRepository {
   // Obtener todos los registros de la tabla Administrador
   Future<List<Map<String, dynamic>>> getAll() async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
-    var results = await conn.query('SELECT * FROM Administrador');
+    var results = await conn.query('SELECT * FROM administrador');
 
     List<Map<String, dynamic>> administradores = [];
     for (var row in results) {
@@ -27,7 +27,7 @@ class AdministradorRepository {
   Future<Map<String, dynamic>?> getById(int id) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     var results = await conn
-        .query('SELECT * FROM Administrador WHERE id_administrador = ?', [id]);
+        .query('SELECT * FROM administrador WHERE id_administrador = ?', [id]);
 
     if (results.isNotEmpty) {
       var row = results.first;
@@ -48,7 +48,7 @@ class AdministradorRepository {
   Future<void> insert(Map<String, dynamic> administrador) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'INSERT INTO Administrador (horario, clues, id_personal) VALUES (?, ?, ?)',
+      'INSERT INTO administrador (horario, clues, id_personal) VALUES (?, ?, ?)',
       [
         administrador['horario'],
         administrador['clues'],
@@ -62,7 +62,7 @@ class AdministradorRepository {
   Future<void> update(int id, Map<String, dynamic> administrador) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'UPDATE Administrador SET horario = ?, clues = ?, id_personal = ? WHERE id_administrador = ?',
+      'UPDATE administrador SET horario = ?, clues = ?, id_personal = ? WHERE id_administrador = ?',
       [
         administrador['horario'],
         administrador['clues'],
@@ -77,7 +77,7 @@ class AdministradorRepository {
   Future<void> delete(int id) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn
-        .query('DELETE FROM Administrador WHERE id_administrador = ?', [id]);
+        .query('DELETE FROM administrador WHERE id_administrador = ?', [id]);
     await DatabaseHelper.closeConnection(conn);
   }
 }

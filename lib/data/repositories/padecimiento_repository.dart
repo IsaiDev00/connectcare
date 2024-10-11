@@ -7,7 +7,7 @@ class PadecimientoRepository {
   // Obtener todos los registros de la tabla Padecimiento
   Future<List<Map<String, dynamic>>> getAll() async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
-    var results = await conn.query('SELECT * FROM Padecimiento');
+    var results = await conn.query('SELECT * FROM padecimiento');
 
     List<Map<String, dynamic>> padecimientos = [];
     for (var row in results) {
@@ -27,7 +27,7 @@ class PadecimientoRepository {
   Future<Map<String, dynamic>?> getById(int idPadecimiento) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     var results = await conn.query(
-        'SELECT * FROM Padecimiento WHERE id_padecimiento = ?',
+        'SELECT * FROM padecimiento WHERE id_padecimiento = ?',
         [idPadecimiento]);
 
     if (results.isNotEmpty) {
@@ -49,7 +49,7 @@ class PadecimientoRepository {
   Future<void> insert(Map<String, dynamic> padecimiento) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'INSERT INTO Padecimiento (nombre, gravedad, periodo_reposo) VALUES (?, ?, ?)',
+      'INSERT INTO padecimiento (nombre, gravedad, periodo_reposo) VALUES (?, ?, ?)',
       [
         padecimiento['nombre'],
         padecimiento['gravedad'],
@@ -64,7 +64,7 @@ class PadecimientoRepository {
       int idPadecimiento, Map<String, dynamic> padecimiento) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'UPDATE Padecimiento SET nombre = ?, gravedad = ?, periodo_reposo = ? WHERE id_padecimiento = ?',
+      'UPDATE padecimiento SET nombre = ?, gravedad = ?, periodo_reposo = ? WHERE id_padecimiento = ?',
       [
         padecimiento['nombre'],
         padecimiento['gravedad'],
@@ -79,7 +79,7 @@ class PadecimientoRepository {
   Future<void> delete(int idPadecimiento) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-        'DELETE FROM Padecimiento WHERE id_padecimiento = ?', [idPadecimiento]);
+        'DELETE FROM padecimiento WHERE id_padecimiento = ?', [idPadecimiento]);
     await DatabaseHelper.closeConnection(conn);
   }
 }

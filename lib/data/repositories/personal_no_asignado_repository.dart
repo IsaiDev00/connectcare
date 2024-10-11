@@ -7,7 +7,7 @@ class PersonalNoAsignadoRepository {
   // Obtener todos los registros de la tabla Personal_No_Asignado
   Future<List<Map<String, dynamic>>> getAll() async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
-    var results = await conn.query('SELECT * FROM Personal_No_Asignado');
+    var results = await conn.query('SELECT * FROM personal_no_asignado');
 
     List<Map<String, dynamic>> personalNoAsignado = [];
     for (var row in results) {
@@ -30,7 +30,7 @@ class PersonalNoAsignadoRepository {
   Future<Map<String, dynamic>?> getById(int idPersonalNoAsignado) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     var results = await conn.query(
-        'SELECT * FROM Personal_No_Asignado WHERE id_personal_no_asignado = ?',
+        'SELECT * FROM personal_no_asignado WHERE id_personal_no_asignado = ?',
         [idPersonalNoAsignado]);
 
     if (results.isNotEmpty) {
@@ -55,7 +55,7 @@ class PersonalNoAsignadoRepository {
   Future<void> insert(Map<String, dynamic> personalNoAsignado) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'INSERT INTO Personal_No_Asignado (nombre, apellido_paterno, apellido_materno, correo_electronico, tipo, telefono) VALUES (?, ?, ?, ?, ?, ?)',
+      'INSERT INTO personal_no_asignado (nombre, apellido_paterno, apellido_materno, correo_electronico, tipo, telefono) VALUES (?, ?, ?, ?, ?, ?)',
       [
         personalNoAsignado['nombre'],
         personalNoAsignado['apellido_paterno'],
@@ -73,7 +73,7 @@ class PersonalNoAsignadoRepository {
       int idPersonalNoAsignado, Map<String, dynamic> personalNoAsignado) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'UPDATE Personal_No_Asignado SET nombre = ?, apellido_paterno = ?, apellido_materno = ?, correo_electronico = ?, tipo = ?, telefono = ? WHERE id_personal_no_asignado = ?',
+      'UPDATE personal_no_asignado SET nombre = ?, apellido_paterno = ?, apellido_materno = ?, correo_electronico = ?, tipo = ?, telefono = ? WHERE id_personal_no_asignado = ?',
       [
         personalNoAsignado['nombre'],
         personalNoAsignado['apellido_paterno'],
@@ -91,7 +91,7 @@ class PersonalNoAsignadoRepository {
   Future<void> delete(int idPersonalNoAsignado) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-        'DELETE FROM Personal_No_Asignado WHERE id_personal_no_asignado = ?',
+        'DELETE FROM personal_no_asignado WHERE id_personal_no_asignado = ?',
         [idPersonalNoAsignado]);
     await DatabaseHelper.closeConnection(conn);
   }

@@ -7,7 +7,7 @@ class SalaRepository {
   // Obtener todos los registros de la tabla Sala
   Future<List<Map<String, dynamic>>> getAll() async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
-    var results = await conn.query('SELECT * FROM Sala');
+    var results = await conn.query('SELECT * FROM sala');
 
     List<Map<String, dynamic>> salas = [];
     for (var row in results) {
@@ -28,7 +28,7 @@ class SalaRepository {
   Future<Map<String, dynamic>?> getById(int numeroSala) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     var results = await conn
-        .query('SELECT * FROM Sala WHERE numero_sala = ?', [numeroSala]);
+        .query('SELECT * FROM sala WHERE numero_sala = ?', [numeroSala]);
 
     if (results.isNotEmpty) {
       var row = results.first;
@@ -50,7 +50,7 @@ class SalaRepository {
   Future<void> insert(Map<String, dynamic> sala) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'INSERT INTO Sala (horario, nombre, lleno, id_servicio) VALUES (?, ?, ?, ?)',
+      'INSERT INTO sala (horario, nombre, lleno, id_servicio) VALUES (?, ?, ?, ?)',
       [
         sala['horario'],
         sala['nombre'],
@@ -65,7 +65,7 @@ class SalaRepository {
   Future<void> update(int numeroSala, Map<String, dynamic> sala) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'UPDATE Sala SET horario = ?, nombre = ?, lleno = ?, id_servicio = ? WHERE numero_sala = ?',
+      'UPDATE sala SET horario = ?, nombre = ?, lleno = ?, id_servicio = ? WHERE numero_sala = ?',
       [
         sala['horario'],
         sala['nombre'],
@@ -80,7 +80,7 @@ class SalaRepository {
   // Eliminar un registro en la tabla Sala
   Future<void> delete(int numeroSala) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
-    await conn.query('DELETE FROM Sala WHERE numero_sala = ?', [numeroSala]);
+    await conn.query('DELETE FROM sala WHERE numero_sala = ?', [numeroSala]);
     await DatabaseHelper.closeConnection(conn);
   }
 }

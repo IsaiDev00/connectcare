@@ -7,7 +7,7 @@ class NotaDeEvolucionRepository {
   // Obtener todos los registros de la tabla Nota_De_Evolucion
   Future<List<Map<String, dynamic>>> getAll() async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
-    var results = await conn.query('SELECT * FROM Nota_De_Evolucion');
+    var results = await conn.query('SELECT * FROM nota_de_evolucion');
 
     List<Map<String, dynamic>> notasDeEvolucion = [];
     for (var row in results) {
@@ -47,7 +47,7 @@ class NotaDeEvolucionRepository {
   Future<Map<String, dynamic>?> getById(int id) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     var results = await conn.query(
-        'SELECT * FROM Nota_De_Evolucion WHERE id_nota_de_evolucion = ?', [id]);
+        'SELECT * FROM nota_de_evolucion WHERE id_nota_de_evolucion = ?', [id]);
 
     if (results.isNotEmpty) {
       var row = results.first;
@@ -88,7 +88,7 @@ class NotaDeEvolucionRepository {
   Future<void> insert(Map<String, dynamic> notaDeEvolucion) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'INSERT INTO Nota_De_Evolucion (saturacion_oxigeno, temperatura, frecuencia_cardiaca, frecuencia_respiratoria, ta_diastolica, ta_sistolica, evolucion, somatometria, exploracion_fisica, laboratorio, imagen, diagnostico, plan, pronostico, comentario, nota, destino_hospitalario, resultado_cultivo, fecha_solicitud_cultivo, infeccion_nosocomial, fecha_intubacion, fecha_cateter, nss_paciente) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      'INSERT INTO nota_de_evolucion (saturacion_oxigeno, temperatura, frecuencia_cardiaca, frecuencia_respiratoria, ta_diastolica, ta_sistolica, evolucion, somatometria, exploracion_fisica, laboratorio, imagen, diagnostico, plan, pronostico, comentario, nota, destino_hospitalario, resultado_cultivo, fecha_solicitud_cultivo, infeccion_nosocomial, fecha_intubacion, fecha_cateter, nss_paciente) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
       [
         notaDeEvolucion['saturacion_oxigeno'],
         notaDeEvolucion['temperatura'],
@@ -122,7 +122,7 @@ class NotaDeEvolucionRepository {
   Future<void> update(int id, Map<String, dynamic> notaDeEvolucion) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'UPDATE Nota_De_Evolucion SET saturacion_oxigeno = ?, temperatura = ?, frecuencia_cardiaca = ?, frecuencia_respiratoria = ?, ta_diastolica = ?, ta_sistolica = ?, evolucion = ?, somatometria = ?, exploracion_fisica = ?, laboratorio = ?, imagen = ?, diagnostico = ?, plan = ?, pronostico = ?, comentario = ?, nota = ?, destino_hospitalario = ?, resultado_cultivo = ?, fecha_solicitud_cultivo = ?, infeccion_nosocomial = ?, fecha_intubacion = ?, fecha_cateter = ?, nss_paciente = ? WHERE id_nota_de_evolucion = ?',
+      'UPDATE nota_de_evolucion SET saturacion_oxigeno = ?, temperatura = ?, frecuencia_cardiaca = ?, frecuencia_respiratoria = ?, ta_diastolica = ?, ta_sistolica = ?, evolucion = ?, somatometria = ?, exploracion_fisica = ?, laboratorio = ?, imagen = ?, diagnostico = ?, plan = ?, pronostico = ?, comentario = ?, nota = ?, destino_hospitalario = ?, resultado_cultivo = ?, fecha_solicitud_cultivo = ?, infeccion_nosocomial = ?, fecha_intubacion = ?, fecha_cateter = ?, nss_paciente = ? WHERE id_nota_de_evolucion = ?',
       [
         notaDeEvolucion['saturacion_oxigeno'],
         notaDeEvolucion['temperatura'],
@@ -157,7 +157,7 @@ class NotaDeEvolucionRepository {
   Future<void> delete(int id) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-        'DELETE FROM Nota_De_Evolucion WHERE id_nota_de_evolucion = ?', [id]);
+        'DELETE FROM nota_de_evolucion WHERE id_nota_de_evolucion = ?', [id]);
     await DatabaseHelper.closeConnection(conn);
   }
 }

@@ -7,7 +7,7 @@ class PeriodoPadecimientoRepository {
   // Obtener todos los registros de la tabla Periodo_Padecimiento
   Future<List<Map<String, dynamic>>> getAll() async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
-    var results = await conn.query('SELECT * FROM Periodo_Padecimiento');
+    var results = await conn.query('SELECT * FROM periodo_padecimiento');
 
     List<Map<String, dynamic>> periodosPadecimiento = [];
     for (var row in results) {
@@ -29,7 +29,7 @@ class PeriodoPadecimientoRepository {
   Future<Map<String, dynamic>?> getById(int idPeriodoPadecimiento) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     var results = await conn.query(
-        'SELECT * FROM Periodo_Padecimiento WHERE id_periodo_padecimiento = ?',
+        'SELECT * FROM periodo_padecimiento WHERE id_periodo_padecimiento = ?',
         [idPeriodoPadecimiento]);
 
     if (results.isNotEmpty) {
@@ -53,7 +53,7 @@ class PeriodoPadecimientoRepository {
   Future<void> insert(Map<String, dynamic> periodoPadecimiento) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'INSERT INTO Periodo_Padecimiento (periodo_reposo, edad, gravedad, f_inicio, f_fin) VALUES (?, ?, ?, ?, ?)',
+      'INSERT INTO periodo_padecimiento (periodo_reposo, edad, gravedad, f_inicio, f_fin) VALUES (?, ?, ?, ?, ?)',
       [
         periodoPadecimiento['periodo_reposo'],
         periodoPadecimiento['edad'],
@@ -70,7 +70,7 @@ class PeriodoPadecimientoRepository {
       Map<String, dynamic> periodoPadecimiento) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'UPDATE Periodo_Padecimiento SET periodo_reposo = ?, edad = ?, gravedad = ?, f_inicio = ?, f_fin = ? WHERE id_periodo_padecimiento = ?',
+      'UPDATE periodo_padecimiento SET periodo_reposo = ?, edad = ?, gravedad = ?, f_inicio = ?, f_fin = ? WHERE id_periodo_padecimiento = ?',
       [
         periodoPadecimiento['periodo_reposo'],
         periodoPadecimiento['edad'],
@@ -87,7 +87,7 @@ class PeriodoPadecimientoRepository {
   Future<void> delete(int idPeriodoPadecimiento) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-        'DELETE FROM Periodo_Padecimiento WHERE id_periodo_padecimiento = ?',
+        'DELETE FROM periodo_padecimiento WHERE id_periodo_padecimiento = ?',
         [idPeriodoPadecimiento]);
     await DatabaseHelper.closeConnection(conn);
   }

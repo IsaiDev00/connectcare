@@ -7,7 +7,7 @@ class SolicitudAHospitalRepository {
   // Obtener todos los registros de la tabla Solicitud_A_Hospital
   Future<List<Map<String, dynamic>>> getAll() async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
-    var results = await conn.query('SELECT * FROM Solicitud_A_Hospital');
+    var results = await conn.query('SELECT * FROM solicitud_a_hospital');
 
     List<Map<String, dynamic>> solicitudesHospital = [];
     for (var row in results) {
@@ -28,7 +28,7 @@ class SolicitudAHospitalRepository {
   Future<Map<String, dynamic>?> getById(int idSolicitudAHospital) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     var results = await conn.query(
-        'SELECT * FROM Solicitud_A_Hospital WHERE id_solicitud_a_hospital = ?',
+        'SELECT * FROM solicitud_a_hospital WHERE id_solicitud_a_hospital = ?',
         [idSolicitudAHospital]);
 
     if (results.isNotEmpty) {
@@ -51,7 +51,7 @@ class SolicitudAHospitalRepository {
   Future<void> insert(Map<String, dynamic> solicitudAHospital) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'INSERT INTO Solicitud_A_Hospital (fecha, peticion, clues, id_personal_no_asignado) VALUES (?, ?, ?, ?)',
+      'INSERT INTO solicitud_a_hospital (fecha, peticion, clues, id_personal_no_asignado) VALUES (?, ?, ?, ?)',
       [
         solicitudAHospital['fecha'],
         solicitudAHospital['peticion'],
@@ -67,7 +67,7 @@ class SolicitudAHospitalRepository {
       int idSolicitudAHospital, Map<String, dynamic> solicitudAHospital) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'UPDATE Solicitud_A_Hospital SET fecha = ?, peticion = ?, clues = ?, id_personal_no_asignado = ? WHERE id_solicitud_a_hospital = ?',
+      'UPDATE solicitud_a_hospital SET fecha = ?, peticion = ?, clues = ?, id_personal_no_asignado = ? WHERE id_solicitud_a_hospital = ?',
       [
         solicitudAHospital['fecha'],
         solicitudAHospital['peticion'],
@@ -83,7 +83,7 @@ class SolicitudAHospitalRepository {
   Future<void> delete(int idSolicitudAHospital) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-        'DELETE FROM Solicitud_A_Hospital WHERE id_solicitud_a_hospital = ?',
+        'DELETE FROM solicitud_a_hospital WHERE id_solicitud_a_hospital = ?',
         [idSolicitudAHospital]);
     await DatabaseHelper.closeConnection(conn);
   }

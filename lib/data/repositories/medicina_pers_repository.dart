@@ -7,7 +7,7 @@ class MedicinaPersRepository {
   // Obtener todos los registros de la tabla Medicina_Pers
   Future<List<Map<String, dynamic>>> getAll() async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
-    var results = await conn.query('SELECT * FROM Medicina_Pers');
+    var results = await conn.query('SELECT * FROM medicina_pers');
 
     List<Map<String, dynamic>> medicinasPers = [];
     for (var row in results) {
@@ -33,7 +33,7 @@ class MedicinaPersRepository {
   Future<Map<String, dynamic>?> getById(int id) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     var results = await conn
-        .query('SELECT * FROM Medicina_Pers WHERE id_medicina_pers = ?', [id]);
+        .query('SELECT * FROM medicina_pers WHERE id_medicina_pers = ?', [id]);
 
     if (results.isNotEmpty) {
       var row = results.first;
@@ -60,7 +60,7 @@ class MedicinaPersRepository {
   Future<void> insert(Map<String, dynamic> medicinaPers) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'INSERT INTO Medicina_Pers (id_solicitud_medicamento, concentracion, caducidad, cantidad_stock, tipo, marca, nombre, cantidad_presentacion, nss_paciente) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      'INSERT INTO medicina_pers (id_solicitud_medicamento, concentracion, caducidad, cantidad_stock, tipo, marca, nombre, cantidad_presentacion, nss_paciente) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
       [
         medicinaPers['id_solicitud_medicamento'],
         medicinaPers['concentracion'],
@@ -80,7 +80,7 @@ class MedicinaPersRepository {
   Future<void> update(int id, Map<String, dynamic> medicinaPers) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'UPDATE Medicina_Pers SET id_solicitud_medicamento = ?, concentracion = ?, caducidad = ?, cantidad_stock = ?, tipo = ?, marca = ?, nombre = ?, cantidad_presentacion = ?, nss_paciente = ? WHERE id_medicina_pers = ?',
+      'UPDATE medicina_pers SET id_solicitud_medicamento = ?, concentracion = ?, caducidad = ?, cantidad_stock = ?, tipo = ?, marca = ?, nombre = ?, cantidad_presentacion = ?, nss_paciente = ? WHERE id_medicina_pers = ?',
       [
         medicinaPers['id_solicitud_medicamento'],
         medicinaPers['concentracion'],
@@ -101,7 +101,7 @@ class MedicinaPersRepository {
   Future<void> delete(int id) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn
-        .query('DELETE FROM Medicina_Pers WHERE id_medicina_pers = ?', [id]);
+        .query('DELETE FROM medicina_pers WHERE id_medicina_pers = ?', [id]);
     await DatabaseHelper.closeConnection(conn);
   }
 }

@@ -7,7 +7,7 @@ class HorarioVisitaRepository {
   // Obtener todos los registros de la tabla Horario_Visita
   Future<List<Map<String, dynamic>>> getAll() async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
-    var results = await conn.query('SELECT * FROM Horario_Visita');
+    var results = await conn.query('SELECT * FROM horario_visita');
 
     List<Map<String, dynamic>> horariosVisita = [];
     for (var row in results) {
@@ -28,7 +28,7 @@ class HorarioVisitaRepository {
   Future<Map<String, dynamic>?> getById(int id) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     var results = await conn.query(
-        'SELECT * FROM Horario_Visita WHERE id_horario_visita = ?', [id]);
+        'SELECT * FROM horario_visita WHERE id_horario_visita = ?', [id]);
 
     if (results.isNotEmpty) {
       var row = results.first;
@@ -50,7 +50,7 @@ class HorarioVisitaRepository {
   Future<void> insert(Map<String, dynamic> horarioVisita) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'INSERT INTO Horario_Visita (inicio, fin, visitantes, id_sala) VALUES (?, ?, ?, ?)',
+      'INSERT INTO horario_visita (inicio, fin, visitantes, id_sala) VALUES (?, ?, ?, ?)',
       [
         horarioVisita['inicio'],
         horarioVisita['fin'],
@@ -65,7 +65,7 @@ class HorarioVisitaRepository {
   Future<void> update(int id, Map<String, dynamic> horarioVisita) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'UPDATE Horario_Visita SET inicio = ?, fin = ?, visitantes = ?, id_sala = ? WHERE id_horario_visita = ?',
+      'UPDATE horario_visita SET inicio = ?, fin = ?, visitantes = ?, id_sala = ? WHERE id_horario_visita = ?',
       [
         horarioVisita['inicio'],
         horarioVisita['fin'],
@@ -81,7 +81,7 @@ class HorarioVisitaRepository {
   Future<void> delete(int id) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn
-        .query('DELETE FROM Horario_Visita WHERE id_horario_visita = ?', [id]);
+        .query('DELETE FROM horario_visita WHERE id_horario_visita = ?', [id]);
     await DatabaseHelper.closeConnection(conn);
   }
 }

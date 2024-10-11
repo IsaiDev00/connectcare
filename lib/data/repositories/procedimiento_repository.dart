@@ -7,7 +7,7 @@ class ProcedimientoRepository {
   // Obtener todos los registros de la tabla Procedimiento
   Future<List<Map<String, dynamic>>> getAll() async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
-    var results = await conn.query('SELECT * FROM Procedimiento');
+    var results = await conn.query('SELECT * FROM procedimiento');
 
     List<Map<String, dynamic>> procedimientos = [];
     for (var row in results) {
@@ -28,7 +28,7 @@ class ProcedimientoRepository {
   Future<Map<String, dynamic>?> getById(int idProcedimiento) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     var results = await conn.query(
-        'SELECT * FROM Procedimiento WHERE id_procedimiento = ?',
+        'SELECT * FROM procedimiento WHERE id_procedimiento = ?',
         [idProcedimiento]);
 
     if (results.isNotEmpty) {
@@ -51,7 +51,7 @@ class ProcedimientoRepository {
   Future<void> insert(Map<String, dynamic> procedimiento) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'INSERT INTO Procedimiento (nombre, descripcion, cantidad_enfermeros, cantidad_medicos) VALUES (?, ?, ?, ?)',
+      'INSERT INTO procedimiento (nombre, descripcion, cantidad_enfermeros, cantidad_medicos) VALUES (?, ?, ?, ?)',
       [
         procedimiento['nombre'],
         procedimiento['descripcion'],
@@ -67,7 +67,7 @@ class ProcedimientoRepository {
       int idProcedimiento, Map<String, dynamic> procedimiento) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'UPDATE Procedimiento SET nombre = ?, descripcion = ?, cantidad_enfermeros = ?, cantidad_medicos = ? WHERE id_procedimiento = ?',
+      'UPDATE procedimiento SET nombre = ?, descripcion = ?, cantidad_enfermeros = ?, cantidad_medicos = ? WHERE id_procedimiento = ?',
       [
         procedimiento['nombre'],
         procedimiento['descripcion'],
@@ -82,7 +82,7 @@ class ProcedimientoRepository {
   // Eliminar un registro en la tabla Procedimiento
   Future<void> delete(int idProcedimiento) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
-    await conn.query('DELETE FROM Procedimiento WHERE id_procedimiento = ?',
+    await conn.query('DELETE FROM procedimiento WHERE id_procedimiento = ?',
         [idProcedimiento]);
     await DatabaseHelper.closeConnection(conn);
   }

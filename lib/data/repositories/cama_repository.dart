@@ -7,7 +7,7 @@ class CamaRepository {
   // Obtener todos los registros de la tabla Cama
   Future<List<Map<String, dynamic>>> getAll() async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
-    var results = await conn.query('SELECT * FROM Cama');
+    var results = await conn.query('SELECT * FROM cama');
 
     List<Map<String, dynamic>> camas = [];
     for (var row in results) {
@@ -27,7 +27,7 @@ class CamaRepository {
   Future<Map<String, dynamic>?> getById(int id) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     var results =
-        await conn.query('SELECT * FROM Cama WHERE numero_cama = ?', [id]);
+        await conn.query('SELECT * FROM cama WHERE numero_cama = ?', [id]);
 
     if (results.isNotEmpty) {
       var row = results.first;
@@ -48,7 +48,7 @@ class CamaRepository {
   Future<void> insert(Map<String, dynamic> cama) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'INSERT INTO Cama (tipo, en_uso, numero_sala) VALUES (?, ?, ?)',
+      'INSERT INTO cama (tipo, en_uso, numero_sala) VALUES (?, ?, ?)',
       [
         cama['tipo'],
         cama['en_uso'],
@@ -62,7 +62,7 @@ class CamaRepository {
   Future<void> update(int id, Map<String, dynamic> cama) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'UPDATE Cama SET tipo = ?, en_uso = ?, numero_sala = ? WHERE numero_cama = ?',
+      'UPDATE cama SET tipo = ?, en_uso = ?, numero_sala = ? WHERE numero_cama = ?',
       [
         cama['tipo'],
         cama['en_uso'],
@@ -76,7 +76,7 @@ class CamaRepository {
   // Eliminar un registro en la tabla Cama
   Future<void> delete(int id) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
-    await conn.query('DELETE FROM Cama WHERE numero_cama = ?', [id]);
+    await conn.query('DELETE FROM cama WHERE numero_cama = ?', [id]);
     await DatabaseHelper.closeConnection(conn);
   }
 }

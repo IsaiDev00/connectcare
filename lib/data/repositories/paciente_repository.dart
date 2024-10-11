@@ -7,7 +7,7 @@ class PacienteRepository {
   // Obtener todos los registros de la tabla Paciente
   Future<List<Map<String, dynamic>>> getAll() async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
-    var results = await conn.query('SELECT * FROM Paciente');
+    var results = await conn.query('SELECT * FROM paciente');
 
     List<Map<String, dynamic>> pacientes = [];
     for (var row in results) {
@@ -39,7 +39,7 @@ class PacienteRepository {
   Future<Map<String, dynamic>?> getById(int nssPaciente) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     var results = await conn
-        .query('SELECT * FROM Paciente WHERE nss_paciente = ?', [nssPaciente]);
+        .query('SELECT * FROM paciente WHERE nss_paciente = ?', [nssPaciente]);
 
     if (results.isNotEmpty) {
       var row = results.first;
@@ -72,7 +72,7 @@ class PacienteRepository {
   Future<void> insert(Map<String, dynamic> paciente) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'INSERT INTO Paciente (nombre, apellido_paterno, apellido_materno, lpm, estatura, peso, fecha_entrada, habilitar_visita, estado, sexo, fecha_nacimiento, gpo_y_rh, visitantes, alergias, numero_piso) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      'INSERT INTO paciente (nombre, apellido_paterno, apellido_materno, lpm, estatura, peso, fecha_entrada, habilitar_visita, estado, sexo, fecha_nacimiento, gpo_y_rh, visitantes, alergias, numero_piso) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
       [
         paciente['nombre'],
         paciente['apellido_paterno'],
@@ -98,7 +98,7 @@ class PacienteRepository {
   Future<void> update(int nssPaciente, Map<String, dynamic> paciente) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'UPDATE Paciente SET nombre = ?, apellido_paterno = ?, apellido_materno = ?, lpm = ?, estatura = ?, peso = ?, fecha_entrada = ?, habilitar_visita = ?, estado = ?, sexo = ?, fecha_nacimiento = ?, gpo_y_rh = ?, visitantes = ?, alergias = ?, numero_piso = ? WHERE nss_paciente = ?',
+      'UPDATE paciente SET nombre = ?, apellido_paterno = ?, apellido_materno = ?, lpm = ?, estatura = ?, peso = ?, fecha_entrada = ?, habilitar_visita = ?, estado = ?, sexo = ?, fecha_nacimiento = ?, gpo_y_rh = ?, visitantes = ?, alergias = ?, numero_piso = ? WHERE nss_paciente = ?',
       [
         paciente['nombre'],
         paciente['apellido_paterno'],
@@ -125,7 +125,7 @@ class PacienteRepository {
   Future<void> delete(int nssPaciente) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn
-        .query('DELETE FROM Paciente WHERE nss_paciente = ?', [nssPaciente]);
+        .query('DELETE FROM paciente WHERE nss_paciente = ?', [nssPaciente]);
     await DatabaseHelper.closeConnection(conn);
   }
 }

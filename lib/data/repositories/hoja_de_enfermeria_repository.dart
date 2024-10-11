@@ -7,7 +7,7 @@ class HojaDeEnfermeriaRepository {
   // Obtener todos los registros de la tabla Hoja_De_Enfermeria
   Future<List<Map<String, dynamic>>> getAll() async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
-    var results = await conn.query('SELECT * FROM Hoja_De_Enfermeria');
+    var results = await conn.query('SELECT * FROM hoja_de_enfermeria');
 
     List<Map<String, dynamic>> hojasDeEnfermeria = [];
     for (var row in results) {
@@ -45,7 +45,7 @@ class HojaDeEnfermeriaRepository {
   Future<Map<String, dynamic>?> getById(int id) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     var results = await conn.query(
-        'SELECT * FROM Hoja_De_Enfermeria WHERE id_hoja_de_enfermeria = ?',
+        'SELECT * FROM hoja_de_enfermeria WHERE id_hoja_de_enfermeria = ?',
         [id]);
 
     if (results.isNotEmpty) {
@@ -85,7 +85,7 @@ class HojaDeEnfermeriaRepository {
   Future<void> insert(Map<String, dynamic> hojaDeEnfermeria) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'INSERT INTO Hoja_De_Enfermeria (fecha, codigo_temperatura, temperatura, problema_interdependiente, ta_sistolica, ta_diastolica, frecuencia_respiratoria, frecuencia_cardiaca, temperatura_interna, pvc, perimetro, infusion_intravenosa, control_liquidos, escalas, pf, signos, sintomas, peso, intervenciones_colaboracion, dx_medico, nss_paciente) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      'INSERT INTO hoja_de_enfermeria (fecha, codigo_temperatura, temperatura, problema_interdependiente, ta_sistolica, ta_diastolica, frecuencia_respiratoria, frecuencia_cardiaca, temperatura_interna, pvc, perimetro, infusion_intravenosa, control_liquidos, escalas, pf, signos, sintomas, peso, intervenciones_colaboracion, dx_medico, nss_paciente) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
       [
         hojaDeEnfermeria['fecha'],
         hojaDeEnfermeria['codigo_temperatura'],
@@ -117,7 +117,7 @@ class HojaDeEnfermeriaRepository {
   Future<void> update(int id, Map<String, dynamic> hojaDeEnfermeria) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'UPDATE Hoja_De_Enfermeria SET fecha = ?, codigo_temperatura = ?, temperatura = ?, problema_interdependiente = ?, ta_sistolica = ?, ta_diastolica = ?, frecuencia_respiratoria = ?, frecuencia_cardiaca = ?, temperatura_interna = ?, pvc = ?, perimetro = ?, infusion_intravenosa = ?, control_liquidos = ?, escalas = ?, pf = ?, signos = ?, sintomas = ?, peso = ?, intervenciones_colaboracion = ?, dx_medico = ?, nss_paciente = ? WHERE id_hoja_de_enfermeria = ?',
+      'UPDATE hoja_de_enfermeria SET fecha = ?, codigo_temperatura = ?, temperatura = ?, problema_interdependiente = ?, ta_sistolica = ?, ta_diastolica = ?, frecuencia_respiratoria = ?, frecuencia_cardiaca = ?, temperatura_interna = ?, pvc = ?, perimetro = ?, infusion_intravenosa = ?, control_liquidos = ?, escalas = ?, pf = ?, signos = ?, sintomas = ?, peso = ?, intervenciones_colaboracion = ?, dx_medico = ?, nss_paciente = ? WHERE id_hoja_de_enfermeria = ?',
       [
         hojaDeEnfermeria['fecha'],
         hojaDeEnfermeria['codigo_temperatura'],
@@ -150,7 +150,7 @@ class HojaDeEnfermeriaRepository {
   Future<void> delete(int id) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-        'DELETE FROM Hoja_De_Enfermeria WHERE id_hoja_de_enfermeria = ?', [id]);
+        'DELETE FROM hoja_de_enfermeria WHERE id_hoja_de_enfermeria = ?', [id]);
     await DatabaseHelper.closeConnection(conn);
   }
 }

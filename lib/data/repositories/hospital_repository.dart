@@ -7,7 +7,7 @@ class HospitalRepository {
   // Obtener todos los registros de la tabla Hospital
   Future<List<Map<String, dynamic>>> getAll() async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
-    var results = await conn.query('SELECT * FROM Hospital');
+    var results = await conn.query('SELECT * FROM hospital');
 
     List<Map<String, dynamic>> hospitales = [];
     for (var row in results) {
@@ -32,7 +32,7 @@ class HospitalRepository {
   Future<Map<String, dynamic>?> getById(int id) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     var results =
-        await conn.query('SELECT * FROM Hospital WHERE clues = ?', [id]);
+        await conn.query('SELECT * FROM hospital WHERE clues = ?', [id]);
 
     if (results.isNotEmpty) {
       var row = results.first;
@@ -58,7 +58,7 @@ class HospitalRepository {
   Future<void> insert(Map<String, dynamic> hospital) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'INSERT INTO Hospital (colonia, estatus, cp, calle, numero_calle, estado, municipio, nombre) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      'INSERT INTO hospital (colonia, estatus, cp, calle, numero_calle, estado, municipio, nombre) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
       [
         hospital['colonia'],
         hospital['estatus'],
@@ -77,7 +77,7 @@ class HospitalRepository {
   Future<void> update(int id, Map<String, dynamic> hospital) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'UPDATE Hospital SET colonia = ?, estatus = ?, cp = ?, calle = ?, numero_calle = ?, estado = ?, municipio = ?, nombre = ? WHERE clues = ?',
+      'UPDATE hospital SET colonia = ?, estatus = ?, cp = ?, calle = ?, numero_calle = ?, estado = ?, municipio = ?, nombre = ? WHERE clues = ?',
       [
         hospital['colonia'],
         hospital['estatus'],
@@ -96,7 +96,7 @@ class HospitalRepository {
   // Eliminar un registro en la tabla Hospital
   Future<void> delete(int id) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
-    await conn.query('DELETE FROM Hospital WHERE clues = ?', [id]);
+    await conn.query('DELETE FROM hospital WHERE clues = ?', [id]);
     await DatabaseHelper.closeConnection(conn);
   }
 }

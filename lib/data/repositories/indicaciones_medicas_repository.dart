@@ -7,7 +7,7 @@ class IndicacionesMedicasRepository {
   // Obtener todos los registros de la tabla Indicaciones_Medicas
   Future<List<Map<String, dynamic>>> getAll() async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
-    var results = await conn.query('SELECT * FROM Indicaciones_Medicas');
+    var results = await conn.query('SELECT * FROM indicaciones_medicas');
 
     List<Map<String, dynamic>> indicacionesMedicas = [];
     for (var row in results) {
@@ -38,7 +38,7 @@ class IndicacionesMedicasRepository {
   Future<Map<String, dynamic>?> getById(int id) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     var results = await conn.query(
-        'SELECT * FROM Indicaciones_Medicas WHERE id_indicaciones_medicas = ?',
+        'SELECT * FROM indicaciones_medicas WHERE id_indicaciones_medicas = ?',
         [id]);
 
     if (results.isNotEmpty) {
@@ -71,7 +71,7 @@ class IndicacionesMedicasRepository {
   Future<void> insert(Map<String, dynamic> indicacionesMedicas) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'INSERT INTO Indicaciones_Medicas (solicitud_medicamento, formula, nutricion, soluciones, lntp, indicaciones, diagnostico, lve, ret, fecha, medidas, pendientes, cuidados, nss_paciente) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      'INSERT INTO indicaciones_medicas (solicitud_medicamento, formula, nutricion, soluciones, lntp, indicaciones, diagnostico, lve, ret, fecha, medidas, pendientes, cuidados, nss_paciente) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
       [
         indicacionesMedicas['solicitud_medicamento'],
         indicacionesMedicas['formula'],
@@ -96,7 +96,7 @@ class IndicacionesMedicasRepository {
   Future<void> update(int id, Map<String, dynamic> indicacionesMedicas) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'UPDATE Indicaciones_Medicas SET solicitud_medicamento = ?, formula = ?, nutricion = ?, soluciones = ?, lntp = ?, indicaciones = ?, diagnostico = ?, lve = ?, ret = ?, fecha = ?, medidas = ?, pendientes = ?, cuidados = ?, nss_paciente = ? WHERE id_indicaciones_medicas = ?',
+      'UPDATE indicaciones_medicas SET solicitud_medicamento = ?, formula = ?, nutricion = ?, soluciones = ?, lntp = ?, indicaciones = ?, diagnostico = ?, lve = ?, ret = ?, fecha = ?, medidas = ?, pendientes = ?, cuidados = ?, nss_paciente = ? WHERE id_indicaciones_medicas = ?',
       [
         indicacionesMedicas['solicitud_medicamento'],
         indicacionesMedicas['formula'],
@@ -122,7 +122,7 @@ class IndicacionesMedicasRepository {
   Future<void> delete(int id) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-        'DELETE FROM Indicaciones_Medicas WHERE id_indicaciones_medicas = ?',
+        'DELETE FROM indicaciones_medicas WHERE id_indicaciones_medicas = ?',
         [id]);
     await DatabaseHelper.closeConnection(conn);
   }

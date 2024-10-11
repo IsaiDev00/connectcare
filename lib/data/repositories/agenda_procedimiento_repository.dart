@@ -7,7 +7,7 @@ class AgendaProcedimientoRepository {
   // Obtener todos los registros de la tabla Agenda_Procedimiento
   Future<List<Map<String, dynamic>>> getAll() async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
-    var results = await conn.query('SELECT * FROM Agenda_Procedimiento');
+    var results = await conn.query('SELECT * FROM agenda_procedimiento');
 
     List<Map<String, dynamic>> agendaProcedimientos = [];
     for (var row in results) {
@@ -27,7 +27,7 @@ class AgendaProcedimientoRepository {
   Future<Map<String, dynamic>?> getById(int id) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     var results = await conn.query(
-        'SELECT * FROM Agenda_Procedimiento WHERE id_agenda_procedimiento = ?',
+        'SELECT * FROM agenda_procedimiento WHERE id_agenda_procedimiento = ?',
         [id]);
 
     if (results.isNotEmpty) {
@@ -49,7 +49,7 @@ class AgendaProcedimientoRepository {
   Future<void> insert(Map<String, dynamic> agendaProcedimiento) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'INSERT INTO Agenda_Procedimiento (fecha, hora, id_procedimiento) VALUES (?, ?, ?)',
+      'INSERT INTO agenda_procedimiento (fecha, hora, id_procedimiento) VALUES (?, ?, ?)',
       [
         agendaProcedimiento['fecha'],
         agendaProcedimiento['hora'],
@@ -63,7 +63,7 @@ class AgendaProcedimientoRepository {
   Future<void> update(int id, Map<String, dynamic> agendaProcedimiento) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'UPDATE Agenda_Procedimiento SET fecha = ?, hora = ?, id_procedimiento = ? WHERE id_agenda_procedimiento = ?',
+      'UPDATE agenda_procedimiento SET fecha = ?, hora = ?, id_procedimiento = ? WHERE id_agenda_procedimiento = ?',
       [
         agendaProcedimiento['fecha'],
         agendaProcedimiento['hora'],
@@ -78,7 +78,7 @@ class AgendaProcedimientoRepository {
   Future<void> delete(int id) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-        'DELETE FROM Agenda_Procedimiento WHERE id_agenda_procedimiento = ?',
+        'DELETE FROM agenda_procedimiento WHERE id_agenda_procedimiento = ?',
         [id]);
     await DatabaseHelper.closeConnection(conn);
   }

@@ -7,7 +7,7 @@ class CamilleroRepository {
   // Obtener todos los registros de la tabla Camillero
   Future<List<Map<String, dynamic>>> getAll() async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
-    var results = await conn.query('SELECT * FROM Camillero');
+    var results = await conn.query('SELECT * FROM camillero');
 
     List<Map<String, dynamic>> camilleros = [];
     for (var row in results) {
@@ -28,7 +28,7 @@ class CamilleroRepository {
   Future<Map<String, dynamic>?> getById(int id) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     var results = await conn
-        .query('SELECT * FROM Camillero WHERE id_camillero = ?', [id]);
+        .query('SELECT * FROM camillero WHERE id_camillero = ?', [id]);
 
     if (results.isNotEmpty) {
       var row = results.first;
@@ -50,7 +50,7 @@ class CamilleroRepository {
   Future<void> insert(Map<String, dynamic> camillero) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'INSERT INTO Camillero (jerarquia, horario, id_servicio, id_personal) VALUES (?, ?, ?, ?)',
+      'INSERT INTO camillero (jerarquia, horario, id_servicio, id_personal) VALUES (?, ?, ?, ?)',
       [
         camillero['jerarquia'],
         camillero['horario'],
@@ -65,7 +65,7 @@ class CamilleroRepository {
   Future<void> update(int id, Map<String, dynamic> camillero) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'UPDATE Camillero SET jerarquia = ?, horario = ?, id_servicio = ?, id_personal = ? WHERE id_camillero = ?',
+      'UPDATE camillero SET jerarquia = ?, horario = ?, id_servicio = ?, id_personal = ? WHERE id_camillero = ?',
       [
         camillero['jerarquia'],
         camillero['horario'],
@@ -80,7 +80,7 @@ class CamilleroRepository {
   // Eliminar un registro en la tabla Camillero
   Future<void> delete(int id) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
-    await conn.query('DELETE FROM Camillero WHERE id_camillero = ?', [id]);
+    await conn.query('DELETE FROM camillero WHERE id_camillero = ?', [id]);
     await DatabaseHelper.closeConnection(conn);
   }
 }

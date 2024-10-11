@@ -7,7 +7,7 @@ class PersonalRepository {
   // Obtener todos los registros de la tabla Personal
   Future<List<Map<String, dynamic>>> getAll() async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
-    var results = await conn.query('SELECT * FROM Personal');
+    var results = await conn.query('SELECT * FROM personal');
 
     List<Map<String, dynamic>> personal = [];
     for (var row in results) {
@@ -33,7 +33,7 @@ class PersonalRepository {
   Future<Map<String, dynamic>?> getById(int idPersonal) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     var results = await conn
-        .query('SELECT * FROM Personal WHERE id_personal = ?', [idPersonal]);
+        .query('SELECT * FROM personal WHERE id_personal = ?', [idPersonal]);
 
     if (results.isNotEmpty) {
       var row = results.first;
@@ -60,7 +60,7 @@ class PersonalRepository {
   Future<void> insert(Map<String, dynamic> personal) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'INSERT INTO Personal (nombre, apellido_paterno, apellido_materno, tipo, correo_electronico, contrasena, telefono, estatus, clues) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      'INSERT INTO personal (nombre, apellido_paterno, apellido_materno, tipo, correo_electronico, contrasena, telefono, estatus, clues) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
       [
         personal['nombre'],
         personal['apellido_paterno'],
@@ -80,7 +80,7 @@ class PersonalRepository {
   Future<void> update(int idPersonal, Map<String, dynamic> personal) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'UPDATE Personal SET nombre = ?, apellido_paterno = ?, apellido_materno = ?, tipo = ?, correo_electronico = ?, contrasena = ?, telefono = ?, estatus = ?, clues = ? WHERE id_personal = ?',
+      'UPDATE personal SET nombre = ?, apellido_paterno = ?, apellido_materno = ?, tipo = ?, correo_electronico = ?, contrasena = ?, telefono = ?, estatus = ?, clues = ? WHERE id_personal = ?',
       [
         personal['nombre'],
         personal['apellido_paterno'],
@@ -101,7 +101,7 @@ class PersonalRepository {
   Future<void> delete(int idPersonal) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn
-        .query('DELETE FROM Personal WHERE id_personal = ?', [idPersonal]);
+        .query('DELETE FROM personal WHERE id_personal = ?', [idPersonal]);
     await DatabaseHelper.closeConnection(conn);
   }
 }

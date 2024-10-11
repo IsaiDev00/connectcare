@@ -7,7 +7,7 @@ class RHRepository {
   // Obtener todos los registros de la tabla RH
   Future<List<Map<String, dynamic>>> getAll() async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
-    var results = await conn.query('SELECT * FROM RH');
+    var results = await conn.query('SELECT * FROM rh');
 
     List<Map<String, dynamic>> rhRecords = [];
     for (var row in results) {
@@ -25,7 +25,7 @@ class RHRepository {
   // Obtener un registro por ID de la tabla RH
   Future<Map<String, dynamic>?> getById(int idRH) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
-    var results = await conn.query('SELECT * FROM RH WHERE id_rh = ?', [idRH]);
+    var results = await conn.query('SELECT * FROM rh WHERE id_rh = ?', [idRH]);
 
     if (results.isNotEmpty) {
       var row = results.first;
@@ -45,7 +45,7 @@ class RHRepository {
   Future<void> insert(Map<String, dynamic> rhRecord) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'INSERT INTO RH (horario, id_personal) VALUES (?, ?)',
+      'INSERT INTO rh (horario, id_personal) VALUES (?, ?)',
       [
         rhRecord['horario'],
         rhRecord['id_personal'],
@@ -58,7 +58,7 @@ class RHRepository {
   Future<void> update(int idRH, Map<String, dynamic> rhRecord) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'UPDATE RH SET horario = ?, id_personal = ? WHERE id_rh = ?',
+      'UPDATE rh SET horario = ?, id_personal = ? WHERE id_rh = ?',
       [
         rhRecord['horario'],
         rhRecord['id_personal'],
@@ -71,7 +71,7 @@ class RHRepository {
   // Eliminar un registro en la tabla RH
   Future<void> delete(int idRH) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
-    await conn.query('DELETE FROM RH WHERE id_rh = ?', [idRH]);
+    await conn.query('DELETE FROM rh WHERE id_rh = ?', [idRH]);
     await DatabaseHelper.closeConnection(conn);
   }
 }

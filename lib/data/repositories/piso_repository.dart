@@ -7,7 +7,7 @@ class PisoRepository {
   // Obtener todos los registros de la tabla Piso
   Future<List<Map<String, dynamic>>> getAll() async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
-    var results = await conn.query('SELECT * FROM Piso');
+    var results = await conn.query('SELECT * FROM piso');
 
     List<Map<String, dynamic>> pisos = [];
     for (var row in results) {
@@ -24,7 +24,7 @@ class PisoRepository {
   Future<Map<String, dynamic>?> getById(int numeroPiso) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     var results = await conn
-        .query('SELECT * FROM Piso WHERE numero_piso = ?', [numeroPiso]);
+        .query('SELECT * FROM piso WHERE numero_piso = ?', [numeroPiso]);
 
     if (results.isNotEmpty) {
       var row = results.first;
@@ -42,7 +42,7 @@ class PisoRepository {
   Future<void> insert(Map<String, dynamic> piso) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'INSERT INTO Piso (numero_piso) VALUES (?)',
+      'INSERT INTO piso (numero_piso) VALUES (?)',
       [
         piso['numero_piso'],
       ],
@@ -54,7 +54,7 @@ class PisoRepository {
   Future<void> update(int numeroPiso, Map<String, dynamic> piso) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'UPDATE Piso SET numero_piso = ? WHERE numero_piso = ?',
+      'UPDATE piso SET numero_piso = ? WHERE numero_piso = ?',
       [
         piso['numero_piso'],
         numeroPiso,
@@ -66,7 +66,7 @@ class PisoRepository {
   // Eliminar un registro en la tabla Piso
   Future<void> delete(int numeroPiso) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
-    await conn.query('DELETE FROM Piso WHERE numero_piso = ?', [numeroPiso]);
+    await conn.query('DELETE FROM piso WHERE numero_piso = ?', [numeroPiso]);
     await DatabaseHelper.closeConnection(conn);
   }
 }

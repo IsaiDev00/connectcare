@@ -7,7 +7,7 @@ class SolicitudMedicamentoRepository {
   // Obtener todos los registros de la tabla Solicitud_Medicamento
   Future<List<Map<String, dynamic>>> getAll() async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
-    var results = await conn.query('SELECT * FROM Solicitud_Medicamento');
+    var results = await conn.query('SELECT * FROM solicitud_medicamento');
 
     List<Map<String, dynamic>> solicitudesMedicamento = [];
     for (var row in results) {
@@ -30,7 +30,7 @@ class SolicitudMedicamentoRepository {
   Future<Map<String, dynamic>?> getById(int idSolicitudMedicamento) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     var results = await conn.query(
-        'SELECT * FROM Solicitud_Medicamento WHERE id_solicitud_medicamento = ?',
+        'SELECT * FROM solicitud_medicamento WHERE id_solicitud_medicamento = ?',
         [idSolicitudMedicamento]);
 
     if (results.isNotEmpty) {
@@ -55,7 +55,7 @@ class SolicitudMedicamentoRepository {
   Future<void> insert(Map<String, dynamic> solicitudMedicamento) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'INSERT INTO Solicitud_Medicamento (concentracion, cantidad_presentacion, nombre, marca, tipo, id_hoja_de_enfermeria) VALUES (?, ?, ?, ?, ?, ?)',
+      'INSERT INTO solicitud_medicamento (concentracion, cantidad_presentacion, nombre, marca, tipo, id_hoja_de_enfermeria) VALUES (?, ?, ?, ?, ?, ?)',
       [
         solicitudMedicamento['concentracion'],
         solicitudMedicamento['cantidad_presentacion'],
@@ -73,7 +73,7 @@ class SolicitudMedicamentoRepository {
       Map<String, dynamic> solicitudMedicamento) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'UPDATE Solicitud_Medicamento SET concentracion = ?, cantidad_presentacion = ?, nombre = ?, marca = ?, tipo = ?, id_hoja_de_enfermeria = ? WHERE id_solicitud_medicamento = ?',
+      'UPDATE solicitud_medicamento SET concentracion = ?, cantidad_presentacion = ?, nombre = ?, marca = ?, tipo = ?, id_hoja_de_enfermeria = ? WHERE id_solicitud_medicamento = ?',
       [
         solicitudMedicamento['concentracion'],
         solicitudMedicamento['cantidad_presentacion'],
@@ -91,7 +91,7 @@ class SolicitudMedicamentoRepository {
   Future<void> delete(int idSolicitudMedicamento) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-        'DELETE FROM Solicitud_Medicamento WHERE id_solicitud_medicamento = ?',
+        'DELETE FROM solicitud_medicamento WHERE id_solicitud_medicamento = ?',
         [idSolicitudMedicamento]);
     await DatabaseHelper.closeConnection(conn);
   }

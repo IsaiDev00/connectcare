@@ -7,7 +7,7 @@ class EnfermeroRepository {
   // Obtener todos los registros de la tabla Enfermero
   Future<List<Map<String, dynamic>>> getAll() async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
-    var results = await conn.query('SELECT * FROM Enfermero');
+    var results = await conn.query('SELECT * FROM enfermero');
 
     List<Map<String, dynamic>> enfermeros = [];
     for (var row in results) {
@@ -28,7 +28,7 @@ class EnfermeroRepository {
   Future<Map<String, dynamic>?> getById(int id) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     var results = await conn
-        .query('SELECT * FROM Enfermero WHERE id_enfermero = ?', [id]);
+        .query('SELECT * FROM enfermero WHERE id_enfermero = ?', [id]);
 
     if (results.isNotEmpty) {
       var row = results.first;
@@ -50,7 +50,7 @@ class EnfermeroRepository {
   Future<void> insert(Map<String, dynamic> enfermero) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'INSERT INTO Enfermero (horario, jerarquia, id_servicio, id_personal) VALUES (?, ?, ?, ?)',
+      'INSERT INTO enfermero (horario, jerarquia, id_servicio, id_personal) VALUES (?, ?, ?, ?)',
       [
         enfermero['horario'],
         enfermero['jerarquia'],
@@ -65,7 +65,7 @@ class EnfermeroRepository {
   Future<void> update(int id, Map<String, dynamic> enfermero) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'UPDATE Enfermero SET horario = ?, jerarquia = ?, id_servicio = ?, id_personal = ? WHERE id_enfermero = ?',
+      'UPDATE enfermero SET horario = ?, jerarquia = ?, id_servicio = ?, id_personal = ? WHERE id_enfermero = ?',
       [
         enfermero['horario'],
         enfermero['jerarquia'],
@@ -80,7 +80,7 @@ class EnfermeroRepository {
   // Eliminar un registro en la tabla Enfermero
   Future<void> delete(int id) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
-    await conn.query('DELETE FROM Enfermero WHERE id_enfermero = ?', [id]);
+    await conn.query('DELETE FROM enfermero WHERE id_enfermero = ?', [id]);
     await DatabaseHelper.closeConnection(conn);
   }
 }

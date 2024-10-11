@@ -7,7 +7,7 @@ class MedicamentoRepository {
   // Obtener todos los registros de la tabla Medicamento
   Future<List<Map<String, dynamic>>> getAll() async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
-    var results = await conn.query('SELECT * FROM Medicamento');
+    var results = await conn.query('SELECT * FROM medicamento');
 
     List<Map<String, dynamic>> medicamentos = [];
     for (var row in results) {
@@ -32,7 +32,7 @@ class MedicamentoRepository {
   Future<Map<String, dynamic>?> getById(int id) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     var results = await conn
-        .query('SELECT * FROM Medicamento WHERE id_medicamento = ?', [id]);
+        .query('SELECT * FROM medicamento WHERE id_medicamento = ?', [id]);
 
     if (results.isNotEmpty) {
       var row = results.first;
@@ -58,7 +58,7 @@ class MedicamentoRepository {
   Future<void> insert(Map<String, dynamic> medicamento) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'INSERT INTO Medicamento (nombre, marca, tipo, cantidad_presentacion, concentracion, cantidad_stock, caducidad, id_administrador) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      'INSERT INTO medicamento (nombre, marca, tipo, cantidad_presentacion, concentracion, cantidad_stock, caducidad, id_administrador) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
       [
         medicamento['nombre'],
         medicamento['marca'],
@@ -77,7 +77,7 @@ class MedicamentoRepository {
   Future<void> update(int id, Map<String, dynamic> medicamento) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'UPDATE Medicamento SET nombre = ?, marca = ?, tipo = ?, cantidad_presentacion = ?, concentracion = ?, cantidad_stock = ?, caducidad = ?, id_administrador = ? WHERE id_medicamento = ?',
+      'UPDATE medicamento SET nombre = ?, marca = ?, tipo = ?, cantidad_presentacion = ?, concentracion = ?, cantidad_stock = ?, caducidad = ?, id_administrador = ? WHERE id_medicamento = ?',
       [
         medicamento['nombre'],
         medicamento['marca'],
@@ -96,7 +96,7 @@ class MedicamentoRepository {
   // Eliminar un registro en la tabla Medicamento
   Future<void> delete(int id) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
-    await conn.query('DELETE FROM Medicamento WHERE id_medicamento = ?', [id]);
+    await conn.query('DELETE FROM medicamento WHERE id_medicamento = ?', [id]);
     await DatabaseHelper.closeConnection(conn);
   }
 }

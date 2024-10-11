@@ -7,7 +7,7 @@ class TrabajoSocialRepository {
   // Obtener todos los registros de la tabla Trabajo_Social
   Future<List<Map<String, dynamic>>> getAll() async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
-    var results = await conn.query('SELECT * FROM Trabajo_Social');
+    var results = await conn.query('SELECT * FROM trabajo_social');
 
     List<Map<String, dynamic>> trabajosSociales = [];
     for (var row in results) {
@@ -26,7 +26,7 @@ class TrabajoSocialRepository {
   Future<Map<String, dynamic>?> getById(int idTrabajoSocial) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     var results = await conn.query(
-        'SELECT * FROM Trabajo_Social WHERE id_trabajo_social = ?',
+        'SELECT * FROM trabajo_social WHERE id_trabajo_social = ?',
         [idTrabajoSocial]);
 
     if (results.isNotEmpty) {
@@ -47,7 +47,7 @@ class TrabajoSocialRepository {
   Future<void> insert(Map<String, dynamic> trabajoSocial) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'INSERT INTO Trabajo_Social (horario, id_personal) VALUES (?, ?)',
+      'INSERT INTO trabajo_social (horario, id_personal) VALUES (?, ?)',
       [
         trabajoSocial['horario'],
         trabajoSocial['id_personal'],
@@ -61,7 +61,7 @@ class TrabajoSocialRepository {
       int idTrabajoSocial, Map<String, dynamic> trabajoSocial) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'UPDATE Trabajo_Social SET horario = ?, id_personal = ? WHERE id_trabajo_social = ?',
+      'UPDATE trabajo_social SET horario = ?, id_personal = ? WHERE id_trabajo_social = ?',
       [
         trabajoSocial['horario'],
         trabajoSocial['id_personal'],
@@ -74,7 +74,7 @@ class TrabajoSocialRepository {
   // Eliminar un registro en la tabla Trabajo_Social
   Future<void> delete(int idTrabajoSocial) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
-    await conn.query('DELETE FROM Trabajo_Social WHERE id_trabajo_social = ?',
+    await conn.query('DELETE FROM trabajo_social WHERE id_trabajo_social = ?',
         [idTrabajoSocial]);
     await DatabaseHelper.closeConnection(conn);
   }

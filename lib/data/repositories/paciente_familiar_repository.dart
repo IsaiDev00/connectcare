@@ -7,7 +7,7 @@ class PacienteFamiliarRepository {
   // Obtener todos los registros de la tabla Paciente_Familiar
   Future<List<Map<String, dynamic>>> getAll() async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
-    var results = await conn.query('SELECT * FROM Paciente_Familiar');
+    var results = await conn.query('SELECT * FROM paciente_familiar');
 
     List<Map<String, dynamic>> pacientesFamiliares = [];
     for (var row in results) {
@@ -28,7 +28,7 @@ class PacienteFamiliarRepository {
   Future<Map<String, dynamic>?> getById(int nssPaciente, int idFamiliar) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     var results = await conn.query(
-      'SELECT * FROM Paciente_Familiar WHERE nss_paciente = ? AND id_familiar = ?',
+      'SELECT * FROM paciente_familiar WHERE nss_paciente = ? AND id_familiar = ?',
       [nssPaciente, idFamiliar],
     );
 
@@ -52,7 +52,7 @@ class PacienteFamiliarRepository {
   Future<void> insert(Map<String, dynamic> pacienteFamiliar) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'INSERT INTO Paciente_Familiar (nss_paciente, id_familiar, fecha, relacion, id_trabajo_social) VALUES (?, ?, ?, ?, ?)',
+      'INSERT INTO paciente_familiar (nss_paciente, id_familiar, fecha, relacion, id_trabajo_social) VALUES (?, ?, ?, ?, ?)',
       [
         pacienteFamiliar['nss_paciente'],
         pacienteFamiliar['id_familiar'],
@@ -69,7 +69,7 @@ class PacienteFamiliarRepository {
       Map<String, dynamic> pacienteFamiliar) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'UPDATE Paciente_Familiar SET fecha = ?, relacion = ?, id_trabajo_social = ? WHERE nss_paciente = ? AND id_familiar = ?',
+      'UPDATE paciente_familiar SET fecha = ?, relacion = ?, id_trabajo_social = ? WHERE nss_paciente = ? AND id_familiar = ?',
       [
         pacienteFamiliar['fecha'],
         pacienteFamiliar['relacion'],
@@ -85,7 +85,7 @@ class PacienteFamiliarRepository {
   Future<void> delete(int nssPaciente, int idFamiliar) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'DELETE FROM Paciente_Familiar WHERE nss_paciente = ? AND id_familiar = ?',
+      'DELETE FROM paciente_familiar WHERE nss_paciente = ? AND id_familiar = ?',
       [nssPaciente, idFamiliar],
     );
     await DatabaseHelper.closeConnection(conn);

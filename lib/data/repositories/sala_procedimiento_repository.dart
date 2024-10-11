@@ -7,7 +7,7 @@ class SalaProcedimientoRepository {
   // Obtener todos los registros de la tabla Sala_Procedimiento
   Future<List<Map<String, dynamic>>> getAll() async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
-    var results = await conn.query('SELECT * FROM Sala_Procedimiento');
+    var results = await conn.query('SELECT * FROM sala_procedimiento');
 
     List<Map<String, dynamic>> salaProcedimientos = [];
     for (var row in results) {
@@ -26,7 +26,7 @@ class SalaProcedimientoRepository {
       int numeroSala, int idProcedimiento) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     var results = await conn.query(
-      'SELECT * FROM Sala_Procedimiento WHERE numero_sala = ? AND id_procedimiento = ?',
+      'SELECT * FROM sala_procedimiento WHERE numero_sala = ? AND id_procedimiento = ?',
       [numeroSala, idProcedimiento],
     );
 
@@ -47,7 +47,7 @@ class SalaProcedimientoRepository {
   Future<void> insert(Map<String, dynamic> salaProcedimiento) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'INSERT INTO Sala_Procedimiento (numero_sala, id_procedimiento) VALUES (?, ?)',
+      'INSERT INTO sala_procedimiento (numero_sala, id_procedimiento) VALUES (?, ?)',
       [
         salaProcedimiento['numero_sala'],
         salaProcedimiento['id_procedimiento'],
@@ -61,7 +61,7 @@ class SalaProcedimientoRepository {
       Map<String, dynamic> salaProcedimiento) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'UPDATE Sala_Procedimiento SET numero_sala = ?, id_procedimiento = ? WHERE numero_sala = ? AND id_procedimiento = ?',
+      'UPDATE sala_procedimiento SET numero_sala = ?, id_procedimiento = ? WHERE numero_sala = ? AND id_procedimiento = ?',
       [
         salaProcedimiento['numero_sala'],
         salaProcedimiento['id_procedimiento'],
@@ -76,7 +76,7 @@ class SalaProcedimientoRepository {
   Future<void> delete(int numeroSala, int idProcedimiento) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'DELETE FROM Sala_Procedimiento WHERE numero_sala = ? AND id_procedimiento = ?',
+      'DELETE FROM sala_procedimiento WHERE numero_sala = ? AND id_procedimiento = ?',
       [numeroSala, idProcedimiento],
     );
     await DatabaseHelper.closeConnection(conn);

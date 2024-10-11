@@ -7,7 +7,7 @@ class TriageRepository {
   // Obtener todos los registros de la tabla Triage
   Future<List<Map<String, dynamic>>> getAll() async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
-    var results = await conn.query('SELECT * FROM Triage');
+    var results = await conn.query('SELECT * FROM triage');
 
     List<Map<String, dynamic>> triages = [];
     for (var row in results) {
@@ -45,7 +45,7 @@ class TriageRepository {
   Future<Map<String, dynamic>?> getById(int idTriage) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     var results = await conn
-        .query('SELECT * FROM Triage WHERE id_triage = ?', [idTriage]);
+        .query('SELECT * FROM triage WHERE id_triage = ?', [idTriage]);
 
     if (results.isNotEmpty) {
       var row = results.first;
@@ -84,7 +84,7 @@ class TriageRepository {
   Future<void> insert(Map<String, dynamic> triage) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'INSERT INTO Triage (diagnostico, tratamiento, g_capilar, frecuencia_respiratoria, frecuencia_cardiaca, ta_diastolica, ta_sistolica, fecha_fin, hora_fin, fecha_inicio, hora_inicio, temperatura, peso, estatura, escala_glasgow, gravedad, motivo, interrogatorio, exploracion_fisica, auxiliares_diagnostico, nss_paciente) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      'INSERT INTO triage (diagnostico, tratamiento, g_capilar, frecuencia_respiratoria, frecuencia_cardiaca, ta_diastolica, ta_sistolica, fecha_fin, hora_fin, fecha_inicio, hora_inicio, temperatura, peso, estatura, escala_glasgow, gravedad, motivo, interrogatorio, exploracion_fisica, auxiliares_diagnostico, nss_paciente) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
       [
         triage['diagnostico'],
         triage['tratamiento'],
@@ -116,7 +116,7 @@ class TriageRepository {
   Future<void> update(int idTriage, Map<String, dynamic> triage) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'UPDATE Triage SET diagnostico = ?, tratamiento = ?, g_capilar = ?, frecuencia_respiratoria = ?, frecuencia_cardiaca = ?, ta_diastolica = ?, ta_sistolica = ?, fecha_fin = ?, hora_fin = ?, fecha_inicio = ?, hora_inicio = ?, temperatura = ?, peso = ?, estatura = ?, escala_glasgow = ?, gravedad = ?, motivo = ?, interrogatorio = ?, exploracion_fisica = ?, auxiliares_diagnostico = ?, nss_paciente = ? WHERE id_triage = ?',
+      'UPDATE triage SET diagnostico = ?, tratamiento = ?, g_capilar = ?, frecuencia_respiratoria = ?, frecuencia_cardiaca = ?, ta_diastolica = ?, ta_sistolica = ?, fecha_fin = ?, hora_fin = ?, fecha_inicio = ?, hora_inicio = ?, temperatura = ?, peso = ?, estatura = ?, escala_glasgow = ?, gravedad = ?, motivo = ?, interrogatorio = ?, exploracion_fisica = ?, auxiliares_diagnostico = ?, nss_paciente = ? WHERE id_triage = ?',
       [
         triage['diagnostico'],
         triage['tratamiento'],
@@ -148,7 +148,7 @@ class TriageRepository {
   // Eliminar un registro en la tabla Triage
   Future<void> delete(int idTriage) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
-    await conn.query('DELETE FROM Triage WHERE id_triage = ?', [idTriage]);
+    await conn.query('DELETE FROM triage WHERE id_triage = ?', [idTriage]);
     await DatabaseHelper.closeConnection(conn);
   }
 }
