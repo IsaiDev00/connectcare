@@ -1,4 +1,4 @@
-import 'package:connectcare/data/providers/database_helper.dart';
+import 'package:connectcare/presentation/screens/hospital_reg/verification_code_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:convert';
@@ -7,8 +7,7 @@ import 'package:googleapis_auth/auth_io.dart';
 import 'package:image/image.dart' as img;
 import 'dart:typed_data';
 import 'dart:core';
-import 'package:mysql1/mysql1.dart';
-import 'dart:io';
+import 'dart:io' show File; // Importa solo si se usa en móvil
 
 class SubmitCluesScreen extends StatefulWidget {
   const SubmitCluesScreen({super.key});
@@ -45,14 +44,18 @@ class _SubmitCluesScreen extends State<SubmitCluesScreen> {
     if (pickedFile == null) return;
 
     try {
-      // Verificar si la ruta del archivo está disponible
-      if (pickedFile!.path == null) {
-        throw Exception("No se pudo obtener la ruta del archivo seleccionado.");
-      }
+      Uint8List fileBytes;
 
-      // Cargar el archivo desde la ruta
-      final file = File(pickedFile!.path!);
-      final fileBytes = await file.readAsBytes();
+      if (pickedFile!.bytes != null) {
+        // Si estamos en web, usar los bytes directamente
+        fileBytes = pickedFile!.bytes!;
+      } else if (pickedFile!.path != null) {
+        // Si estamos en móvil, cargar los bytes desde la ruta
+        final file = File(pickedFile!.path!);
+        fileBytes = await file.readAsBytes();
+      } else {
+        throw Exception("No se pudo obtener los datos del archivo.");
+      }
 
       // Cargar la imagen utilizando la biblioteca 'image'
       img.Image? originalImage = img.decodeImage(fileBytes);
@@ -125,7 +128,12 @@ class _SubmitCluesScreen extends State<SubmitCluesScreen> {
 
         if (detectedText != null &&
             detectedText != "No se detectó código CLUES.") {
-          Navigator.pushNamed(context, '/verificationCodeScreen');
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => VerificationCodeScreen(detectedText: detectedText!),
+            ),
+          );
         } else {
           Navigator.pushNamed(context, '/cluesErrScreen');
         }
@@ -145,7 +153,6 @@ class _SubmitCluesScreen extends State<SubmitCluesScreen> {
           content: Text("Error al analizar el archivo: $e"),
         ),
       );
-      Navigator.pushNamed(context, '/cluesErrScreen');
     }
   }
 

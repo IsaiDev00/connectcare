@@ -39,7 +39,7 @@ class MyApp extends StatelessWidget {
       darkTheme: AppTheme.darkTheme(), // Tema oscuro
       themeMode:
           ThemeMode.system, // Cambia según la configuración del dispositivo
-      initialRoute: '/submitCluesScreen', // Ruta inicial
+      initialRoute: '/', // Ruta inicial
       routes: {
         '/': (context) => ChooseRoleScreen(),
         '/hospitalStaffRegistration': (context) =>
@@ -60,8 +60,8 @@ class MyApp extends StatelessWidget {
         '/editProfileScreen': (context) => EditProfileScreen(),
         '/submitCluesScreen': (context) => SubmitCluesScreen(),
         '/cluesErrScreen': (context) => CluesErrScreen(),
-        '/verificationCodeScreen': (context) => VerificationCodeScreen(),
-        '/hospitalNameScreen': (context) => HospitalNameScreen(),
+        '/verificationCodeScreen': (context) => VerificationCodeScreen(detectedText: '',),
+        '/hospitalNameScreen': (context) => HospitalNameScreen(detectedText: '',),
         '/adminHomeScreen': (context) => AdminHomeScreen(),
         '/manageRoomScreen': (context) => ManageRoomScreen(),
         '/manageProcedureScreen': (context) => ManageProcedureScreen(),

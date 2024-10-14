@@ -1,8 +1,11 @@
+import 'package:connectcare/presentation/screens/hospital_reg/hospital_name_screen.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
 
 class VerificationCodeScreen extends StatefulWidget {
-  const VerificationCodeScreen({super.key});
+  final String detectedText;
+
+  const VerificationCodeScreen({super.key, required this.detectedText});
 
   @override
   _VerificationCodeScreenState createState() => _VerificationCodeScreenState();
@@ -45,7 +48,7 @@ class _VerificationCodeScreenState extends State<VerificationCodeScreen> {
             ),
             const SizedBox(height: 20),
             Text(
-              '$verificationCode',
+              '\$verificationCode',
               style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
@@ -58,7 +61,13 @@ class _VerificationCodeScreenState extends State<VerificationCodeScreen> {
             const SizedBox(height: 40),
             ElevatedButton(
               onPressed: () {
-                Navigator.pushNamed(context, '/hospitalNameScreen');
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        HospitalNameScreen(detectedText: widget.detectedText),
+                  ),
+                );
               },
               child: const Text('Generar llamada'),
             ),

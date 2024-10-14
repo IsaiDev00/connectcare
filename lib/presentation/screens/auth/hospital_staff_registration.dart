@@ -109,6 +109,7 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                     labelText: 'Staff ID',
                     border: OutlineInputBorder(),
                   ),
+                  autofocus: true,
                   validator: (value) {
                     // RQNF1: Validar que el campo no esté vacío
                     if (value == null || value.isEmpty) {

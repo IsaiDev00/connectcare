@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:connectcare/data/repositories/table/personal_repository.dart';
+import 'package:connectcare/services/shared_preferences_service.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -8,17 +10,45 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreen extends State<ProfileScreen> {
-  // Datos del usuario (puedes cambiar estos valores por los datos reales del usuario)
-  final String userName = "Carlos Pérez";
-  final String userEmail = "carlos.perez@example.com";
-  final String userPhone = "+52 123 456 7890";
+  final PersonalRepository _personalRepository = PersonalRepository();
+  final SharedPreferencesService _sharedPreferencesService =
+      SharedPreferencesService();
+
+  String? userName;
+  String? userEmail;
+  String? userPhone;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    try {
+      final userId = await _sharedPreferencesService.getUserId();
+      if (userId != null) {
+        final userData = await _personalRepository.getById(int.parse(userId));
+        if (userData != null) {
+          setState(() {
+            userName = userData['nombre'] ?? 'Nombre no disponible';
+            userEmail =
+                userData['correo_electronico'] ?? 'Correo no disponible';
+            userPhone = userData['telefono'] ?? 'Teléfono no disponible';
+          });
+        }
+      }
+    } catch (e) {
+      debugPrint('Error al cargar los datos del usuario: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profile'),
-        centerTitle: true, // Centramos el título del AppBar
+        centerTitle: true,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -31,11 +61,11 @@ class _ProfileScreen extends State<ProfileScreen> {
                 height: 150,
               ),
             ),
-            SizedBox(height: 40),
+            const SizedBox(height: 40),
 
             // Nombre del usuario
             Text(
-              userName,
+              userName ?? 'Cargando...',
               style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -45,7 +75,7 @@ class _ProfileScreen extends State<ProfileScreen> {
 
             // Correo del usuario
             Text(
-              userEmail,
+              userEmail ?? 'Cargando...',
               style: const TextStyle(
                 fontSize: 16,
                 color: Colors.grey,
@@ -55,7 +85,7 @@ class _ProfileScreen extends State<ProfileScreen> {
 
             // Teléfono del usuario
             Text(
-              userPhone,
+              userPhone ?? 'Cargando...',
               style: const TextStyle(
                 fontSize: 16,
                 color: Colors.grey,
