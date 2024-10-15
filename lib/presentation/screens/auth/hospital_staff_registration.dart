@@ -3,6 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:connectcare/data/repositories/table/personal_repository.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:connectcare/services/shared_preferences_service.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:connectcare/presentation/screens/auth/complete_staff_registration.dart';
 
 class HospitalStaffRegistration extends StatefulWidget {
   const HospitalStaffRegistration({super.key});
@@ -66,6 +69,44 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
     }
   }
 
+  Future<void> _signInWithGoogle() async {
+    try {
+      // Trigger the authentication flow
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+
+      // Obtain the auth details from the request
+      final GoogleSignInAuthentication? googleAuth =
+          await googleUser?.authentication;
+
+      // Create a new credential
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth?.accessToken,
+        idToken: googleAuth?.idToken,
+      );
+
+      // Once signed in, get the UserCredential
+      UserCredential userCredential =
+          await FirebaseAuth.instance.signInWithCredential(credential);
+
+      User? user = userCredential.user;
+      if (user != null) {
+        // Navegar a la pantalla para completar el registro
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CompleteStaffRegistration(firebaseUser: user),
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Google sign-in failed: $e'),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     var brightness = Theme.of(context).brightness;
@@ -110,14 +151,24 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                     border: OutlineInputBorder(),
                   ),
                   autofocus: true,
+                  inputFormatters: [
+                    FilteringTextInputFormatter
+                        .digitsOnly, // Permitir solo dígitos
+                    LengthLimitingTextInputFormatter(
+                        8), // Limitar la longitud a 8 dígitos
+                  ],
                   validator: (value) {
-                    // RQNF1: Validar que el campo no esté vacío
+                    // Validación: 8 dígitos numéricos
                     if (value == null || value.isEmpty) {
                       return 'Please enter your staff ID';
+                    }
+                    if (value.length != 8) {
+                      return 'Staff ID must be exactly 8 digits';
                     }
                     return null;
                   },
                 ),
+
                 const SizedBox(height: 15),
 
                 // Campo para el nombre
@@ -227,7 +278,8 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                       }
                     } else {
                       // RQNF3: Validar número de teléfono de 10 dígitos numéricos
-                      final phoneRegex = RegExp(r'^\d{10}$');
+                      final phoneRegex =
+                          RegExp(r'^\d{10}$'); // Arreglar la expresión regular
                       if (!phoneRegex.hasMatch(value)) {
                         return 'Please enter a valid 10-digit phone number';
                       }
@@ -235,6 +287,7 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                     return null;
                   },
                 ),
+
                 const SizedBox(height: 15),
 
                 // Campo para la contraseña
@@ -252,7 +305,8 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                     }
                     // RQNF6: Validar que la contraseña cumpla con los requisitos
                     final passwordRegex = RegExp(
-                        r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\u00a1@#\\$%^&*~`+\-/<>,.]).{8,}$');
+                        r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&*()!]).{8,}$');
+
                     if (!passwordRegex.hasMatch(value)) {
                       return 'Password must be at least 8 characters and include uppercase, lowercase, numbers, and symbols';
                     }
@@ -424,9 +478,7 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                 const SizedBox(height: 10),
 
                 ElevatedButton.icon(
-                  onPressed: () {
-                    // Lógica para iniciar sesión con Google
-                  },
+                  onPressed: _signInWithGoogle,
                   icon: FaIcon(FontAwesomeIcons.google,
                       color: brightness == Brightness.dark
                           ? Colors.white

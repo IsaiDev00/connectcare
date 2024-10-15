@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "1061884124346",
+    "project_id": "connectcare-8576a",
+    "storage_bucket": "connectcare-8576a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1061884124346:android:48612fee86203d2792f683",
+        "android_client_info": {
+          "package_name": "com.example.connectcare"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1061884124346-77r5e60o55825ups9cgudphm8tm7fvtt.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.connectcare",
+            "certificate_hash": "31ac8cefa6d3c81f7d653247ed8796ee0301656e"
+          }
+        },
+        {
+          "client_id": "1061884124346-597fc9j9omdlsnknl9nd6ul5nic59907.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAFLKf4Uqbn2rkE_D0QeyGjxvor8g15zPo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1061884124346-597fc9j9omdlsnknl9nd6ul5nic59907.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1061884124346-p0fsadlka2s6jklv6vnc655vq52ae2f4.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.connectcare"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

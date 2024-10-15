@@ -23,9 +23,19 @@ import 'presentation/screens/auth/family_registration.dart'; // Importar la pant
 import 'core/theme/app_theme.dart'; // Importar el tema
 import 'presentation/screens/settings/terms_and_conditions_screen.dart'; // Ruta de términos de uso
 import 'presentation/screens/settings/privacy_policy_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-void main() {
-  runApp(MyApp());
+void main() async {
+  // Asegurarse de inicializar correctamente los servicios de Flutter
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Inicializar Firebase
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -60,8 +70,12 @@ class MyApp extends StatelessWidget {
         '/editProfileScreen': (context) => EditProfileScreen(),
         '/submitCluesScreen': (context) => SubmitCluesScreen(),
         '/cluesErrScreen': (context) => CluesErrScreen(),
-        '/verificationCodeScreen': (context) => VerificationCodeScreen(detectedText: '',),
-        '/hospitalNameScreen': (context) => HospitalNameScreen(detectedText: '',),
+        '/verificationCodeScreen': (context) => VerificationCodeScreen(
+              detectedText: '',
+            ),
+        '/hospitalNameScreen': (context) => HospitalNameScreen(
+              detectedText: '',
+            ),
         '/adminHomeScreen': (context) => AdminHomeScreen(),
         '/manageRoomScreen': (context) => ManageRoomScreen(),
         '/manageProcedureScreen': (context) => ManageProcedureScreen(),

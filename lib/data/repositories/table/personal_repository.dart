@@ -23,6 +23,7 @@ class PersonalRepository {
         'estatus': row['estatus'],
         'asignado': row['asignado'],
         'clues': row['clues'],
+        'firebase_uid': row['firebase_uid'], // Agregado
       });
     }
 
@@ -62,7 +63,7 @@ class PersonalRepository {
   Future<void> insert(Map<String, dynamic> personal) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'INSERT INTO personal (id_personal, nombre, apellido_paterno, apellido_materno, tipo, correo_electronico, contrasena, telefono) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      'INSERT INTO personal (id_personal, nombre, apellido_paterno, apellido_materno, tipo, correo_electronico, contrasena, telefono, firebase_uid) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
       [
         personal['id_personal'],
         personal['nombre'],
@@ -72,6 +73,7 @@ class PersonalRepository {
         personal['correo_electronico'],
         personal['contrasena'],
         personal['telefono'],
+        personal['firebase_uid'], // Agregado
       ],
     );
     await DatabaseHelper.closeConnection(conn);
@@ -81,7 +83,7 @@ class PersonalRepository {
   Future<void> update(int idPersonal, Map<String, dynamic> personal) async {
     MySqlConnection conn = await DatabaseHelper.getConnection();
     await conn.query(
-      'UPDATE personal SET nombre = ?, apellido_paterno = ?, apellido_materno = ?, tipo = ?, correo_electronico = ?, contrasena = ?, telefono = ?, estatus = ?, clues = ? WHERE id_personal = ?',
+      'UPDATE personal SET nombre = ?, apellido_paterno = ?, apellido_materno = ?, tipo = ?, correo_electronico = ?, contrasena = ?, telefono = ?, estatus = ?, clues = ?, firebase_uid = ? WHERE id_personal = ?',
       [
         personal['nombre'],
         personal['apellido_paterno'],
@@ -93,6 +95,7 @@ class PersonalRepository {
         personal['estatus'],
         personal['asignado'],
         personal['clues'],
+        personal['firebase_uid'], // Agregado
         idPersonal,
       ],
     );
