@@ -6,8 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 class CompleteStaffRegistration extends StatefulWidget {
   final User firebaseUser;
 
-  const CompleteStaffRegistration({required this.firebaseUser, Key? key})
-      : super(key: key);
+  const CompleteStaffRegistration({required this.firebaseUser, super.key});
 
   @override
   _CompleteStaffRegistrationState createState() =>
