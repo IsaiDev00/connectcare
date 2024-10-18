@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http; // Importa el paquete http
+import 'dart:convert'; // Para convertir JSON
 import 'package:connectcare/data/repositories/table/personal_repository.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:connectcare/services/shared_preferences_service.dart';
@@ -43,69 +45,13 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
   final TextEditingController _confirmPasswordController =
       TextEditingController();
 
-  final PersonalRepository _personalRepository = PersonalRepository();
+  // Define el URL base de tu backend
+  final String _baseUrl =
+      'http://127.0.0.1:8080'; // Cambia esto por el URL de tu backend
+
+  // Reinstanciamos SharedPreferencesService
   final SharedPreferencesService _sharedPreferencesService =
       SharedPreferencesService();
-
-  // Función para validar si el email ya está en uso (RQNF4)
-  Future<bool> _isEmailInUse(String email) async {
-    try {
-      final result = await _personalRepository.getByEmail(email);
-      return result != null;
-    } catch (e) {
-      debugPrint("Error al verificar el email: $e");
-      return false;
-    }
-  }
-
-  // Función para validar si el teléfono ya está en uso (RQNF5)
-  Future<bool> _isPhoneInUse(String phone) async {
-    try {
-      final result = await _personalRepository.getByPhone(phone);
-      return result != null;
-    } catch (e) {
-      debugPrint("Error al verificar el teléfono: $e");
-      return false;
-    }
-  }
-
-  Future<void> _signInWithGoogle() async {
-    try {
-      // Trigger the authentication flow
-      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-
-      // Obtain the auth details from the request
-      final GoogleSignInAuthentication? googleAuth =
-          await googleUser?.authentication;
-
-      // Create a new credential
-      final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth?.accessToken,
-        idToken: googleAuth?.idToken,
-      );
-
-      // Once signed in, get the UserCredential
-      UserCredential userCredential =
-          await FirebaseAuth.instance.signInWithCredential(credential);
-
-      User? user = userCredential.user;
-      if (user != null) {
-        // Navegar a la pantalla para completar el registro
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => CompleteStaffRegistration(firebaseUser: user),
-          ),
-        );
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Google sign-in failed: $e'),
-        ),
-      );
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -152,13 +98,10 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                   ),
                   autofocus: true,
                   inputFormatters: [
-                    FilteringTextInputFormatter
-                        .digitsOnly, // Permitir solo dígitos
-                    LengthLimitingTextInputFormatter(
-                        8), // Limitar la longitud a 8 dígitos
+                    FilteringTextInputFormatter.digitsOnly,
+                    LengthLimitingTextInputFormatter(8),
                   ],
                   validator: (value) {
-                    // Validación: 8 dígitos numéricos
                     if (value == null || value.isEmpty) {
                       return 'Please enter your staff ID';
                     }
@@ -179,7 +122,6 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) {
-                    // RQNF1: Validar que el campo no esté vacío
                     if (value == null || value.isEmpty) {
                       return 'Please enter your first name';
                     }
@@ -196,7 +138,6 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) {
-                    // RQNF1: Validar que el campo no esté vacío
                     if (value == null || value.isEmpty) {
                       return 'Please enter your paternal last name';
                     }
@@ -213,7 +154,6 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) {
-                    // RQNF1: Validar que el campo no esté vacío
                     if (value == null || value.isEmpty) {
                       return 'Please enter your maternal last name';
                     }
@@ -233,9 +173,7 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                       value: type,
                       child: Text(
                         type,
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodyLarge, // Ajusta el estilo de las opciones
+                        style: Theme.of(context).textTheme.bodyLarge,
                       ),
                     );
                   }).toList(),
@@ -245,7 +183,6 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                     });
                   },
                   validator: (value) {
-                    // Validación: RQNF1
                     if (value == null || value.isEmpty) {
                       return 'Por favor selecciona un tipo de usuario';
                     }
@@ -271,15 +208,12 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                           : 'Please enter your phone number';
                     }
                     if (isEmailMode) {
-                      // RQNF2: Validar formato de email
                       final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
                       if (!emailRegex.hasMatch(value)) {
                         return 'Please enter a valid email address';
                       }
                     } else {
-                      // RQNF3: Validar número de teléfono de 10 dígitos numéricos
-                      final phoneRegex =
-                          RegExp(r'^\d{10}$'); // Arreglar la expresión regular
+                      final phoneRegex = RegExp(r'^\d{10}$');
                       if (!phoneRegex.hasMatch(value)) {
                         return 'Please enter a valid 10-digit phone number';
                       }
@@ -299,11 +233,9 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                   ),
                   obscureText: true,
                   validator: (value) {
-                    // RQNF1: Validar que el campo no esté vacío
                     if (value == null || value.isEmpty) {
                       return 'Please enter your password';
                     }
-                    // RQNF6: Validar que la contraseña cumpla con los requisitos
                     final passwordRegex = RegExp(
                         r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&*()!]).{8,}$');
 
@@ -324,7 +256,6 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                   ),
                   obscureText: true,
                   validator: (value) {
-                    // RQNF7: Validar que las contraseñas coincidan
                     if (value != _passwordController.text) {
                       return 'Passwords do not match';
                     }
@@ -337,46 +268,11 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                 ElevatedButton(
                   onPressed: () async {
                     if (_formKey.currentState!.validate()) {
-                      // Guardar una referencia al ScaffoldMessenger antes del await
                       final scaffoldMessenger = ScaffoldMessenger.of(context);
 
-                      // Validación de email o teléfono en uso
-                      if (isEmailMode) {
-                        // RQNF4: Validar que el email no esté en uso
-                        bool emailInUse =
-                            await _isEmailInUse(_emailOrPhoneController.text);
-                        if (!mounted) {
-                          return;
-                        } // Verificar si el widget sigue montado
-                        if (emailInUse) {
-                          scaffoldMessenger.showSnackBar(
-                            const SnackBar(
-                              content: Text('This email is already in use'),
-                            ),
-                          );
-                          return;
-                        }
-                      } else {
-                        // RQNF5: Validar que el teléfono no esté en uso
-                        bool phoneInUse =
-                            await _isPhoneInUse(_emailOrPhoneController.text);
-                        if (!mounted) {
-                          return;
-                        } // Verificar si el widget sigue montado
-                        if (phoneInUse) {
-                          scaffoldMessenger.showSnackBar(
-                            const SnackBar(
-                              content:
-                                  Text('This phone number is already in use'),
-                            ),
-                          );
-                          return;
-                        }
-                      }
-
-                      // Si todas las validaciones pasan, proceder con el registro
                       try {
-                        await _personalRepository.insert({
+                        // Construye el cuerpo de la solicitud
+                        Map<String, dynamic> requestBody = {
                           'id_personal': idController.text,
                           'nombre': _firstNameController.text,
                           'apellido_paterno': _lastNamePaternalController.text,
@@ -387,19 +283,62 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                           'telefono':
                               isEmailMode ? null : _emailOrPhoneController.text,
                           'contrasena': _passwordController.text,
-                        });
+                          'estatus': 'activo' // Ajusta según tus necesidades
+                        };
 
-                        // Guardar el ID del usuario de forma local
-                        await _sharedPreferencesService
-                            .saveUserId(idController.text);
+                        // Realiza la solicitud POST al backend
+                        var url = Uri.parse('$_baseUrl/staff/signup');
+                        var response = await http.post(
+                          url,
+                          headers: {'Content-Type': 'application/json'},
+                          body: jsonEncode(requestBody),
+                        );
 
-                        Navigator.pushNamed(context, '/mainScreen');
+                        // Mostrar la respuesta del servidor en el SnackBar para depurar
                         scaffoldMessenger.showSnackBar(
-                          const SnackBar(
-                            content: Text('Registration successful'),
+                          SnackBar(
+                            content: Text('Server response: ${response.body}'),
                           ),
                         );
+
+                        if (response.statusCode == 201) {
+                          // Registro exitoso
+                          var responseBody = jsonDecode(response.body);
+                          String idPersonal =
+                              responseBody['id_personal'].toString();
+
+                          // Guardar el ID del usuario de forma local
+                          await _sharedPreferencesService
+                              .saveUserId(idPersonal);
+
+                          scaffoldMessenger.showSnackBar(
+                            const SnackBar(
+                              content: Text('Registration successful'),
+                            ),
+                          );
+                          Navigator.pushNamed(context, '/mainScreen');
+                        } else {
+                          // Error en el registro, intentar decodificar el JSON o mostrar el mensaje directamente
+                          try {
+                            var responseBody = jsonDecode(response.body);
+                            String errorMessage =
+                                responseBody['error'] ?? 'Registration failed';
+                            scaffoldMessenger.showSnackBar(
+                              SnackBar(
+                                content: Text(errorMessage),
+                              ),
+                            );
+                          } catch (e) {
+                            // Si no se puede decodificar el JSON, mostrar el contenido tal cual
+                            scaffoldMessenger.showSnackBar(
+                              SnackBar(
+                                content: Text('Error: ${response.body}'),
+                              ),
+                            );
+                          }
+                        }
                       } catch (e) {
+                        // Error durante el proceso de registro (red, JSON, etc.)
                         scaffoldMessenger.showSnackBar(
                           SnackBar(
                             content: Text('Registration failed: $e'),
@@ -410,6 +349,7 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                   },
                   child: const Text('Continue'),
                 ),
+
                 const SizedBox(height: 20),
 
                 // Texto "or"
@@ -425,14 +365,12 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                 ),
                 const SizedBox(height: 20),
 
-                // Botón dinámico para alternar entre Email y Teléfono
+                // Botón para alternar entre Email y Teléfono
                 ElevatedButton.icon(
                   onPressed: () {
                     setState(() {
-                      isEmailMode =
-                          !isEmailMode; // Alternar entre email y phone
-                      _emailOrPhoneController
-                          .clear(); // Limpiar el TextField al cambiar
+                      isEmailMode = !isEmailMode;
+                      _emailOrPhoneController.clear();
                     });
                   },
                   icon: Icon(
@@ -442,8 +380,7 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                   label: Text(
                     isEmailMode ? 'Continue with Phone' : 'Continue with Email',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          color: Theme.of(context).textTheme.bodyLarge?.color,
-                        ),
+                        color: Theme.of(context).textTheme.bodyLarge?.color),
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).colorScheme.surface,
@@ -454,6 +391,7 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                 ),
                 const SizedBox(height: 10),
 
+                // Botón para iniciar sesión con Facebook (Lógica pendiente)
                 ElevatedButton.icon(
                   onPressed: () {
                     // Lógica para iniciar sesión con Facebook
@@ -465,8 +403,7 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                   label: Text(
                     'Continue with Facebook',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          color: Theme.of(context).textTheme.bodyLarge?.color,
-                        ),
+                        color: Theme.of(context).textTheme.bodyLarge?.color),
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).colorScheme.surface,
@@ -477,6 +414,7 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                 ),
                 const SizedBox(height: 10),
 
+                // Botón para iniciar sesión con Google
                 ElevatedButton.icon(
                   onPressed: _signInWithGoogle,
                   icon: FaIcon(FontAwesomeIcons.google,
@@ -486,8 +424,7 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                   label: Text(
                     'Continue with Google',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          color: Theme.of(context).textTheme.bodyLarge?.color,
-                        ),
+                        color: Theme.of(context).textTheme.bodyLarge?.color),
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).colorScheme.surface,
@@ -498,6 +435,7 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                 ),
                 const SizedBox(height: 10),
 
+                // Botón para iniciar sesión con Apple (Lógica pendiente)
                 ElevatedButton.icon(
                   onPressed: () {
                     // Lógica para iniciar sesión con Apple
@@ -507,8 +445,7 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                   label: Text(
                     'Continue with Apple',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          color: Theme.of(context).textTheme.bodyLarge?.color,
-                        ),
+                        color: Theme.of(context).textTheme.bodyLarge?.color),
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).colorScheme.surface,
@@ -523,5 +460,37 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
         ),
       ),
     );
+  }
+
+  // Función para iniciar sesión con Google
+  Future<void> _signInWithGoogle() async {
+    try {
+      // Inicio de sesión con Google
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+      final GoogleSignInAuthentication? googleAuth =
+          await googleUser?.authentication;
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth?.accessToken,
+        idToken: googleAuth?.idToken,
+      );
+      UserCredential userCredential =
+          await FirebaseAuth.instance.signInWithCredential(credential);
+      User? user = userCredential.user;
+      if (user != null) {
+        // Navegar a la pantalla para completar el registro
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CompleteStaffRegistration(firebaseUser: user),
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Google sign-in failed: $e'),
+        ),
+      );
+    }
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:connectcare/data/repositories/table/personal_repository.dart';
+import 'package:http/http.dart' as http; // Importa el paquete http
+import 'dart:convert'; // Para convertir JSON
 import 'package:connectcare/services/shared_preferences_service.dart';
 
 class EditProfileScreen extends StatefulWidget {
@@ -10,7 +11,6 @@ class EditProfileScreen extends StatefulWidget {
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
-  final PersonalRepository _personalRepository = PersonalRepository();
   final SharedPreferencesService _sharedPreferencesService =
       SharedPreferencesService();
 
@@ -26,6 +26,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   String userClues = '';
   int? userId;
 
+  // Define el URL base de tu backend
+  final String _baseUrl =
+      'http://127.0.0.1:8080'; // Cambia esto por el URL de tu backend
+
   @override
   void initState() {
     super.initState();
@@ -37,8 +41,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       final userIdString = await _sharedPreferencesService.getUserId();
       if (userIdString != null) {
         userId = int.parse(userIdString);
-        final userData = await _personalRepository.getById(userId!);
-        if (userData != null) {
+        // Realiza la solicitud GET al backend para obtener los datos del usuario
+        var url = Uri.parse('$_baseUrl/staff/getUser/$userId');
+        var response = await http.get(url);
+
+        if (response.statusCode == 200) {
+          var userData = jsonDecode(response.body);
           setState(() {
             userName = userData['nombre'] ?? 'Nombre no disponible';
             userEmail =
@@ -52,6 +60,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             userAsignado = userData['asignado'] ?? '';
             userClues = userData['clues'] ?? '';
           });
+        } else {
+          throw Exception('Failed to load user data');
         }
       }
     } catch (e) {
@@ -191,11 +201,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       break;
                   }
 
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Sending data to update...')),
-                  );
-
-                  await _personalRepository.update(userId!, {
+                  // Realiza la solicitud PUT al backend para actualizar el perfil
+                  var url = Uri.parse('$_baseUrl/staff/editProfile/$userId');
+                  Map<String, dynamic> requestBody = {
                     'nombre': userName,
                     'apellido_paterno': userApellidoPaterno,
                     'apellido_materno': userApellidoMaterno,
@@ -204,17 +212,24 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     'contrasena': userPassword,
                     'telefono': userPhone,
                     'estatus': userEstatus,
-                    'asignado': userAsignado,
-                    'clues': userClues,
-                  });
+                  };
 
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content: Text('Profile updated successfully')),
+                  var response = await http.put(
+                    url,
+                    headers: {'Content-Type': 'application/json'},
+                    body: jsonEncode(requestBody),
                   );
 
-                  setState(() {});
-                  Navigator.of(context).pop();
+                  if (response.statusCode == 200) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content: Text('Profile updated successfully')),
+                    );
+                    setState(() {});
+                    Navigator.of(context).pop();
+                  } else {
+                    throw Exception('Failed to update profile');
+                  }
                 } catch (e) {
                   debugPrint('Error al actualizar los datos del usuario: $e');
                   ScaffoldMessenger.of(context).showSnackBar(
