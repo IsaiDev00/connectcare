@@ -23,7 +23,7 @@ class LoginScreenState extends State<LoginScreen> {
 
   // Define el URL base de tu backend
   final String _baseUrl =
-      'http://127.0.0.1:8080'; // Cambia esto por el URL de tu backend
+      'http://35.188.80.9:8080'; // Cambia esto por el URL de tu backend
 
   // Función para iniciar sesión utilizando el backend
   Future<void> _login() async {

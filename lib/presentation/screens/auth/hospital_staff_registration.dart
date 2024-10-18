@@ -47,7 +47,7 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
 
   // Define el URL base de tu backend
   final String _baseUrl =
-      'http://127.0.0.1:8080'; // Cambia esto por el URL de tu backend
+      'http://35.188.80.9:8080'; // Cambia esto por el URL de tu backend
 
   // Reinstanciamos SharedPreferencesService
   final SharedPreferencesService _sharedPreferencesService =
