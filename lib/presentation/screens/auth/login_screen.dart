@@ -55,12 +55,24 @@ class LoginScreenState extends State<LoginScreen> {
         if (response.statusCode == 200) {
           // Inicio de sesión exitoso
           var responseBody = jsonDecode(response.body);
-          String userId = responseBody['id_personal']?.toString() ??
-              responseBody['id_familiar']?.toString() ??
-              '';
+          // Asegúrate de que el campo 'user' existe y luego accede a 'id_personal'
+          if (responseBody != null && responseBody['user'] != null) {
+            debugPrint('Full Response: $responseBody');
 
-          // Guardar el ID del usuario de forma local
-          await _sharedPreferencesService.saveUserId(userId);
+            // Acceder al campo 'id_personal' dentro del objeto 'user'
+            String userId =
+                responseBody['user']['id_personal']?.toString() ?? '';
+
+            if (userId.isEmpty) {
+              debugPrint('Error: User ID is empty');
+            } else {
+              debugPrint('User ID: $userId');
+              // Guardar el ID del usuario en SharedPreferences
+              await _sharedPreferencesService.saveUserId(userId);
+            }
+          } else {
+            debugPrint('Error: Response does not contain user information');
+          }
 
           scaffoldMessenger.showSnackBar(
             const SnackBar(

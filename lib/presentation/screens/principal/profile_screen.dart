@@ -1,5 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:connectcare/data/repositories/table/personal_repository.dart';
+import 'package:http/http.dart' as http;
 import 'package:connectcare/services/shared_preferences_service.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -10,7 +11,6 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreen extends State<ProfileScreen> {
-  final PersonalRepository _personalRepository = PersonalRepository();
   final SharedPreferencesService _sharedPreferencesService =
       SharedPreferencesService();
 
@@ -24,18 +24,32 @@ class _ProfileScreen extends State<ProfileScreen> {
     _loadUserData();
   }
 
+  // Método para cargar los datos del usuario desde el backend
   Future<void> _loadUserData() async {
     try {
       final userId = await _sharedPreferencesService.getUserId();
+      debugPrint('User ID: $userId');
       if (userId != null) {
-        final userData = await _personalRepository.getById(int.parse(userId));
-        if (userData != null) {
+        // Realizar la solicitud al backend
+        final url = Uri.parse('http://35.188.80.9:8080/staff/getUser/$userId');
+        final response = await http.get(url);
+
+        if (response.statusCode == 200) {
+          final userData = jsonDecode(response.body);
           setState(() {
             userName = userData['nombre'] ?? 'Nombre no disponible';
             userEmail =
                 userData['correo_electronico'] ?? 'Correo no disponible';
             userPhone = userData['telefono'] ?? 'Teléfono no disponible';
           });
+        } else if (response.statusCode == 404) {
+          setState(() {
+            userName = 'Usuario no encontrado';
+            userEmail = '';
+            userPhone = '';
+          });
+        } else {
+          throw Exception('Error al obtener los datos del usuario');
         }
       }
     } catch (e) {
