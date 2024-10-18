@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http; // Importa el paquete http
 import 'dart:convert'; // Para convertir JSON
-import 'package:connectcare/data/repositories/table/personal_repository.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:connectcare/services/shared_preferences_service.dart';
 import 'package:google_sign_in/google_sign_in.dart';
