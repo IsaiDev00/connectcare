@@ -12,12 +12,12 @@ dependencies:
     sdk: flutter
   http: ^1.2.2
   mysql1: ^0.20.0
-  font_awesome_flutter: ^10.0.0
+  font_awesome_flutter: ^10.7.0
   cupertino_icons: ^1.0.8
   file_picker: ^8.1.2
-  googleapis: ^12.0.0
+  googleapis: ^13.2.0
   googleapis_auth: ^1.6.0
-  image: ^4.2.0
+  image: ^4.3.0
   shared_preferences: ^2.3.2
   firebase_auth: ^5.3.1
   google_sign_in: ^6.2.1

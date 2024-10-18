@@ -3,7 +3,7 @@ import 'package:connectcare/presentation/screens/admin/hospital_features_screen.
 import 'package:connectcare/presentation/screens/admin/manage_procedure_screen.dart';
 import 'package:connectcare/presentation/screens/admin/manage_room_screen.dart';
 import 'package:connectcare/presentation/screens/admin/manage_service_screen.dart';
-import 'package:connectcare/presentation/screens/auth/login_screen.dart'; //Importar la pantalla de login
+import 'package:connectcare/presentation/screens/auth/login_screen.dart';
 import 'package:connectcare/presentation/screens/auth/password_recovery.dart';
 import 'package:connectcare/presentation/screens/auth/verification_code.dart';
 import 'package:connectcare/presentation/screens/hospital_reg/clues_err_screen.dart';
@@ -17,20 +17,17 @@ import 'package:connectcare/presentation/screens/principal/profile_screen.dart';
 import 'package:connectcare/presentation/screens/settings/edit_profile_screen.dart';
 import 'package:connectcare/presentation/screens/settings/settings_screen.dart';
 import 'package:flutter/material.dart';
-import 'presentation/screens/auth/choose_role_screen.dart'; // Importar la pantalla de selección de rol
-import 'presentation/screens/auth/hospital_staff_registration.dart'; // Importar la pantalla de registro del personal hospitalario
-import 'presentation/screens/auth/family_registration.dart'; // Importar la pantalla de registro de familiares
-import 'core/theme/app_theme.dart'; // Importar el tema
-import 'presentation/screens/settings/terms_and_conditions_screen.dart'; // Ruta de términos de uso
+import 'presentation/screens/auth/choose_role_screen.dart';
+import 'presentation/screens/auth/hospital_staff_registration.dart';
+import 'presentation/screens/auth/family_registration.dart';
+import 'core/theme/app_theme.dart';
+import 'presentation/screens/settings/terms_and_conditions_screen.dart';
 import 'presentation/screens/settings/privacy_policy_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
 void main() async {
-  // Asegurarse de inicializar correctamente los servicios de Flutter
   WidgetsFlutterBinding.ensureInitialized();
-
-  // Inicializar Firebase
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
