@@ -21,11 +21,10 @@ class LoginScreenState extends State<LoginScreen> {
   final SharedPreferencesService _sharedPreferencesService =
       SharedPreferencesService();
 
-  // Define el URL base de tu backend
   final String _baseUrl =
-      'https://db-queries-dusedwzhhq-uc.a.run.app/'; // Cambia esto por el URL de tu backend
+      'https://connectcare-queries-158294687720.us-central1.run.app'; 
 
-  // Función para iniciar sesión utilizando el backend
+
   Future<void> _login() async {
     if (_formKey.currentState!.validate()) {
       final scaffoldMessenger = ScaffoldMessenger.of(context);
