@@ -45,9 +45,34 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
   final TextEditingController _confirmPasswordController =
       TextEditingController();
 
+  // Define el URL base de tu backend
+  final String _baseUrl = 'https://db-queries-158294687720.us-central1.run.app';
+
   // Reinstanciamos SharedPreferencesService
   final SharedPreferencesService _sharedPreferencesService =
       SharedPreferencesService();
+
+  // Función para verificar si el correo ya existe
+  Future<bool> checkEmailExists(String email) async {
+    var url = Uri.parse('$_baseUrl/personal/email/$email');
+    var response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      return true; // El email ya existe
+    }
+    return false; // El email no existe
+  }
+
+// Función para verificar si el teléfono ya existe
+  Future<bool> checkPhoneExists(String phone) async {
+    var url = Uri.parse('$_baseUrl/personal/telefono/$phone');
+    var response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      return true; // El teléfono ya existe
+    }
+    return false; // El teléfono no existe
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -266,11 +291,29 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                 ),
                 const SizedBox(height: 30),
 
-                // Botón para continuar
+// Botón para continuar
                 ElevatedButton(
                   onPressed: () async {
                     if (_formKey.currentState!.validate()) {
                       final scaffoldMessenger = ScaffoldMessenger.of(context);
+
+                      // Verificar si el email o teléfono ya existe
+                      bool emailExists = isEmailMode
+                          ? await checkEmailExists(_emailOrPhoneController.text)
+                          : false;
+                      bool phoneExists = !isEmailMode
+                          ? await checkPhoneExists(_emailOrPhoneController.text)
+                          : false;
+
+                      if (emailExists) {
+                        scaffoldMessenger.showSnackBar(SnackBar(
+                            content: Text('El correo ya está registrado')));
+                        return;
+                      } else if (phoneExists) {
+                        scaffoldMessenger.showSnackBar(SnackBar(
+                            content: Text('El teléfono ya está registrado')));
+                        return;
+                      }
 
                       try {
                         // Construye el cuerpo de la solicitud
@@ -291,62 +334,37 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                         // Realiza la solicitud POST al backend
                         var url = Uri.parse(
                             'https://connectcare-queries-158294687720.us-central1.run.app/personal');
+                        var url = Uri.parse('$_baseUrl/personal');
                         var response = await http.post(
                           url,
                           headers: {'Content-Type': 'application/json'},
                           body: jsonEncode(requestBody),
                         );
 
-                        // Mostrar la respuesta del servidor en el SnackBar para depurar
-                        scaffoldMessenger.showSnackBar(
-                          SnackBar(
-                            content: Text('Server response: ${response.body}'),
-                          ),
-                        );
-
-                        if (response.statusCode == 201) {
-                          // Registro exitoso
+                        // Verifica si la respuesta es JSON válida
+                        try {
                           var responseBody = jsonDecode(response.body);
-                          String idPersonal =
-                              responseBody['id_personal'].toString();
-
-                          // Guardar el ID del usuario de forma local
-                          await _sharedPreferencesService
-                              .saveUserId(idPersonal);
-
-                          scaffoldMessenger.showSnackBar(
-                            const SnackBar(
-                              content: Text('Registration successful'),
-                            ),
-                          );
-                          Navigator.pushNamed(context, '/mainScreen');
-                        } else {
-                          // Error en el registro, intentar decodificar el JSON o mostrar el mensaje directamente
-                          try {
-                            var responseBody = jsonDecode(response.body);
-                            String errorMessage =
-                                responseBody['error'] ?? 'Registration failed';
-                            scaffoldMessenger.showSnackBar(
-                              SnackBar(
-                                content: Text(errorMessage),
-                              ),
-                            );
-                          } catch (e) {
-                            // Si no se puede decodificar el JSON, mostrar el contenido tal cual
-                            scaffoldMessenger.showSnackBar(
-                              SnackBar(
-                                content: Text('Error: ${response.body}'),
-                              ),
-                            );
+                          if (response.statusCode == 201) {
+                            String idPersonal =
+                                responseBody['id_personal'].toString();
+                            await _sharedPreferencesService
+                                .saveUserId(idPersonal);
+                            scaffoldMessenger.showSnackBar(SnackBar(
+                                content: Text('Registration successful')));
+                            Navigator.pushNamed(context, '/mainScreen');
+                          } else {
+                            scaffoldMessenger.showSnackBar(SnackBar(
+                                content: Text(responseBody['error'] ??
+                                    'Registration failed')));
                           }
+                        } catch (e) {
+                          // Maneja el caso en que la respuesta no es JSON
+                          scaffoldMessenger.showSnackBar(SnackBar(
+                              content: Text('Error: ${response.body}')));
                         }
                       } catch (e) {
-                        // Error durante el proceso de registro (red, JSON, etc.)
                         scaffoldMessenger.showSnackBar(
-                          SnackBar(
-                            content: Text('Registration failed: $e'),
-                          ),
-                        );
+                            SnackBar(content: Text('Registration failed: $e')));
                       }
                     }
                   },

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:connectcare/presentation/widgets/custom_button.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:http/http.dart' as http; // Importa el paquete http
-import 'dart:convert'; // Para convertir JSON
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'package:connectcare/services/shared_preferences_service.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -21,28 +21,23 @@ class LoginScreenState extends State<LoginScreen> {
   final SharedPreferencesService _sharedPreferencesService =
       SharedPreferencesService();
 
-  // Define el URL base de tu backend
   final String _baseUrl =
-      'http://35.188.80.9:8080'; // Cambia esto por el URL de tu backend
+      'https://connectcare-queries-158294687720.us-central1.run.app'; 
 
-  // Función para iniciar sesión utilizando el backend
+
   Future<void> _login() async {
     if (_formKey.currentState!.validate()) {
       final scaffoldMessenger = ScaffoldMessenger.of(context);
 
       try {
-        // Construye el cuerpo de la solicitud
-        Map<String, dynamic> requestBody = {
-          'identifier': _emailOrPhoneController.text.trim(),
-          'contrasena': _passwordController.text.trim(),
-        };
+        // Extrae el valor ingresado de correo o teléfono
+        String identifier = _emailOrPhoneController.text.trim();
 
-        // Realiza la solicitud POST al backend
-        var url = Uri.parse('$_baseUrl/staff/login');
-        var response = await http.post(
+        // Realiza la solicitud GET al backend con el parámetro en la URL
+        var url = Uri.parse('$_baseUrl/personal/emailOrPhone/$identifier');
+        var response = await http.get(
           url,
           headers: {'Content-Type': 'application/json'},
-          body: jsonEncode(requestBody),
         );
 
         // Mostrar la respuesta del servidor para depurar
@@ -55,23 +50,16 @@ class LoginScreenState extends State<LoginScreen> {
         if (response.statusCode == 200) {
           // Inicio de sesión exitoso
           var responseBody = jsonDecode(response.body);
-          // Asegúrate de que el campo 'user' existe y luego accede a 'id_personal'
-          if (responseBody != null && responseBody['user'] != null) {
-            debugPrint('Full Response: $responseBody');
 
-            // Acceder al campo 'id_personal' dentro del objeto 'user'
-            String userId =
-                responseBody['user']['id_personal']?.toString() ?? '';
+          // Acceder al campo 'id_personal' del usuario
+          String userId = responseBody['id_personal']?.toString() ?? '';
 
-            if (userId.isEmpty) {
-              debugPrint('Error: User ID is empty');
-            } else {
-              debugPrint('User ID: $userId');
-              // Guardar el ID del usuario en SharedPreferences
-              await _sharedPreferencesService.saveUserId(userId);
-            }
+          if (userId.isEmpty) {
+            debugPrint('Error: User ID is empty');
           } else {
-            debugPrint('Error: Response does not contain user information');
+            debugPrint('User ID: $userId');
+            // Guardar el ID del usuario en SharedPreferences
+            await _sharedPreferencesService.saveUserId(userId);
           }
 
           scaffoldMessenger.showSnackBar(
@@ -81,24 +69,12 @@ class LoginScreenState extends State<LoginScreen> {
           );
           Navigator.pushNamed(context, '/mainScreen');
         } else {
-          // Error en el inicio de sesión, intentar decodificar el JSON o mostrar el mensaje directamente
-          try {
-            var responseBody = jsonDecode(response.body);
-            String errorMessage =
-                responseBody['error'] ?? 'Invalid email/phone or password';
-            scaffoldMessenger.showSnackBar(
-              SnackBar(
-                content: Text(errorMessage),
-              ),
-            );
-          } catch (e) {
-            // Si no se puede decodificar el JSON, mostrar el contenido tal cual
-            scaffoldMessenger.showSnackBar(
-              SnackBar(
-                content: Text('Error: ${response.body}'),
-              ),
-            );
-          }
+          // Error en el inicio de sesión
+          scaffoldMessenger.showSnackBar(
+            SnackBar(
+              content: Text('Error: ${response.body}'),
+            ),
+          );
         }
       } catch (e) {
         // Error durante el proceso de inicio de sesión (red, JSON, etc.)
@@ -240,30 +216,6 @@ class LoginScreenState extends State<LoginScreen> {
                           : Colors.red),
                   label: Text(
                     'Continue with Google',
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          color: Theme.of(context).textTheme.bodyLarge?.color,
-                        ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.surface,
-                    side: BorderSide(color: Theme.of(context).dividerColor),
-                    padding: const EdgeInsets.symmetric(vertical: 16.0),
-                    elevation: 0,
-                  ),
-                ),
-                const SizedBox(height: 10),
-
-                // Botón para iniciar sesión con Apple
-                ElevatedButton.icon(
-                  onPressed: () {
-                    // Lógica para iniciar sesión con Apple
-                  },
-                  icon: Icon(
-                    Icons.apple,
-                    color: Theme.of(context).iconTheme.color,
-                  ),
-                  label: Text(
-                    'Continue with Apple',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                           color: Theme.of(context).textTheme.bodyLarge?.color,
                         ),

@@ -28,7 +28,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   // Define el URL base de tu backend
   final String _baseUrl =
-      'http://127.0.0.1:8080'; // Cambia esto por el URL de tu backend
+      'https://connectcare-queries-158294687720.us-central1.run.app';
 
   @override
   void initState() {
@@ -42,7 +42,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       if (userIdString != null) {
         userId = int.parse(userIdString);
         // Realiza la solicitud GET al backend para obtener los datos del usuario
-        var url = Uri.parse('$_baseUrl/staff/getUser/$userId');
+        var url = Uri.parse('$_baseUrl/personal/$userId');
         var response = await http.get(url);
 
         if (response.statusCode == 200) {
@@ -89,13 +89,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildEditableField(context, 'Name', userName, false),
+            _buildEditableField(context, 'Name', "$userName $userApellidoPaterno $userApellidoMaterno" , false),
             const Divider(),
             _buildEditableField(context, 'Phone', userPhone, true),
             const Divider(),
             _buildEditableField(context, 'Email', userEmail, true),
             const Divider(),
-            _buildEditableField(context, 'Password', '*********', true),
+            _buildEditableField(context, 'Password', userPassword, true),
           ],
         ),
       ),
@@ -202,16 +202,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   }
 
                   // Realiza la solicitud PUT al backend para actualizar el perfil
-                  var url = Uri.parse('$_baseUrl/staff/editProfile/$userId');
+                  var url = Uri.parse('$_baseUrl/personal/$userId');
                   Map<String, dynamic> requestBody = {
-                    'nombre': userName,
-                    'apellido_paterno': userApellidoPaterno,
-                    'apellido_materno': userApellidoMaterno,
-                    'tipo': userTipo,
                     'correo_electronico': userEmail,
                     'contrasena': userPassword,
                     'telefono': userPhone,
-                    'estatus': userEstatus,
                   };
 
                   var response = await http.put(
