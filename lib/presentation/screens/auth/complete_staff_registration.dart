@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:connectcare/data/repositories/table/personal_repository.dart';
+import 'package:flutter/services.dart';
 import 'package:connectcare/services/shared_preferences_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class CompleteStaffRegistration extends StatefulWidget {
   final User firebaseUser;
@@ -32,7 +34,6 @@ class _CompleteStaffRegistrationState extends State<CompleteStaffRegistration> {
   String? selectedUserType;
 
   final _formKey = GlobalKey<FormState>();
-  final PersonalRepository _personalRepository = PersonalRepository();
   final SharedPreferencesService _sharedPreferencesService =
       SharedPreferencesService();
 
@@ -67,9 +68,17 @@ class _CompleteStaffRegistrationState extends State<CompleteStaffRegistration> {
                     labelText: 'Staff ID',
                     border: OutlineInputBorder(),
                   ),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    LengthLimitingTextInputFormatter(8),
+                  ],
+                  keyboardType: TextInputType.number,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your staff ID';
+                    }
+                    if (value.length != 8) {
+                      return 'Staff ID must be exactly 8 digits';
                     }
                     return null;
                   },
@@ -160,30 +169,46 @@ class _CompleteStaffRegistrationState extends State<CompleteStaffRegistration> {
                     if (_formKey.currentState!.validate()) {
                       try {
                         // Insertar el nuevo usuario en la base de datos
-                        await _personalRepository.insert({
-                          'id_personal': idController.text,
-                          'nombre': firstNameController.text,
-                          'apellido_paterno': lastNamePaternalController.text,
-                          'apellido_materno': lastNameMaternalController.text,
-                          'tipo': selectedUserType,
-                          'correo_electronico': widget.firebaseUser.email,
-                          'firebase_uid': widget.firebaseUser.uid,
-                          'telefono': null,
-                          'contrasena': null,
-                        });
-
-                        // Guardar el ID del usuario de forma local
-                        await _sharedPreferencesService
-                            .saveUserId(idController.text);
-
-                        // Mostrar mensaje de éxito y redirigir a la pantalla principal
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Registration successful'),
-                          ),
+                        final url = Uri.parse(
+                            'https://connectcare-queries-158294687720.us-central1.run.app/personal');
+                        final response = await http.post(
+                          url,
+                          headers: {'Content-Type': 'application/json'},
+                          body: jsonEncode({
+                            'id_personal': idController.text,
+                            'nombre': firstNameController.text,
+                            'apellido_paterno': lastNamePaternalController.text,
+                            'apellido_materno': lastNameMaternalController.text,
+                            'tipo': selectedUserType,
+                            'correo_electronico': widget.firebaseUser.email,
+                            'contrasena': null,
+                            'telefono': null,
+                            'firebase_uid': widget.firebaseUser.uid,
+                          }),
                         );
 
-                        Navigator.pushNamed(context, '/mainScreen');
+                        if (response.statusCode == 201) {
+                          // Guardar el ID del usuario de forma local
+                          await _sharedPreferencesService
+                              .saveUserId(idController.text);
+
+                          // Mostrar mensaje de éxito y redirigir a la pantalla principal
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Registration successful'),
+                            ),
+                          );
+
+                          Navigator.pushNamed(context, '/mainScreen');
+                        } else {
+                          // Error en el registro
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content:
+                                  Text('Registration failed: ${response.body}'),
+                            ),
+                          );
+                        }
                       } catch (e) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(

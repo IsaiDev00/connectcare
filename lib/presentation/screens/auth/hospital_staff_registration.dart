@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:http/http.dart' as http; // Importa el paquete http
-import 'dart:convert'; // Para convertir JSON
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:connectcare/services/shared_preferences_service.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:connectcare/presentation/screens/auth/complete_staff_registration.dart';
+import 'package:flutter/foundation.dart';
 
 class HospitalStaffRegistration extends StatefulWidget {
   const HospitalStaffRegistration({super.key});
@@ -43,10 +44,6 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
-
-  // Define el URL base de tu backend
-  final String _baseUrl =
-      'http://35.188.80.9:8080'; 
 
   // Reinstanciamos SharedPreferencesService
   final SharedPreferencesService _sharedPreferencesService =
@@ -100,6 +97,7 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                     FilteringTextInputFormatter.digitsOnly,
                     LengthLimitingTextInputFormatter(8),
                   ],
+                  keyboardType: TextInputType.number,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your staff ID';
@@ -200,6 +198,11 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                   keyboardType: isEmailMode
                       ? TextInputType.emailAddress
                       : TextInputType.phone,
+                  inputFormatters: isEmailMode
+                      ? [] // Permitir cualquier entrada para el correo electrónico
+                      : [
+                          FilteringTextInputFormatter.digitsOnly
+                        ], // Solo números para el teléfono
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return isEmailMode
@@ -286,7 +289,8 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                         };
 
                         // Realiza la solicitud POST al backend
-                        var url = Uri.parse('$_baseUrl/staff/signup');
+                        var url = Uri.parse(
+                            'https://connectcare-queries-158294687720.us-central1.run.app/personal');
                         var response = await http.post(
                           url,
                           headers: {'Content-Type': 'application/json'},
@@ -433,26 +437,6 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                   ),
                 ),
                 const SizedBox(height: 10),
-
-                // Botón para iniciar sesión con Apple (Lógica pendiente)
-                ElevatedButton.icon(
-                  onPressed: () {
-                    // Lógica para iniciar sesión con Apple
-                  },
-                  icon: FaIcon(FontAwesomeIcons.apple,
-                      color: Theme.of(context).iconTheme.color),
-                  label: Text(
-                    'Continue with Apple',
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        color: Theme.of(context).textTheme.bodyLarge?.color),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.surface,
-                    side: BorderSide(color: Theme.of(context).dividerColor),
-                    padding: const EdgeInsets.symmetric(vertical: 16.0),
-                    elevation: 0,
-                  ),
-                ),
               ],
             ),
           ),
@@ -461,30 +445,51 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
     );
   }
 
-  // Función para iniciar sesión con Google
   Future<void> _signInWithGoogle() async {
     try {
-      // Inicio de sesión con Google
-      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-      final GoogleSignInAuthentication? googleAuth =
-          await googleUser?.authentication;
-      final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth?.accessToken,
-        idToken: googleAuth?.idToken,
-      );
-      UserCredential userCredential =
-          await FirebaseAuth.instance.signInWithCredential(credential);
-      User? user = userCredential.user;
-      if (user != null) {
-        // Navegar a la pantalla para completar el registro
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => CompleteStaffRegistration(firebaseUser: user),
-          ),
+      if (kIsWeb) {
+        // Flujo de autenticación para la web
+        GoogleAuthProvider authProvider = GoogleAuthProvider();
+        UserCredential userCredential =
+            await FirebaseAuth.instance.signInWithPopup(authProvider);
+        User? user = userCredential.user;
+
+        if (user != null && mounted) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  CompleteStaffRegistration(firebaseUser: user),
+            ),
+          );
+        }
+      } else {
+        // Flujo de autenticación para móviles y escritorio
+        final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+        final GoogleSignInAuthentication? googleAuth =
+            await googleUser?.authentication;
+
+        final credential = GoogleAuthProvider.credential(
+          accessToken: googleAuth?.accessToken,
+          idToken: googleAuth?.idToken,
         );
+
+        UserCredential userCredential =
+            await FirebaseAuth.instance.signInWithCredential(credential);
+        User? user = userCredential.user;
+
+        if (user != null && mounted) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  CompleteStaffRegistration(firebaseUser: user),
+            ),
+          );
+        }
       }
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Google sign-in failed: $e'),
