@@ -1,5 +1,4 @@
 import 'package:connectcare/core/constants/constants.dart';
-import 'package:connectcare/core/models/hospital.dart';
 import 'package:connectcare/data/repositories/table/hospital_repository.dart';
 import 'package:connectcare/services/shared_preferences_service.dart';
 import 'package:flutter/material.dart';

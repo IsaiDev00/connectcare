@@ -1,4 +1,3 @@
-import 'package:connectcare/presentation/screens/hospital_reg/verification_code_screen.dart';
 import 'package:connectcare/services/shared_preferences_service.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
