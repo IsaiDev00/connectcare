@@ -1,3 +1,4 @@
+import 'package:connectcare/core/constants/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http; // Importa el paquete http
 import 'dart:convert'; // Para convertir JSON
@@ -26,10 +27,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   String userClues = '';
   int? userId;
 
-  // Define el URL base de tu backend
-  final String _baseUrl =
-      'https://connectcare-queries-158294687720.us-central1.run.app';
-
   @override
   void initState() {
     super.initState();
@@ -42,7 +39,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       if (userIdString != null) {
         userId = int.parse(userIdString);
         // Realiza la solicitud GET al backend para obtener los datos del usuario
-        var url = Uri.parse('$_baseUrl/personal/$userId');
+        var url = Uri.parse('$baseUrl/personal/$userId');
         var response = await http.get(url);
 
         if (response.statusCode == 200) {
@@ -202,7 +199,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   }
 
                   // Realiza la solicitud PUT al backend para actualizar el perfil
-                  var url = Uri.parse('$_baseUrl/personal/$userId');
+                  var url = Uri.parse('$baseUrl/personal/$userId');
                   Map<String, dynamic> requestBody = {
                     'correo_electronico': userEmail,
                     'contrasena': userPassword,

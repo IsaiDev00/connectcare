@@ -67,12 +67,8 @@ class MyApp extends StatelessWidget {
         '/editProfileScreen': (context) => EditProfileScreen(),
         '/submitCluesScreen': (context) => SubmitCluesScreen(),
         '/cluesErrScreen': (context) => CluesErrScreen(),
-        '/verificationCodeScreen': (context) => VerificationCodeScreen(
-              detectedText: '',
-            ),
-        '/hospitalNameScreen': (context) => HospitalNameScreen(
-              detectedText: '',
-            ),
+        '/verificationCodeScreen': (context) => VerificationCodeScreen(),
+        '/hospitalNameScreen': (context) => HospitalNameScreen(),
         '/adminHomeScreen': (context) => AdminHomeScreen(),
         '/manageRoomScreen': (context) => ManageRoomScreen(),
         '/manageProcedureScreen': (context) => ManageProcedureScreen(),

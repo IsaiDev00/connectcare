@@ -3,6 +3,7 @@ import 'package:connectcare/presentation/widgets/custom_button.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:connectcare/core/constants/constants.dart';
 import 'package:connectcare/services/shared_preferences_service.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -21,9 +22,6 @@ class LoginScreenState extends State<LoginScreen> {
   final SharedPreferencesService _sharedPreferencesService =
       SharedPreferencesService();
 
-  final String _baseUrl =
-      'https://connectcare-queries-158294687720.us-central1.run.app'; 
-
 
   Future<void> _login() async {
     if (_formKey.currentState!.validate()) {
@@ -34,7 +32,7 @@ class LoginScreenState extends State<LoginScreen> {
         String identifier = _emailOrPhoneController.text.trim();
 
         // Realiza la solicitud GET al backend con el parámetro en la URL
-        var url = Uri.parse('$_baseUrl/personal/emailOrPhone/$identifier');
+        var url = Uri.parse('$baseUrl/personal/emailOrPhone/$identifier');
         var response = await http.get(
           url,
           headers: {'Content-Type': 'application/json'},

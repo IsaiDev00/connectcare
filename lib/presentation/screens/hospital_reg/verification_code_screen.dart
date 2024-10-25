@@ -1,29 +1,66 @@
+import 'package:connectcare/core/constants/constants.dart';
 import 'package:connectcare/presentation/screens/hospital_reg/hospital_name_screen.dart';
+import 'package:connectcare/services/shared_preferences_service.dart';
 import 'package:flutter/material.dart';
-import 'dart:math';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class VerificationCodeScreen extends StatefulWidget {
-  final String detectedText;
-
-  const VerificationCodeScreen({super.key, required this.detectedText});
+  const VerificationCodeScreen({super.key});
 
   @override
   _VerificationCodeScreenState createState() => _VerificationCodeScreenState();
 }
 
 class _VerificationCodeScreenState extends State<VerificationCodeScreen> {
-  late int verificationCode;
+  String verificationCode = "";
+  final SharedPreferencesService _sharedPreferencesService =
+      SharedPreferencesService();
 
   @override
   void initState() {
     super.initState();
-    _generateVerificationCode();
+    fetchVerificationCode();
   }
 
-  void _generateVerificationCode() {
-    setState(() {
-      verificationCode = Random().nextInt(900000) + 100000;
-    });
+  Future<void> fetchVerificationCode() async {
+    try {
+      // Obtiene el userId desde SharedPreferences
+      final userId = await _sharedPreferencesService.getUserId();
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("ID: $userId"),
+          ),
+        );
+
+      if (userId != null) {
+        // Llama al endpoint del backend para obtener el código de verificación
+        final response = await http.post(
+          Uri.parse(
+              '$baseUrl/codigo/generateCode'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({'user_id': userId}),
+        );
+
+        if (response.statusCode == 201) {
+          // Decodifica la respuesta JSON y obtiene el código de verificación
+          final data = jsonDecode(response.body);
+          setState(() {
+            verificationCode = data['code'];
+          });
+
+          // Guarda el código en SharedPreferences
+          await _sharedPreferencesService
+              .saveVerificationCode(verificationCode);
+        } else {
+          throw Exception('Error al generar el código de verificación');
+        }
+      } else {
+        throw Exception('ID de usuario no encontrado');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
   }
 
   @override
@@ -39,18 +76,18 @@ class _VerificationCodeScreenState extends State<VerificationCodeScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            Center(
-              child: const Text(
-                'Tu código de verificación es:',
-                style: TextStyle(fontSize: 18),
-                textAlign: TextAlign.center,
-              ),
+            const Text(
+              'Tu código de verificación es:',
+              style: TextStyle(fontSize: 18),
+              textAlign: TextAlign.center,
             ),
             const SizedBox(height: 20),
-            Text(
-              '\$verificationCode',
-              style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
+            Center(
+              child: Text(
+                verificationCode ?? 'Generando...',
+                style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
             ),
             const SizedBox(height: 40),
             const Text(
@@ -61,13 +98,7 @@ class _VerificationCodeScreenState extends State<VerificationCodeScreen> {
             const SizedBox(height: 40),
             ElevatedButton(
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        HospitalNameScreen(detectedText: widget.detectedText),
-                  ),
-                );
+                Navigator.pushNamed(context, '/hospitalNameScreen');
               },
               child: const Text('Generar llamada'),
             ),

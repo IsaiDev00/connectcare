@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:connectcare/core/constants/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:connectcare/services/shared_preferences_service.dart';
@@ -31,7 +32,7 @@ class _ProfileScreen extends State<ProfileScreen> {
       debugPrint('User ID: $userId');
       if (userId != null) {
         // Realizar la solicitud al backend
-        final url = Uri.parse('https://connectcare-queries-158294687720.us-central1.run.app/personal/$userId');
+        final url = Uri.parse('$baseUrl/personal/$userId');
         final response = await http.get(url);
 
         if (response.statusCode == 200) {

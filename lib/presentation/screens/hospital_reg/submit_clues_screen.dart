@@ -1,4 +1,5 @@
 import 'package:connectcare/presentation/screens/hospital_reg/verification_code_screen.dart';
+import 'package:connectcare/services/shared_preferences_service.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:convert';
@@ -20,6 +21,8 @@ class _SubmitCluesScreen extends State<SubmitCluesScreen> {
   PlatformFile? pickedFile;
   String? detectedText;
   img.Image? croppedImage;
+  final SharedPreferencesService _sharedPreferencesService =
+      SharedPreferencesService();
 
   Future<void> _pickFile() async {
     try {
@@ -128,12 +131,13 @@ class _SubmitCluesScreen extends State<SubmitCluesScreen> {
 
         if (detectedText != null &&
             detectedText != "No se detectó código CLUES.") {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => VerificationCodeScreen(detectedText: detectedText!),
+          _sharedPreferencesService.saveCluesCode(detectedText!);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("CLUES GUARDADO: $detectedText"),
             ),
           );
+          Navigator.pushNamed(context, '/verificationCodeScreen');
         } else {
           Navigator.pushNamed(context, '/cluesErrScreen');
         }
