@@ -55,7 +55,7 @@ class ChooseRoleScreen extends StatelessWidget {
                 // Navegar a la pantalla de registro del personal hospitalario
                 Navigator.pushNamed(context, '/hospitalStaffRegistration');
               },
-              child: Text('Personal Hospitalario'),
+              child: Text('Hospital staff'),
             ),
             SizedBox(height: 20),
             ElevatedButton(

@@ -14,11 +14,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "1061884124346-77r5e60o55825ups9cgudphm8tm7fvtt.apps.googleusercontent.com",
+          "client_id": "1061884124346-66n0pl4jav730t5vje31uda56ipjk2oi.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.example.connectcare",
-            "certificate_hash": "31ac8cefa6d3c81f7d653247ed8796ee0301656e"
+            "certificate_hash": "717cef3af8c7fe29406d76b588889668cf8c6271"
           }
         },
         {

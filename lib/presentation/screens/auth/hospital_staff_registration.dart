@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:connectcare/core/constants/constants.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:connectcare/services/shared_preferences_service.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:connectcare/presentation/screens/auth/complete_staff_registration.dart';
-import 'package:flutter/foundation.dart';
+import 'package:connectcare/data/api/google_auth.dart';
+import 'package:connectcare/data/api/facebook_auth.dart';
 
 class HospitalStaffRegistration extends StatefulWidget {
   const HospitalStaffRegistration({super.key});
@@ -45,16 +44,16 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
   final TextEditingController _confirmPasswordController =
       TextEditingController();
 
-  // Define el URL base de tu backend
-  final String _baseUrl = 'https://db-queries-158294687720.us-central1.run.app';
-
   // Reinstanciamos SharedPreferencesService
   final SharedPreferencesService _sharedPreferencesService =
       SharedPreferencesService();
 
+  final GoogleAuthService _googleAuthService = GoogleAuthService();
+  final FacebookAuthService _facebookAuthService = FacebookAuthService();
+
   // Función para verificar si el correo ya existe
   Future<bool> checkEmailExists(String email) async {
-    var url = Uri.parse('$_baseUrl/personal/email/$email');
+    var url = Uri.parse('$baseUrl/personal/email/$email');
     var response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -65,7 +64,7 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
 
 // Función para verificar si el teléfono ya existe
   Future<bool> checkPhoneExists(String phone) async {
-    var url = Uri.parse('$_baseUrl/personal/telefono/$phone');
+    var url = Uri.parse('$baseUrl/personal/telefono/$phone');
     var response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -187,7 +186,7 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                 DropdownButtonFormField<String>(
                   value: _selectedUserType,
                   decoration: const InputDecoration(
-                    labelText: 'Tipo de Usuario',
+                    labelText: 'User type',
                     border: OutlineInputBorder(),
                   ),
                   items: userTypes.map((String type) {
@@ -206,7 +205,7 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                   },
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Por favor selecciona un tipo de usuario';
+                      return 'Please select a user type';
                     }
                     return null;
                   },
@@ -332,9 +331,7 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                         };
 
                         // Realiza la solicitud POST al backend
-                        var url = Uri.parse(
-                            'https://connectcare-queries-158294687720.us-central1.run.app/personal');
-                        var url = Uri.parse('$_baseUrl/personal');
+                        var url = Uri.parse('$baseUrl/personal');
                         var response = await http.post(
                           url,
                           headers: {'Content-Type': 'application/json'},
@@ -412,11 +409,10 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                 ),
                 const SizedBox(height: 10),
 
-                // Botón para iniciar sesión con Facebook (Lógica pendiente)
+                // Botón para iniciar sesión con Facebook
                 ElevatedButton.icon(
-                  onPressed: () {
-                    // Lógica para iniciar sesión con Facebook
-                  },
+                  onPressed: () => _facebookAuthService.signInWithFacebook(
+                      context), // Llama a la función desde el servicio
                   icon: FaIcon(FontAwesomeIcons.facebook,
                       color: brightness == Brightness.dark
                           ? Colors.white
@@ -437,7 +433,8 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
 
                 // Botón para iniciar sesión con Google
                 ElevatedButton.icon(
-                  onPressed: _signInWithGoogle,
+                  onPressed: () => _googleAuthService.signInWithGoogle(
+                      context), // Usar la función del servicio
                   icon: FaIcon(FontAwesomeIcons.google,
                       color: brightness == Brightness.dark
                           ? Colors.white
@@ -461,58 +458,5 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
         ),
       ),
     );
-  }
-
-  Future<void> _signInWithGoogle() async {
-    try {
-      if (kIsWeb) {
-        // Flujo de autenticación para la web
-        GoogleAuthProvider authProvider = GoogleAuthProvider();
-        UserCredential userCredential =
-            await FirebaseAuth.instance.signInWithPopup(authProvider);
-        User? user = userCredential.user;
-
-        if (user != null && mounted) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) =>
-                  CompleteStaffRegistration(firebaseUser: user),
-            ),
-          );
-        }
-      } else {
-        // Flujo de autenticación para móviles y escritorio
-        final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-        final GoogleSignInAuthentication? googleAuth =
-            await googleUser?.authentication;
-
-        final credential = GoogleAuthProvider.credential(
-          accessToken: googleAuth?.accessToken,
-          idToken: googleAuth?.idToken,
-        );
-
-        UserCredential userCredential =
-            await FirebaseAuth.instance.signInWithCredential(credential);
-        User? user = userCredential.user;
-
-        if (user != null && mounted) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) =>
-                  CompleteStaffRegistration(firebaseUser: user),
-            ),
-          );
-        }
-      }
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Google sign-in failed: $e'),
-        ),
-      );
-    }
   }
 }
