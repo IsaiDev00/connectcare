@@ -41,7 +41,7 @@ class _ManageRoomScreenState extends State<ManageRoomScreen> {
             ),
             ElevatedButton(
               onPressed: () {
-                // Lógica para agregar una nueva sala
+                Navigator.pushNamed(context, '/createRoomScreen');
               },
               style: ElevatedButton.styleFrom(
                 padding:
