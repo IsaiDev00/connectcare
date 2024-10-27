@@ -1,5 +1,4 @@
 import 'package:connectcare/core/constants/constants.dart';
-import 'package:connectcare/data/repositories/table/hospital_repository.dart';
 import 'package:connectcare/services/shared_preferences_service.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -17,7 +16,6 @@ class _HospitalNameScreen extends State<HospitalNameScreen> {
   bool isButtonEnabled = false;
   final SharedPreferencesService _sharedPreferencesService =
       SharedPreferencesService();
-  final HospitalRepository _hospitalRepository = HospitalRepository();
 
   @override
   void initState() {

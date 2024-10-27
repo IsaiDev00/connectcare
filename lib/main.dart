@@ -47,7 +47,7 @@ class MyApp extends StatelessWidget {
       darkTheme: AppTheme.darkTheme(), // Tema oscuro
       themeMode:
           ThemeMode.system, // Cambia según la configuración del dispositivo
-      initialRoute: '/', // Ruta inicial
+      initialRoute: '/createRoomScreen', // Ruta inicial
       routes: {
         '/': (context) => ChooseRoleScreen(),
         '/hospitalStaffRegistration': (context) =>
