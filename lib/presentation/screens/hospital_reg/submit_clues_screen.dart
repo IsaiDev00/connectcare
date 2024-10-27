@@ -7,7 +7,7 @@ import 'package:googleapis_auth/auth_io.dart';
 import 'package:image/image.dart' as img;
 import 'dart:typed_data';
 import 'dart:core';
-import 'dart:io' show File; // Importa solo si se usa en móvil
+import 'dart:io' show File;
 
 class SubmitCluesScreen extends StatefulWidget {
   const SubmitCluesScreen({super.key});
@@ -22,6 +22,16 @@ class _SubmitCluesScreen extends State<SubmitCluesScreen> {
   img.Image? croppedImage;
   final SharedPreferencesService _sharedPreferencesService =
       SharedPreferencesService();
+  bool isLoading = false;
+
+  void _startLoadingAndAnalyze() {
+    setState(() {
+      isLoading = true; // Inicia el indicador de carga
+    });
+
+    Future.delayed(Duration(milliseconds: 100),
+        _analyzeFile); // Llama a la función después de una breve pausa
+  }
 
   Future<void> _pickFile() async {
     try {
@@ -45,27 +55,27 @@ class _SubmitCluesScreen extends State<SubmitCluesScreen> {
   Future<void> _analyzeFile() async {
     if (pickedFile == null) return;
 
+    setState(() {
+      isLoading = true; // Mostrar indicador de carga
+    });
+
     try {
       Uint8List fileBytes;
 
       if (pickedFile!.bytes != null) {
-        // Si estamos en web, usar los bytes directamente
         fileBytes = pickedFile!.bytes!;
       } else if (pickedFile!.path != null) {
-        // Si estamos en móvil, cargar los bytes desde la ruta
         final file = File(pickedFile!.path!);
         fileBytes = await file.readAsBytes();
       } else {
         throw Exception("No se pudo obtener los datos del archivo.");
       }
 
-      // Cargar la imagen utilizando la biblioteca 'image'
       img.Image? originalImage = img.decodeImage(fileBytes);
       if (originalImage == null) {
         throw Exception("No se pudo decodificar la imagen seleccionada.");
       }
 
-      // Recortar la parte central de la imagen donde está el código CLUES
       int cropWidth = (originalImage.width * 0.8).toInt();
       int cropHeight = (originalImage.height * 0.3).toInt();
       int cropX = (originalImage.width * 0.1).toInt();
@@ -74,11 +84,9 @@ class _SubmitCluesScreen extends State<SubmitCluesScreen> {
       croppedImage = img.copyCrop(originalImage,
           x: cropX, y: cropY, width: cropWidth, height: cropHeight);
 
-      // Convertir la imagen recortada a bytes
       final croppedBytes = img.encodeJpg(croppedImage!);
       final base64Image = base64Encode(croppedBytes);
 
-      // Configurar la autenticación de Google (sin cambios)
       final accountCredentials = ServiceAccountCredentials.fromJson(r'''
     {
       "type": "service_account",
@@ -100,7 +108,6 @@ class _SubmitCluesScreen extends State<SubmitCluesScreen> {
           await clientViaServiceAccount(accountCredentials, scopes);
       final visionApi = vision.VisionApi(httpClient);
 
-      // Crea la solicitud a la API de Vision con la imagen recortada
       final request = vision.BatchAnnotateImagesRequest(requests: [
         vision.AnnotateImageRequest(
           image: vision.Image(content: base64Image),
@@ -156,6 +163,10 @@ class _SubmitCluesScreen extends State<SubmitCluesScreen> {
           content: Text("Error al analizar el archivo: $e"),
         ),
       );
+    } finally {
+      setState(() {
+        isLoading = false; // Ocultar indicador de carga
+      });
     }
   }
 
@@ -171,7 +182,6 @@ class _SubmitCluesScreen extends State<SubmitCluesScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            // Mensaje informativo
             Center(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(
@@ -179,7 +189,7 @@ class _SubmitCluesScreen extends State<SubmitCluesScreen> {
                 ),
                 child: Center(
                   child: const Text(
-                    'Ahora debe subir la imagen del certificado CLUES, es importante que sea legible y nitida.',
+                    'Ahora debe subir la imagen del certificado CLUES, es importante que sea legible y nítida.',
                     style: TextStyle(
                       fontSize: 16,
                     ),
@@ -189,8 +199,6 @@ class _SubmitCluesScreen extends State<SubmitCluesScreen> {
               ),
             ),
             const SizedBox(height: 40),
-
-            // Imagen como botón para seleccionar archivo
             GestureDetector(
               onTap: _pickFile,
               child: Image.asset(
@@ -199,14 +207,15 @@ class _SubmitCluesScreen extends State<SubmitCluesScreen> {
               ),
             ),
             const SizedBox(height: 20),
-
-            // Botón de submit
             ElevatedButton(
-              onPressed: pickedFile != null ? _analyzeFile : null,
+              onPressed: pickedFile != null ? _startLoadingAndAnalyze : null,
               child: const Text('Enviar'),
             ),
-
-            // Mostrar el texto detectado
+            if (isLoading)
+              const Padding(
+                padding: EdgeInsets.all(20.0),
+                child: CircularProgressIndicator(),
+              ),
             if (detectedText != null) ...[
               const SizedBox(height: 20),
               Text(
@@ -219,8 +228,6 @@ class _SubmitCluesScreen extends State<SubmitCluesScreen> {
                 style: const TextStyle(fontSize: 8),
               ),
             ],
-
-            // Mostrar la imagen recortada
             if (croppedImage != null) ...[
               const SizedBox(height: 20),
               Text(
