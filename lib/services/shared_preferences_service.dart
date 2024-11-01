@@ -52,4 +52,23 @@ class SharedPreferencesService {
     return prefs.getString('code');
   }
 
+ Future<void> saveIsAdmin(bool isAdmin) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isAdmin', isAdmin);
+  }
+
+  Future<bool> getIsAdmin() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool('isAdmin') ?? false;
+  }
+
+  Future<void> saveClues(String clues) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('clues', clues);
+  }
+
+  Future<String?> getClues() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('clues');
+  }
 }

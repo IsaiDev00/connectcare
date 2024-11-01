@@ -1,4 +1,9 @@
+import 'dart:convert';
+
+import 'package:connectcare/core/constants/constants.dart';
+import 'package:connectcare/services/shared_preferences_service.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class AdminHomeScreen extends StatefulWidget {
   const AdminHomeScreen({super.key});
@@ -7,9 +12,33 @@ class AdminHomeScreen extends StatefulWidget {
   _AdminHomeScreenState createState() => _AdminHomeScreenState();
 }
 
-
-
 class _AdminHomeScreenState extends State<AdminHomeScreen> {
+  final SharedPreferencesService _sharedPreferencesService =
+      SharedPreferencesService();
+
+  Future<String?> _getHospitalName() async {
+    final clues = await _sharedPreferencesService.getClues();
+
+    if (clues != null && clues.isNotEmpty) {
+      var url = Uri.parse('$baseUrl/hospital/nombre/$clues');
+      var response = await http.get(
+        url,
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        var responseBody = jsonDecode(response.body);
+        return responseBody['nombre']; // Devuelve el nombre del hospital
+      } else {
+        debugPrint('Error: ${response.body}');
+        return null;
+      }
+    } else {
+      debugPrint('Error: Clues is empty');
+      return null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,13 +86,40 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             const SizedBox(height: 20),
-            const Text(
-              'IMSS Clinica 14',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-              textAlign: TextAlign.center,
+            FutureBuilder<String?>(
+              future: _getHospitalName(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const CircularProgressIndicator();
+                } else if (snapshot.hasError) {
+                  return const Text(
+                    'Error al cargar el nombre del hospital',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  );
+                } else if (!snapshot.hasData || snapshot.data == null) {
+                  return const Text(
+                    'Hospital no encontrado',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  );
+                } else {
+                  return Text(
+                    snapshot.data ?? '',
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  );
+                }
+              },
             ),
             const SizedBox(height: 40),
             Center(

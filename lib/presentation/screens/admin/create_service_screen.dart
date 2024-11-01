@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class CreateServiceScreen extends StatefulWidget {
-  const CreateServiceScreen({ Key? key }) : super(key: key);
+  const CreateServiceScreen({ super.key });
 
   @override
   _CreateServiceScreenState createState() => _CreateServiceScreenState();

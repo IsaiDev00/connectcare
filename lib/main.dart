@@ -1,4 +1,5 @@
 import 'package:connectcare/presentation/screens/admin/admin_home_screen.dart';
+import 'package:connectcare/presentation/screens/admin/create_procedure_screen.dart';
 import 'package:connectcare/presentation/screens/admin/create_room_screen.dart';
 import 'package:connectcare/presentation/screens/admin/hospital_features_screen.dart';
 import 'package:connectcare/presentation/screens/admin/manage_procedure_screen.dart';
@@ -47,7 +48,7 @@ class MyApp extends StatelessWidget {
       darkTheme: AppTheme.darkTheme(), // Tema oscuro
       themeMode:
           ThemeMode.system, // Cambia según la configuración del dispositivo
-      initialRoute: '/createRoomScreen', // Ruta inicial
+      initialRoute: '/', // Ruta inicial
       routes: {
         '/': (context) => ChooseRoleScreen(),
         '/hospitalStaffRegistration': (context) =>
@@ -76,6 +77,7 @@ class MyApp extends StatelessWidget {
         '/manageServiceScreen': (context) => ManageServiceScreen(),
         '/hospitalFeaturesScreen': (context) => HospitalFeaturesScreen(),
         '/createRoomScreen': (context) => CreateRoomScreen(),
+        '/createProcedureScreen': (context) => CreateProcedureScreen(),
       },
     );
   }

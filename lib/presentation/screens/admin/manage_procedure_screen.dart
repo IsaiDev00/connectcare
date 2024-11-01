@@ -41,7 +41,7 @@ class _ManageProcedureScreenState extends State<ManageProcedureScreen> {
             ),
             ElevatedButton(
               onPressed: () {
-                // Lógica para agregar un nuevo procedimiento
+                Navigator.pushNamed(context, '/createProcedureScreen');
               },
               style: ElevatedButton.styleFrom(
                 padding:

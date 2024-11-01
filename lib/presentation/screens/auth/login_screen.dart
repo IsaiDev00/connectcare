@@ -22,52 +22,60 @@ class LoginScreenState extends State<LoginScreen> {
   final SharedPreferencesService _sharedPreferencesService =
       SharedPreferencesService();
 
-
   Future<void> _login() async {
     if (_formKey.currentState!.validate()) {
       final scaffoldMessenger = ScaffoldMessenger.of(context);
 
       try {
-        // Extrae el valor ingresado de correo o teléfono
         String identifier = _emailOrPhoneController.text.trim();
-
-        // Realiza la solicitud GET al backend con el parámetro en la URL
         var url = Uri.parse('$baseUrl/personal/emailOrPhone/$identifier');
         var response = await http.get(
           url,
           headers: {'Content-Type': 'application/json'},
         );
 
-        // Mostrar la respuesta del servidor para depurar
-        scaffoldMessenger.showSnackBar(
-          SnackBar(
-            content: Text('Server response: ${response.body}'),
-          ),
-        );
-
         if (response.statusCode == 200) {
-          // Inicio de sesión exitoso
           var responseBody = jsonDecode(response.body);
-
-          // Acceder al campo 'id_personal' del usuario
           String userId = responseBody['id_personal']?.toString() ?? '';
 
-          if (userId.isEmpty) {
-            debugPrint('Error: User ID is empty');
-          } else {
-            debugPrint('User ID: $userId');
-            // Guardar el ID del usuario en SharedPreferences
+          if (userId.isNotEmpty) {
             await _sharedPreferencesService.saveUserId(userId);
-          }
 
-          scaffoldMessenger.showSnackBar(
-            const SnackBar(
-              content: Text('Login successful'),
-            ),
-          );
-          Navigator.pushNamed(context, '/mainScreen');
+            var adminUrl = Uri.parse('$baseUrl/administrador/$userId');
+            var adminResponse = await http.get(
+              adminUrl,
+              headers: {'Content-Type': 'application/json'},
+            );
+
+            if (adminResponse.statusCode == 200) {
+              var adminData = jsonDecode(adminResponse.body);
+
+              // Guardar si el usuario es administrador
+              await _sharedPreferencesService.saveIsAdmin(true);
+
+              // Guardar el clues en SharedPreferences
+              String clues = adminData['clues'] ?? '';
+              await _sharedPreferencesService.saveClues(clues);
+            } else if (adminResponse.statusCode == 404) {
+              await _sharedPreferencesService.saveIsAdmin(false);
+            }
+
+            bool isAdmin = await _sharedPreferencesService.getIsAdmin();
+            if (!isAdmin) {
+              Navigator.pushNamed(context, '/mainScreen');
+            } else {
+              Navigator.pushNamed(context, '/adminHomeScreen');
+            }
+
+            scaffoldMessenger.showSnackBar(
+              const SnackBar(
+                content: Text('Login successful'),
+              ),
+            );
+          } else {
+            debugPrint('Error: User ID is empty');
+          }
         } else {
-          // Error en el inicio de sesión
           scaffoldMessenger.showSnackBar(
             SnackBar(
               content: Text('Error: ${response.body}'),
@@ -75,7 +83,6 @@ class LoginScreenState extends State<LoginScreen> {
           );
         }
       } catch (e) {
-        // Error durante el proceso de inicio de sesión (red, JSON, etc.)
         scaffoldMessenger.showSnackBar(
           SnackBar(
             content: Text('Login failed: $e'),

@@ -29,37 +29,48 @@ class _HospitalNameScreen extends State<HospitalNameScreen> {
 
   Future<void> _registerHospital() async {
     try {
-      final cluesData = await _sharedPreferencesService
-          .getCluesCode(); // Obtener CLUES desde SharedPreferences
-      if (cluesData != null) {
+      // Obtener CLUES desde SharedPreferences
+      final cluesData = await _sharedPreferencesService.getCluesCode();
+      // Obtener id_personal desde SharedPreferences
+      final userId = await _sharedPreferencesService.getUserId();
+
+      if (cluesData != null && userId != null) {
         final clues = cluesData;
 
-        // Realiza la solicitud al backend para crear el registro de hospital
+        // Realiza la solicitud al backend para crear el registro de hospital y administrador
         final response = await http.post(
           Uri.parse('$baseUrl/hospital/registrarHospital'),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({
             'clues': clues, // Enviar el CLUES obtenido
-            'nombre': _nameController
-                .text, // Nombre del hospital que se ingresa en la UI
+            'nombre': _nameController.text
+                .trim(), // Nombre del hospital que se ingresa en la UI
+            'id_personal': userId, // id_personal obtenido
           }),
         );
 
         if (response.statusCode == 201) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Hospital registrado exitosamente.'),
+              content:
+                  Text('Hospital y Administrador registrados exitosamente.'),
             ),
           );
           Navigator.pushNamed(context, '/adminHomeScreen');
         } else {
           throw Exception(
-              'Error en la respuesta del servidor: ${response.statusCode}');
+              'Error en la respuesta del servidor: ${response.statusCode} - ${response.body}');
         }
       } else {
+        String mensaje = 'Faltan datos necesarios para registrar el hospital.';
+        if (cluesData == null) {
+          mensaje = 'No se encontró un registro de CLUES válido.';
+        }
+        if (userId == null) mensaje = 'No se encontró un ID de usuario válido.';
+
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('No se encontró un registro de CLUES válido.'),
+          SnackBar(
+            content: Text(mensaje),
           ),
         );
       }
