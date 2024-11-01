@@ -16,6 +16,7 @@ import 'package:connectcare/presentation/screens/hospital_reg/submit_clues_scree
 import 'package:connectcare/presentation/screens/hospital_reg/verification_code_screen.dart';
 import 'package:connectcare/presentation/screens/principal/main_screen.dart';
 import 'package:connectcare/presentation/screens/principal/profile_screen.dart';
+import 'package:connectcare/presentation/screens/principal/wrapper.dart';
 import 'package:connectcare/presentation/screens/settings/edit_profile_screen.dart';
 import 'package:connectcare/presentation/screens/settings/settings_screen.dart';
 import 'package:flutter/material.dart';
@@ -65,7 +66,7 @@ class MyApp extends StatelessWidget {
         '/settings': (context) => SettingsScreen(),
         '/registerHospital': (context) => RegisterHospitalScreen(),
         '/enterHospital': (context) => EnterHospitalScreen(),
-        '/mainScreen': (context) => MainScreen(),
+        '/mainScreen': (context) => Wrapper(index: 0),
         '/editProfileScreen': (context) => EditProfileScreen(),
         '/submitCluesScreen': (context) => SubmitCluesScreen(),
         '/cluesErrScreen': (context) => CluesErrScreen(),
