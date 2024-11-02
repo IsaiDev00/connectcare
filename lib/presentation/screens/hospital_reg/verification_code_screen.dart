@@ -8,7 +8,7 @@ class VerificationCodeScreen extends StatefulWidget {
   const VerificationCodeScreen({super.key});
 
   @override
-  _VerificationCodeScreenState createState() => _VerificationCodeScreenState();
+  State<VerificationCodeScreen> createState() => _VerificationCodeScreenState();
 }
 
 class _VerificationCodeScreenState extends State<VerificationCodeScreen> {
@@ -27,16 +27,15 @@ class _VerificationCodeScreenState extends State<VerificationCodeScreen> {
       // Obtiene el userId desde SharedPreferences
       final userId = await _sharedPreferencesService.getUserId();
       ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("ID: $userId"),
-          ),
-        );
+        SnackBar(
+          content: Text("ID: $userId"),
+        ),
+      );
 
       if (userId != null) {
         // Llama al endpoint del backend para obtener el código de verificación
         final response = await http.post(
-          Uri.parse(
-              '$baseUrl/codigo/generateCode'),
+          Uri.parse('$baseUrl/codigo/generateCode'),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({'user_id': userId}),
         );
@@ -84,7 +83,8 @@ class _VerificationCodeScreenState extends State<VerificationCodeScreen> {
             Center(
               child: Text(
                 verificationCode ?? 'Generando...',
-                style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
             ),
