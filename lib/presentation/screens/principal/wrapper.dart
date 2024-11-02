@@ -1,11 +1,9 @@
-import 'package:connectcare/core/theme/app_theme.dart';
 import 'package:connectcare/presentation/screens/principal/main_screen.dart';
 import 'package:connectcare/presentation/screens/principal/management.dart';
 import 'package:connectcare/presentation/screens/principal/profile_screen.dart';
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class Wrapper extends StatefulWidget {
   final int index;
@@ -19,8 +17,14 @@ class _WrapperState extends State<Wrapper> {
   late int _pageIndex;
   @override
   void initState() {
+    setIndex(widget.index);
     super.initState();
-    _pageIndex = widget.index;
+  }
+
+  void setIndex(int index) {
+    setState(() {
+      _pageIndex = index;
+    });
   }
 
   final List<Widget> _pages = [
