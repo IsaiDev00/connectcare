@@ -49,7 +49,7 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.lightTheme(),
       darkTheme: AppTheme.darkTheme(),
       themeMode: ThemeMode.system,
-      initialRoute: '/',
+      initialRoute: '/mainScreen',
       routes: {
         '/': (context) => ChooseRoleScreen(),
         '/hospitalStaffRegistration': (context) => HospitalStaffRegistration(),

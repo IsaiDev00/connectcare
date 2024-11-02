@@ -38,7 +38,7 @@ class _ManageMedicationsState extends State<ManageMedications> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
+        child: Center(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
@@ -70,7 +70,8 @@ class _ManageMedicationsState extends State<ManageMedications> {
                       ),
                     )
                   : SizedBox(
-                      height: 300,
+                      height: 450,
+                      width: MediaQuery.of(context).size.width / 1.5,
                       child: ListView.builder(
                         itemCount: filterMedicaments.length,
                         itemBuilder: (context, index) {

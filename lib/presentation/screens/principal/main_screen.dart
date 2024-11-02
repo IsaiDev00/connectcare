@@ -50,35 +50,44 @@ class MainScreenState extends State<MainScreen> {
         ),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            ElevatedButton(
-              onPressed: () {
-                // Navegar a la pantalla de registro de hospital
-                Navigator.pushNamed(context, '/registerHospital');
-              },
-              style: ElevatedButton.styleFrom(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
-                textStyle: const TextStyle(fontSize: 18),
+        child: Padding(
+          padding: const EdgeInsets.all(40.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              SizedBox(
+                width: MediaQuery.of(context).size.width / 2,
+                child: ElevatedButton(
+                  onPressed: () {
+                    // Navegar a la pantalla de registro de hospital
+                    Navigator.pushNamed(context, '/registerHospital');
+                  },
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 40, vertical: 20),
+                    textStyle: const TextStyle(fontSize: 18),
+                  ),
+                  child: const Text('Registrar Hospital'),
+                ),
               ),
-              child: const Text('Registrar Hospital'),
-            ),
-            const SizedBox(height: 30), // Espaciado entre los dos botones
-            ElevatedButton(
-              onPressed: () {
-                // Navegar a la pantalla de ingreso a hospital
-                Navigator.pushNamed(context, '/enterHospital');
-              },
-              style: ElevatedButton.styleFrom(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
-                textStyle: const TextStyle(fontSize: 18),
+              const SizedBox(height: 30), // Espaciado entre los dos botones
+              SizedBox(
+                width: MediaQuery.of(context).size.width / 2,
+                child: ElevatedButton(
+                  onPressed: () {
+                    // Navegar a la pantalla de ingreso a hospital
+                    Navigator.pushNamed(context, '/enterHospital');
+                  },
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 40, vertical: 20),
+                    textStyle: const TextStyle(fontSize: 18),
+                  ),
+                  child: const Text('Ingresar a Hospital'),
+                ),
               ),
-              child: const Text('Ingresar a Hospital'),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
