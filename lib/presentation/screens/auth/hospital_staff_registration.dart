@@ -1,14 +1,15 @@
+import 'package:connectcare/main.dart';
+import 'package:connectcare/presentation/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:connectcare/core/constants/constants.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:connectcare/services/shared_preferences_service.dart';
+import 'package:connectcare/data/services/shared_preferences_service.dart';
 import 'package:connectcare/data/api/google_auth.dart';
 import 'package:connectcare/data/api/facebook_auth.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:connectcare/presentation/screens/auth/complete_staff_registration.dart';
 
 class HospitalStaffRegistration extends StatefulWidget {
   const HospitalStaffRegistration({super.key});
@@ -472,9 +473,7 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
 
   void _showSnackBarMessage(String message) {
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message)),
-      );
+      showCustomSnackBar(context, message);
     }
   }
 
@@ -484,8 +483,8 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
       if (userCredential != null) {
         final firebaseUser = userCredential.user;
         if (firebaseUser != null) {
-          // Navega a CompleteStaffRegistration sin intentar insertar en la base de datos
-          _navigateToCompleteStaffRegistration(firebaseUser);
+          MyApp.nav.navigateTo('/completeStaffRegistration',
+              arguments: firebaseUser);
         }
       }
     } catch (e) {
@@ -505,21 +504,11 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
     if (errorMessage == null) {
       final firebaseUser = FirebaseAuth.instance.currentUser;
       if (firebaseUser != null) {
-        // Navega a CompleteStaffRegistration sin intentar insertar en la base de datos
-        _navigateToCompleteStaffRegistration(firebaseUser);
+        MyApp.nav
+            .navigateTo('/completeStaffRegistration', arguments: firebaseUser);
       }
     } else {
       _showSnackBarMessage(errorMessage);
     }
-  }
-
-  void _navigateToCompleteStaffRegistration(User firebaseUser) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) =>
-            CompleteStaffRegistration(firebaseUser: firebaseUser),
-      ),
-    );
   }
 }

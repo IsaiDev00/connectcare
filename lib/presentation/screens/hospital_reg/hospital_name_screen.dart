@@ -1,5 +1,6 @@
 import 'package:connectcare/core/constants/constants.dart';
-import 'package:connectcare/services/shared_preferences_service.dart';
+import 'package:connectcare/data/services/shared_preferences_service.dart';
+import 'package:connectcare/presentation/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -8,10 +9,10 @@ class HospitalNameScreen extends StatefulWidget {
   const HospitalNameScreen({super.key});
 
   @override
-  _HospitalNameScreen createState() => _HospitalNameScreen();
+  HospitalNameScreenState createState() => HospitalNameScreenState();
 }
 
-class _HospitalNameScreen extends State<HospitalNameScreen> {
+class HospitalNameScreenState extends State<HospitalNameScreen> {
   final TextEditingController _nameController = TextEditingController();
   bool isButtonEnabled = false;
   final SharedPreferencesService _sharedPreferencesService =
@@ -49,18 +50,7 @@ class _HospitalNameScreen extends State<HospitalNameScreen> {
           }),
         );
 
-        if (response.statusCode == 201) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content:
-                  Text('Hospital y Administrador registrados exitosamente.'),
-            ),
-          );
-          Navigator.pushNamed(context, '/adminHomeScreen');
-        } else {
-          throw Exception(
-              'Error en la respuesta del servidor: ${response.statusCode} - ${response.body}');
-        }
+        _responseHospitalRegister(response);
       } else {
         String mensaje = 'Faltan datos necesarios para registrar el hospital.';
         if (cluesData == null) {
@@ -68,19 +58,10 @@ class _HospitalNameScreen extends State<HospitalNameScreen> {
         }
         if (userId == null) mensaje = 'No se encontró un ID de usuario válido.';
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(mensaje),
-          ),
-        );
+        _validationsHospitalRegister(mensaje);
       }
     } catch (e) {
-      print('Error al registrar el hospital: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error al registrar el hospital: $e'),
-        ),
-      );
+      _responseError(e);
     }
   }
 
@@ -121,6 +102,33 @@ class _HospitalNameScreen extends State<HospitalNameScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _responseHospitalRegister(response) {
+    if (response.statusCode == 201) {
+      showCustomSnackBar(
+          context, 'Hospital y Administrador registrados exitosamente.');
+      Navigator.pushNamed(context, '/adminHomeScreen');
+    } else {
+      throw Exception(
+          'Error en la respuesta del servidor: ${response.statusCode} - ${response.body}');
+    }
+  }
+
+  void _validationsHospitalRegister(mensaje) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(mensaje),
+      ),
+    );
+  }
+
+  void _responseError(e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Error al registrar el hospital: $e'),
       ),
     );
   }

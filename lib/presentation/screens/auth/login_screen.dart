@@ -1,10 +1,11 @@
+import 'package:connectcare/main.dart';
 import 'package:flutter/material.dart';
 import 'package:connectcare/presentation/widgets/custom_button.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:connectcare/core/constants/constants.dart';
-import 'package:connectcare/services/shared_preferences_service.dart';
+import 'package:connectcare/data/services/shared_preferences_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -61,12 +62,11 @@ class LoginScreenState extends State<LoginScreen> {
             }
 
             bool isAdmin = await _sharedPreferencesService.getIsAdmin();
-            if (!isAdmin) {
-              Navigator.pushNamed(context, '/mainScreen');
+            if (!isAdmin && mounted) {
+              MyApp.nav.navigateTo('/mainScreen');
             } else {
-              Navigator.pushNamed(context, '/adminHomeScreen');
+              MyApp.nav.navigateTo('/adminHomeScreen');
             }
-
             scaffoldMessenger.showSnackBar(
               const SnackBar(
                 content: Text('Login successful'),

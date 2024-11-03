@@ -5,15 +5,17 @@ class VerificationCode extends StatefulWidget {
   const VerificationCode({super.key});
 
   @override
-  _VerificationCode createState() => _VerificationCode();
+  VerificationCodeState createState() => VerificationCodeState();
 }
 
-class _VerificationCode extends State<VerificationCode> {
+class VerificationCodeState extends State<VerificationCode> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _codeController = TextEditingController();
-  Timer? _timer; // El temporizador puede ser nulo, así que lo marcamos como opcional
+  Timer?
+      _timer; // El temporizador puede ser nulo, así que lo marcamos como opcional
   int _start = 20; // Contador de 20 segundos
-  bool _isButtonDisabled = true; // El botón de re-envío está deshabilitado al inicio
+  bool _isButtonDisabled =
+      true; // El botón de re-envío está deshabilitado al inicio
 
   @override
   void initState() {
@@ -37,12 +39,13 @@ class _VerificationCode extends State<VerificationCode> {
     if (_timer != null && _timer!.isActive) {
       _timer!.cancel();
     }
-    
+
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_start == 0) {
         if (mounted) {
           setState(() {
-            _isButtonDisabled = false; // Habilitar el botón cuando el contador llegue a 0
+            _isButtonDisabled =
+                false; // Habilitar el botón cuando el contador llegue a 0
             _timer!.cancel();
           });
         }
@@ -132,7 +135,9 @@ class _VerificationCode extends State<VerificationCode> {
 
               // Botón de Re-send
               ElevatedButton(
-                onPressed: _isButtonDisabled ? null : _resendCode, // Solo habilitado cuando el contador llegue a 0
+                onPressed: _isButtonDisabled
+                    ? null
+                    : _resendCode, // Solo habilitado cuando el contador llegue a 0
                 child: const Text('Re-send Code'),
               ),
               const SizedBox(height: 30),

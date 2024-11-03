@@ -7,10 +7,10 @@ class PrivacyPolicyScreen extends StatefulWidget {
   const PrivacyPolicyScreen({super.key});
 
   @override
-  _PrivacyPolicyScreenState createState() => _PrivacyPolicyScreenState();
+  PrivacyPolicyScreenState createState() => PrivacyPolicyScreenState();
 }
 
-class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
+class PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
   String _privacyPolicy = '';
   bool _loading = true;
 

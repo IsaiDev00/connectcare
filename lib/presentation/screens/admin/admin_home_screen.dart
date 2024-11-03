@@ -1,7 +1,6 @@
 import 'dart:convert';
-
 import 'package:connectcare/core/constants/constants.dart';
-import 'package:connectcare/services/shared_preferences_service.dart';
+import 'package:connectcare/data/services/shared_preferences_service.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -9,10 +8,10 @@ class AdminHomeScreen extends StatefulWidget {
   const AdminHomeScreen({super.key});
 
   @override
-  _AdminHomeScreenState createState() => _AdminHomeScreenState();
+  AdminHomeScreenState createState() => AdminHomeScreenState();
 }
 
-class _AdminHomeScreenState extends State<AdminHomeScreen> {
+class AdminHomeScreenState extends State<AdminHomeScreen> {
   final SharedPreferencesService _sharedPreferencesService =
       SharedPreferencesService();
 

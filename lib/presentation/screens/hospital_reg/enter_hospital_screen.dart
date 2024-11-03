@@ -4,14 +4,12 @@ class EnterHospitalScreen extends StatefulWidget {
   const EnterHospitalScreen({super.key});
 
   @override
-  _EnterHospitalScreen createState() => _EnterHospitalScreen();
+  EnterHospitalScreenState createState() => EnterHospitalScreenState();
 }
 
-class _EnterHospitalScreen extends State<EnterHospitalScreen> {
+class EnterHospitalScreenState extends State<EnterHospitalScreen> {
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     throw UnimplementedError();
   }
-
 }

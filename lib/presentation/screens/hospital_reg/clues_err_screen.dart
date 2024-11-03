@@ -4,10 +4,10 @@ class CluesErrScreen extends StatefulWidget {
   const CluesErrScreen({super.key});
 
   @override
-  _CluesErrScreen createState() => _CluesErrScreen();
+  CluesErrScreenState createState() => CluesErrScreenState();
 }
 
-class _CluesErrScreen extends State<CluesErrScreen> {
+class CluesErrScreenState extends State<CluesErrScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

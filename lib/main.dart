@@ -20,6 +20,7 @@ import 'package:connectcare/presentation/screens/principal/profile_screen.dart';
 import 'package:connectcare/presentation/screens/principal/wrapper.dart';
 import 'package:connectcare/presentation/screens/settings/edit_profile_screen.dart';
 import 'package:connectcare/presentation/screens/settings/settings_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'presentation/screens/auth/choose_role_screen.dart';
 import 'presentation/screens/auth/hospital_staff_registration.dart';
@@ -29,6 +30,8 @@ import 'presentation/screens/settings/terms_and_conditions_screen.dart';
 import 'presentation/screens/settings/privacy_policy_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'package:connectcare/data/services/navigation_service.dart';
+import 'package:connectcare/presentation/screens/auth/complete_staff_registration.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -41,6 +44,7 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+  static final NavigationService nav = NavigationService();
 
   @override
   Widget build(BuildContext context) {
@@ -82,6 +86,11 @@ class MyApp extends StatelessWidget {
         '/createRoomScreen': (context) => CreateRoomScreen(),
         '/createProcedureScreen': (context) => CreateProcedureScreen(),
         '/createMedicamentScreen': (context) => CreateMedicamentScreen(),
+        'completeStaffRegistration': (context) {
+          final firebaseUser =
+              ModalRoute.of(context)!.settings.arguments as User;
+          return CompleteStaffRegistration(firebaseUser: firebaseUser);
+        },
       },
     );
   }

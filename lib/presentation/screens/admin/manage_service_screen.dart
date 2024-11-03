@@ -4,10 +4,10 @@ class ManageServiceScreen extends StatefulWidget {
   const ManageServiceScreen({super.key});
 
   @override
-  _ManageServiceScreenState createState() => _ManageServiceScreenState();
+  ManageServiceScreenState createState() => ManageServiceScreenState();
 }
 
-class _ManageServiceScreenState extends State<ManageServiceScreen> {
+class ManageServiceScreenState extends State<ManageServiceScreen> {
   List<String> services = [];
 
   @override

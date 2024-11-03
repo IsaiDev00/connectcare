@@ -181,10 +181,10 @@ class _CreateMedicamentScreenState extends State<CreateMedicamentScreen> {
       body: json.encode(medicamento.toMap()),
     );
 
-    responseHandler(response);
+    _responseHandler(response);
   }
 
-  void responseHandler(http.Response response) {
+  void _responseHandler(http.Response response) {
     if (response.statusCode == 201) {
       showCustomSnackBar(context, 'Medicamento creado con exito');
     } else {

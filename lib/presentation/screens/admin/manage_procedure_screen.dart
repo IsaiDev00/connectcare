@@ -4,10 +4,10 @@ class ManageProcedureScreen extends StatefulWidget {
   const ManageProcedureScreen({super.key});
 
   @override
-  _ManageProcedureScreenState createState() => _ManageProcedureScreenState();
+  ManageProcedureScreenState createState() => ManageProcedureScreenState();
 }
 
-class _ManageProcedureScreenState extends State<ManageProcedureScreen> {
+class ManageProcedureScreenState extends State<ManageProcedureScreen> {
   List<String> procedures = [];
 
   @override

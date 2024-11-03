@@ -1,4 +1,6 @@
-import 'package:connectcare/services/shared_preferences_service.dart';
+import 'package:connectcare/data/services/shared_preferences_service.dart';
+import 'package:connectcare/main.dart';
+import 'package:connectcare/presentation/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:convert';
@@ -13,10 +15,10 @@ class SubmitCluesScreen extends StatefulWidget {
   const SubmitCluesScreen({super.key});
 
   @override
-  _SubmitCluesScreen createState() => _SubmitCluesScreen();
+  SubmitCluesScreenState createState() => SubmitCluesScreenState();
 }
 
-class _SubmitCluesScreen extends State<SubmitCluesScreen> {
+class SubmitCluesScreenState extends State<SubmitCluesScreen> {
   PlatformFile? pickedFile;
   String? detectedText;
   img.Image? croppedImage;
@@ -44,11 +46,7 @@ class _SubmitCluesScreen extends State<SubmitCluesScreen> {
       }
     } catch (e) {
       debugPrint("Error al seleccionar el archivo: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Error al seleccionar el archivo: $e"),
-        ),
-      );
+      _fileErrorResponse(e);
     }
   }
 
@@ -129,40 +127,15 @@ class _SubmitCluesScreen extends State<SubmitCluesScreen> {
         });
         debugPrint("Texto detectado: $detectedText");
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Texto detectado: $detectedText"),
-          ),
-        );
-
-        if (detectedText != null &&
-            detectedText != "No se detectó código CLUES.") {
-          _sharedPreferencesService.saveCluesCode(detectedText!);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text("CLUES GUARDADO: $detectedText"),
-            ),
-          );
-          Navigator.pushNamed(context, '/verificationCodeScreen');
-        } else {
-          Navigator.pushNamed(context, '/cluesErrScreen');
-        }
+        _cluesResponse(detectedText);
       } else {
         debugPrint("No se recibió una respuesta válida de la API.");
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("No se recibió una respuesta válida de la API."),
-          ),
-        );
-        Navigator.pushNamed(context, '/cluesErrScreen');
+        _invalidApiResponse();
+        MyApp.nav.navigateTo('/cluesErrScreen');
       }
     } catch (e) {
       debugPrint("Error al analizar el archivo: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Error al analizar el archivo: $e"),
-        ),
-      );
+      _errorParsingFile(e);
     } finally {
       setState(() {
         isLoading = false; // Ocultar indicador de carga
@@ -243,6 +216,35 @@ class _SubmitCluesScreen extends State<SubmitCluesScreen> {
             ],
           ],
         ),
+      ),
+    );
+  }
+
+  void _fileErrorResponse(e) {
+    showCustomSnackBar(context, "Error al seleccionar el archivo: $e");
+  }
+
+  void _cluesResponse(detectedText) {
+    showCustomSnackBar(context, "Texto detectado: $detectedText");
+
+    if (detectedText != null && detectedText != "No se detectó código CLUES.") {
+      _sharedPreferencesService.saveCluesCode(detectedText!);
+      showCustomSnackBar(context, "CLUES GUARDADO: $detectedText");
+      Navigator.pushNamed(context, '/verificationCodeScreen');
+    } else {
+      Navigator.pushNamed(context, '/cluesErrScreen');
+    }
+  }
+
+  void _invalidApiResponse() {
+    showCustomSnackBar(
+        context, "No se recibió una respuesta válida de la API.");
+  }
+
+  void _errorParsingFile(e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("Error al analizar el archivo: $e"),
       ),
     );
   }
