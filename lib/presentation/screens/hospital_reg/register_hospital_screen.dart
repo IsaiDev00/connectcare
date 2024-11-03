@@ -4,16 +4,14 @@ class RegisterHospitalScreen extends StatefulWidget {
   const RegisterHospitalScreen({super.key});
 
   @override
-  _RegisterHospitalScreen createState() => _RegisterHospitalScreen();
+  RegisterHospitalScreenState createState() => RegisterHospitalScreenState();
 }
 
-class _RegisterHospitalScreen extends State<RegisterHospitalScreen> {
-
+class RegisterHospitalScreenState extends State<RegisterHospitalScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-      ),
+      appBar: AppBar(),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -50,7 +48,6 @@ class _RegisterHospitalScreen extends State<RegisterHospitalScreen> {
             ElevatedButton(
               onPressed: () {
                 Navigator.pushNamed(context, '/submitCluesScreen');
-                
               },
               child: const Text('Entendido'),
             ),
@@ -59,5 +56,4 @@ class _RegisterHospitalScreen extends State<RegisterHospitalScreen> {
       ),
     );
   }
-
 }

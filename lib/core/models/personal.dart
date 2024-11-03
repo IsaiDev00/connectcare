@@ -10,7 +10,8 @@ class Personal {
   final String? estatus;
   final String? asignado;
   final int? clues;
-  final String firebaseUid; // Agregado
+  final String firebaseUid;
+  final String authProvider;
 
   Personal({
     required this.id,
@@ -25,6 +26,7 @@ class Personal {
     this.asignado,
     this.clues,
     required this.firebaseUid,
+    required this.authProvider,
   });
 
   factory Personal.fromMap(Map<String, dynamic> map) {
@@ -40,7 +42,8 @@ class Personal {
       estatus: map['estatus'],
       asignado: map['asignado'],
       clues: map['clues'],
-      firebaseUid: map['firebase_uid'], // Agregado
+      firebaseUid: map['firebase_uid'],
+      authProvider: map['auth_provider'],
     );
   }
 
@@ -57,7 +60,8 @@ class Personal {
       'estatus': estatus,
       'asignado': asignado,
       'clues': clues,
-      'firebase_uid': firebaseUid, // Agregado
+      'firebase_uid': firebaseUid,
+      'auth_provider': authProvider,
     };
   }
 }

@@ -1,3 +1,4 @@
+import 'package:connectcare/main.dart';
 import 'package:flutter/material.dart';
 
 class PasswordRecovery extends StatefulWidget {
@@ -29,7 +30,7 @@ class PasswordRecoveryState extends State<PasswordRecovery> {
       await snackBarController.closed;
 
       // Navegar a la pantalla de verificación de código una vez que el SnackBar ha desaparecido
-      Navigator.pushNamed(context, '/verificationCode');
+      MyApp.nav.navigateTo('/verificationCode');
     }
   }
 

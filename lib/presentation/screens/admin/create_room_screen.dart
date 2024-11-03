@@ -3,15 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:connectcare/presentation/widgets/snack_bar.dart';
 
 class CreateRoomScreen extends StatefulWidget {
   const CreateRoomScreen({super.key});
 
   @override
-  _CreateRoomScreen createState() => _CreateRoomScreen();
+  CreateRoomScreenState createState() => CreateRoomScreenState();
 }
 
-class _CreateRoomScreen extends State<CreateRoomScreen> {
+class CreateRoomScreenState extends State<CreateRoomScreen> {
   final _formKey = GlobalKey<FormState>();
   bool is24_7 = true;
   bool hasVisitingHours = false;
@@ -128,19 +129,7 @@ class _CreateRoomScreen extends State<CreateRoomScreen> {
       headers: {'Content-Type': 'application/json'},
       body: json.encode(payload),
     );
-
-    if (response.statusCode == 201) {
-      print('Registros creados exitosamente');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Room created successfully!')),
-      );
-      Navigator.pop(context);
-    } else {
-      print('Error al crear los registros: ${response.body}');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: ${response.body}')),
-      );
-    }
+    _responseCreateRoom(response);
   }
 
   String _formatTime(String time) {
@@ -169,12 +158,13 @@ class _CreateRoomScreen extends State<CreateRoomScreen> {
   }
 
   Future<void> _selectTime(TextEditingController controller) async {
+    if (!mounted) return;
     TimeOfDay? pickedTime = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.now(),
     );
 
-    if (pickedTime != null) {
+    if (pickedTime != null && mounted) {
       String formattedTime = pickedTime.format(context);
       setState(() {
         controller.text = formattedTime;
@@ -560,5 +550,13 @@ class _CreateRoomScreen extends State<CreateRoomScreen> {
         ),
       ),
     );
+  }
+
+  void _responseCreateRoom(http.Response response) {
+    if (response.statusCode == 201) {
+      showCustomSnackBar(context, 'Sala creada con exito');
+    } else {
+      showCustomSnackBar(context, 'Error al crear sala');
+    }
   }
 }

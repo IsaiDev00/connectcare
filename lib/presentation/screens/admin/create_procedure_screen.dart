@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'package:connectcare/presentation/widgets/snack_bar.dart';
 import 'package:connectcare/core/constants/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -9,7 +9,7 @@ class CreateProcedureScreen extends StatefulWidget {
   const CreateProcedureScreen({super.key});
 
   @override
-  _CreateProcedureScreenState createState() => _CreateProcedureScreenState();
+  State<CreateProcedureScreen> createState() => _CreateProcedureScreenState();
 }
 
 class _CreateProcedureScreenState extends State<CreateProcedureScreen> {
@@ -116,12 +116,7 @@ class _CreateProcedureScreenState extends State<CreateProcedureScreen> {
           );
 
           if (salaProcedimientoResponse.statusCode == 201) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text(
-                    'Procedimiento y enlace con sala creados exitosamente'),
-              ),
-            );
+            _responseCreateProcedure();
           } else {
             throw Exception('Error al crear el enlace con sala');
           }
@@ -132,11 +127,7 @@ class _CreateProcedureScreenState extends State<CreateProcedureScreen> {
         throw Exception('Error al crear el procedimiento');
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(e.toString()),
-        ),
-      );
+      _responseError(e);
     }
   }
 
@@ -315,5 +306,14 @@ class _CreateProcedureScreenState extends State<CreateProcedureScreen> {
             ),
           )),
     );
+  }
+
+  void _responseCreateProcedure() {
+    showCustomSnackBar(
+        context, "Procedimiento y enlace con sala creados exitosamente");
+  }
+
+  void _responseError(e) {
+    showCustomSnackBar(context, e.toString());
   }
 }

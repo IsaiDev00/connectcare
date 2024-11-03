@@ -4,10 +4,10 @@ class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
   @override
-  _SettingsScreen createState() => _SettingsScreen();
+  SettingsScreenState createState() => SettingsScreenState();
 }
 
-class _SettingsScreen extends State<SettingsScreen> {
+class SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,7 +29,8 @@ class _SettingsScreen extends State<SettingsScreen> {
                 Navigator.pushNamed(context, '/editProfileScreen');
               },
               style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.black, backgroundColor: Colors.white, // Fondo blanco
+                foregroundColor: Colors.black,
+                backgroundColor: Colors.white, // Fondo blanco
                 side: const BorderSide(color: Colors.black), // Contorno negro
                 padding: const EdgeInsets.symmetric(vertical: 16.0),
               ),
@@ -41,7 +42,8 @@ class _SettingsScreen extends State<SettingsScreen> {
                 Navigator.pushNamed(context, '/language');
               },
               style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.black, backgroundColor: Colors.white,
+                foregroundColor: Colors.black,
+                backgroundColor: Colors.white,
                 side: const BorderSide(color: Colors.black),
                 padding: const EdgeInsets.symmetric(vertical: 16.0),
               ),
@@ -53,7 +55,8 @@ class _SettingsScreen extends State<SettingsScreen> {
                 Navigator.pushNamed(context, '/tutorial');
               },
               style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.black, backgroundColor: Colors.white,
+                foregroundColor: Colors.black,
+                backgroundColor: Colors.white,
                 side: const BorderSide(color: Colors.black),
                 padding: const EdgeInsets.symmetric(vertical: 16.0),
               ),
@@ -65,7 +68,8 @@ class _SettingsScreen extends State<SettingsScreen> {
                 Navigator.pushNamed(context, '/aboutUs');
               },
               style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.black, backgroundColor: Colors.white,
+                foregroundColor: Colors.black,
+                backgroundColor: Colors.white,
                 side: const BorderSide(color: Colors.black),
                 padding: const EdgeInsets.symmetric(vertical: 16.0),
               ),
@@ -77,7 +81,8 @@ class _SettingsScreen extends State<SettingsScreen> {
                 Navigator.pushNamed(context, '/feedback');
               },
               style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.black, backgroundColor: Colors.white,
+                foregroundColor: Colors.black,
+                backgroundColor: Colors.white,
                 side: const BorderSide(color: Colors.black),
                 padding: const EdgeInsets.symmetric(vertical: 16.0),
               ),
