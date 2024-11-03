@@ -552,7 +552,7 @@ class _CreateRoomScreen extends State<CreateRoomScreen> {
                       );
                     }
                   },
-                  child: const Text("Create Room"),
+                  child: const Text("Register Room"),
                 ),
               ],
             ),

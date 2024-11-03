@@ -56,15 +56,33 @@ class LoginScreenState extends State<LoginScreen> {
               // Guardar el clues en SharedPreferences
               String clues = adminData['clues'] ?? '';
               await _sharedPreferencesService.saveClues(clues);
+
+              // Nueva consulta: Verificar si hay pisos registrados para el clues del administrador
+              var pisoUrl = Uri.parse('$baseUrl/piso/clues/$clues');
+              var pisoResponse = await http.get(
+                pisoUrl,
+                headers: {'Content-Type': 'application/json'},
+              );
+
+              // Redirige según la existencia de pisos
+              if (pisoResponse.statusCode == 200) {
+                var pisoData = jsonDecode(pisoResponse.body);
+                if (pisoData.isNotEmpty) {
+                  // Hay pisos registrados, ir a '/adminHomeScreen'
+                  Navigator.pushNamed(context, '/adminHomeScreen');
+                } else {
+                  // No hay pisos registrados, ir a '/adminStartScreen'
+                  Navigator.pushNamed(context, '/adminStartScreen');
+                }
+              } else if (pisoResponse.statusCode == 404) {
+                // No hay pisos registrados, ir a '/adminStartScreen'
+                Navigator.pushNamed(context, '/adminStartScreen');
+              } else {
+                throw Exception('Error al verificar los pisos');
+              }
             } else if (adminResponse.statusCode == 404) {
               await _sharedPreferencesService.saveIsAdmin(false);
-            }
-
-            bool isAdmin = await _sharedPreferencesService.getIsAdmin();
-            if (!isAdmin) {
               Navigator.pushNamed(context, '/mainScreen');
-            } else {
-              Navigator.pushNamed(context, '/adminHomeScreen');
             }
 
             scaffoldMessenger.showSnackBar(

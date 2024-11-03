@@ -1,10 +1,14 @@
+import 'package:connectcare/presentation/screens/admin/add_floors_screen.dart';
 import 'package:connectcare/presentation/screens/admin/admin_home_screen.dart';
+import 'package:connectcare/presentation/screens/admin/admin_start_screen.dart';
 import 'package:connectcare/presentation/screens/admin/create_procedure_screen.dart';
 import 'package:connectcare/presentation/screens/admin/create_room_screen.dart';
+import 'package:connectcare/presentation/screens/admin/create_service_screen.dart';
 import 'package:connectcare/presentation/screens/admin/hospital_features_screen.dart';
 import 'package:connectcare/presentation/screens/admin/manage_procedure_screen.dart';
 import 'package:connectcare/presentation/screens/admin/manage_room_screen.dart';
 import 'package:connectcare/presentation/screens/admin/manage_service_screen.dart';
+import 'package:connectcare/presentation/screens/admin/short_tutorial_screen.dart';
 import 'package:connectcare/presentation/screens/auth/login_screen.dart';
 import 'package:connectcare/presentation/screens/auth/password_recovery.dart';
 import 'package:connectcare/presentation/screens/auth/verification_code.dart';
@@ -78,6 +82,10 @@ class MyApp extends StatelessWidget {
         '/hospitalFeaturesScreen': (context) => HospitalFeaturesScreen(),
         '/createRoomScreen': (context) => CreateRoomScreen(),
         '/createProcedureScreen': (context) => CreateProcedureScreen(),
+        '/createServiceScreen': (context) => CreateServiceScreen(),
+        '/adminStartScreen': (context) => AdminStartScreen(),
+        '/addFloorsScreen': (context) => AddFloorsScreen(),
+        '/shortTutorialScreen': (context) => ShortTutorialScreen(),
       },
     );
   }

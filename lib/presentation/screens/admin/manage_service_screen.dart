@@ -41,7 +41,7 @@ class _ManageServiceScreenState extends State<ManageServiceScreen> {
             ),
             ElevatedButton(
               onPressed: () {
-                // Lógica para agregar un nuevo servicio
+                Navigator.pushNamed(context, '/createServiceScreen');
               },
               style: ElevatedButton.styleFrom(
                 padding:
