@@ -22,6 +22,7 @@ import 'package:connectcare/presentation/screens/hospital_reg/submit_clues_scree
 import 'package:connectcare/presentation/screens/hospital_reg/verification_code_screen.dart';
 import 'package:connectcare/presentation/screens/principal/profile_screen.dart';
 import 'package:connectcare/presentation/screens/principal/wrapper.dart';
+import 'package:connectcare/presentation/screens/principal/wrapper_admin.dart';
 import 'package:connectcare/presentation/screens/settings/edit_profile_screen.dart';
 import 'package:connectcare/presentation/screens/settings/settings_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -72,16 +73,15 @@ class MyApp extends StatelessWidget {
         '/registerHospital': (context) => RegisterHospitalScreen(),
         '/enterHospital': (context) => EnterHospitalScreen(),
         '/mainScreen': (context) => Wrapper(index: 0),
-        '/management': (context) => Wrapper(index: 1),
+        '/management': (context) => WrapperAdmin(index: 1),
         '/example': (context) => Wrapper(index: 2),
         '/example2': (context) => Wrapper(index: 3),
-        '/example3': (context) => Wrapper(index: 4),
         '/editProfileScreen': (context) => EditProfileScreen(),
         '/submitCluesScreen': (context) => SubmitCluesScreen(),
         '/cluesErrScreen': (context) => CluesErrScreen(),
         '/verificationCodeScreen': (context) => VerificationCodeScreen(),
         '/hospitalNameScreen': (context) => HospitalNameScreen(),
-        '/adminHomeScreen': (context) => AdminHomeScreen(),
+        '/adminHomeScreen': (context) => WrapperAdmin(index: 0),
         '/manageRoomScreen': (context) => ManageRoomScreen(),
         '/manageProcedureScreen': (context) => ManageProcedureScreen(),
         '/manageServiceScreen': (context) => ManageServiceScreen(),

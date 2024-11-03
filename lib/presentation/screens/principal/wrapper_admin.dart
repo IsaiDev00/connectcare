@@ -1,21 +1,22 @@
-import 'package:connectcare/presentation/screens/principal/main_screen.dart';
+import 'package:connectcare/presentation/screens/admin/admin_home_screen.dart';
+import 'package:connectcare/presentation/screens/principal/management.dart';
 import 'package:connectcare/presentation/screens/principal/profile_screen.dart';
 import 'package:connectcare/presentation/screens/settings/settings_screen.dart';
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class Wrapper extends StatefulWidget {
+class WrapperAdmin extends StatefulWidget {
   final int index;
-  const Wrapper({required this.index, super.key});
+  const WrapperAdmin({required this.index, super.key});
 
   @override
-  State<Wrapper> createState() => _WrapperState();
+  _WrapperAdmin createState() => _WrapperAdmin();
 }
 
-class _WrapperState extends State<Wrapper> {
+class _WrapperAdmin extends State<WrapperAdmin> {
   late int _pageIndex;
-  @override
+
   void initState() {
     setIndex(widget.index);
     super.initState();
@@ -28,17 +29,16 @@ class _WrapperState extends State<Wrapper> {
   }
 
   final List<Widget> _pages = [
-    const MainScreen(),
+    const AdminHomeScreen(),
+    const Management(),
     const ProfileScreen(),
     const SettingsScreen(),
-    const MainScreen(),
   ];
 
   @override
   Widget build(BuildContext context) {
     var brightness = Theme.of(context).brightness;
     var theme = Theme.of(context);
-
     return Scaffold(
       appBar: AppBar(
         systemOverlayStyle: SystemUiOverlayStyle(
@@ -60,20 +60,20 @@ class _WrapperState extends State<Wrapper> {
       bottomNavigationBar: ConvexAppBar(
         items: [
           TabItem(
-            icon: Icons.menu_open_sharp,
-            title: 'Main menu',
+            icon: Icons.home,
+            title: 'Main page',
           ),
           TabItem(
-            icon: Icons.design_services_outlined,
-            title: 'service',
+            icon: Icons.business_center ,
+            title: 'Management',
           ),
           TabItem(
-            icon: Icons.design_services_outlined,
-            title: 'settings',
+            icon: Icons.person,
+            title: 'Profile',
           ),
           TabItem(
-            icon: Icons.design_services_outlined,
-            title: 'service',
+            icon: Icons.settings,
+            title: 'Settings',
           ),
         ],
         color: theme.colorScheme.onPrimary,

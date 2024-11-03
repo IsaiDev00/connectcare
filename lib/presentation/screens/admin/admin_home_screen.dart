@@ -70,7 +70,7 @@ class AdminHomeScreenState extends State<AdminHomeScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.settings),
-              title: const Text('Ajustes'),
+              title: const Text('Settings'),
               onTap: () {
                 // Navegar a la pantalla de ajustes
                 Navigator.pushNamed(context, '/settings');
