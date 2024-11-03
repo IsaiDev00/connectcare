@@ -9,7 +9,7 @@ class CreateProcedureScreen extends StatefulWidget {
   const CreateProcedureScreen({super.key});
 
   @override
-  _CreateProcedureScreenState createState() => _CreateProcedureScreenState();
+  State<CreateProcedureScreen> createState() => _CreateProcedureScreenState();
 }
 
 class _CreateProcedureScreenState extends State<CreateProcedureScreen> {

@@ -16,13 +16,13 @@ class ManagementState extends State<Management> {
       ),
       body: Center(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 50.0),
+          padding: const EdgeInsets.all(40.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.max,
             children: <Widget>[
               SizedBox(
-                width: double.infinity,
+                width: MediaQuery.of(context).size.width / 2,
                 child: ElevatedButton(
                   onPressed: () {
                     Navigator.pushNamed(context, '/manageRoomScreen');
@@ -37,7 +37,7 @@ class ManagementState extends State<Management> {
               ),
               const SizedBox(height: 30),
               SizedBox(
-                width: double.infinity,
+                width: MediaQuery.of(context).size.width / 2,
                 child: ElevatedButton(
                   onPressed: () {
                     Navigator.pushNamed(context, '/manageServiceScreen');
@@ -52,7 +52,7 @@ class ManagementState extends State<Management> {
               ),
               const SizedBox(height: 30),
               SizedBox(
-                width: double.infinity,
+                width: MediaQuery.of(context).size.width / 2,
                 child: ElevatedButton(
                   onPressed: () {
                     Navigator.pushNamed(context, '/manageProcedureScreen');
@@ -67,7 +67,7 @@ class ManagementState extends State<Management> {
               ),
               const SizedBox(height: 30),
               SizedBox(
-                width: double.infinity,
+                width: MediaQuery.of(context).size.width / 2,
                 child: ElevatedButton(
                   onPressed: () {
                     Navigator.pushNamed(context, '/manageMedications');
