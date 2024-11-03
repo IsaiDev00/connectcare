@@ -7,6 +7,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:connectcare/services/shared_preferences_service.dart';
 import 'package:connectcare/data/api/google_auth.dart';
 import 'package:connectcare/data/api/facebook_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:connectcare/presentation/screens/auth/complete_staff_registration.dart';
 
 class HospitalStaffRegistration extends StatefulWidget {
   const HospitalStaffRegistration({super.key});
@@ -28,10 +30,8 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
 
   final _formKey = GlobalKey<FormState>();
 
-  bool isEmailMode =
-      false; // Variable para controlar si estamos en modo email o phone
+  bool isEmailMode = false;
 
-  // Controladores de texto para cada campo
   String? _selectedUserType;
   final TextEditingController idController = TextEditingController();
   final TextEditingController _firstNameController = TextEditingController();
@@ -44,33 +44,30 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
   final TextEditingController _confirmPasswordController =
       TextEditingController();
 
-  // Reinstanciamos SharedPreferencesService
   final SharedPreferencesService _sharedPreferencesService =
       SharedPreferencesService();
 
   final GoogleAuthService _googleAuthService = GoogleAuthService();
   final FacebookAuthService _facebookAuthService = FacebookAuthService();
 
-  // Función para verificar si el correo ya existe
   Future<bool> checkEmailExists(String email) async {
     var url = Uri.parse('$baseUrl/personal/email/$email');
     var response = await http.get(url);
 
     if (response.statusCode == 200) {
-      return true; // El email ya existe
+      return true;
     }
-    return false; // El email no existe
+    return false;
   }
 
-// Función para verificar si el teléfono ya existe
   Future<bool> checkPhoneExists(String phone) async {
     var url = Uri.parse('$baseUrl/personal/telefono/$phone');
     var response = await http.get(url);
 
     if (response.statusCode == 200) {
-      return true; // El teléfono ya existe
+      return true;
     }
-    return false; // El teléfono no existe
+    return false;
   }
 
   @override
@@ -290,7 +287,7 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                 ),
                 const SizedBox(height: 30),
 
-// Botón para continuar
+                // Botón para continuar
                 ElevatedButton(
                   onPressed: () async {
                     if (_formKey.currentState!.validate()) {
@@ -315,7 +312,6 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                       }
 
                       try {
-                        // Construye el cuerpo de la solicitud
                         Map<String, dynamic> requestBody = {
                           'id_personal': idController.text,
                           'nombre': _firstNameController.text,
@@ -327,10 +323,13 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                           'telefono':
                               isEmailMode ? null : _emailOrPhoneController.text,
                           'contrasena': _passwordController.text,
-                          'estatus': 'activo' // Ajusta según tus necesidades
+                          'estatus': 'activo',
+                          'auth_provider': isEmailMode
+                              ? 'email'
+                              : 'phone' // Agregar este campo
                         };
 
-                        // Realiza la solicitud POST al backend
+                        // peticion al api rest
                         var url = Uri.parse('$baseUrl/personal');
                         var response = await http.post(
                           url,
@@ -338,7 +337,7 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                           body: jsonEncode(requestBody),
                         );
 
-                        // Verifica si la respuesta es JSON válida
+                        // validaciones
                         try {
                           var responseBody = jsonDecode(response.body);
                           if (response.statusCode == 201) {
@@ -348,14 +347,14 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                                 .saveUserId(idPersonal);
                             scaffoldMessenger.showSnackBar(SnackBar(
                                 content: Text('Registration successful')));
-                            Navigator.pushNamed(context, '/mainScreen');
+                            _navigateToMainScreen();
                           } else {
                             scaffoldMessenger.showSnackBar(SnackBar(
                                 content: Text(responseBody['error'] ??
                                     'Registration failed')));
                           }
                         } catch (e) {
-                          // Maneja el caso en que la respuesta no es JSON
+                          //por si no es json
                           scaffoldMessenger.showSnackBar(SnackBar(
                               content: Text('Error: ${response.body}')));
                         }
@@ -411,12 +410,15 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
 
                 // Botón para iniciar sesión con Facebook
                 ElevatedButton.icon(
-                  onPressed: () => _facebookAuthService.signInWithFacebook(
-                      context), // Llama a la función desde el servicio
-                  icon: FaIcon(FontAwesomeIcons.facebook,
-                      color: brightness == Brightness.dark
-                          ? Colors.white
-                          : Colors.blue),
+                  onPressed: () async {
+                    await _registerWithFacebook();
+                  },
+                  icon: FaIcon(
+                    FontAwesomeIcons.facebook,
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white
+                        : Colors.blue,
+                  ),
                   label: Text(
                     'Continue with Facebook',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
@@ -433,12 +435,15 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
 
                 // Botón para iniciar sesión con Google
                 ElevatedButton.icon(
-                  onPressed: () => _googleAuthService.signInWithGoogle(
-                      context), // Usar la función del servicio
-                  icon: FaIcon(FontAwesomeIcons.google,
-                      color: brightness == Brightness.dark
-                          ? Colors.white
-                          : Colors.red),
+                  onPressed: () async {
+                    await _registerWithGoogle();
+                  },
+                  icon: FaIcon(
+                    FontAwesomeIcons.google,
+                    color: brightness == Brightness.dark
+                        ? Colors.white
+                        : Colors.red,
+                  ),
                   label: Text(
                     'Continue with Google',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
@@ -451,11 +456,69 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                     elevation: 0,
                   ),
                 ),
+
                 const SizedBox(height: 10),
               ],
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  void _navigateToMainScreen() {
+    Navigator.pushNamed(context, '/mainScreen');
+  }
+
+  void _showSnackBarMessage(String message) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message)),
+      );
+    }
+  }
+
+  Future<void> _registerWithGoogle() async {
+    try {
+      final userCredential = await _googleAuthService.signInWithGoogle();
+      if (userCredential != null) {
+        final firebaseUser = userCredential.user;
+        if (firebaseUser != null) {
+          // Navega a CompleteStaffRegistration sin intentar insertar en la base de datos
+          _navigateToCompleteStaffRegistration(firebaseUser);
+        }
+      }
+    } catch (e) {
+      _showSnackBarMessage(e.toString());
+    }
+  }
+
+  Future<void> _registerWithFacebook() async {
+    final String? errorMessage;
+    try {
+      errorMessage = await _facebookAuthService.signInWithFacebook();
+    } catch (e) {
+      _showSnackBarMessage('Error inesperado: $e');
+      return;
+    }
+
+    if (errorMessage == null) {
+      final firebaseUser = FirebaseAuth.instance.currentUser;
+      if (firebaseUser != null) {
+        // Navega a CompleteStaffRegistration sin intentar insertar en la base de datos
+        _navigateToCompleteStaffRegistration(firebaseUser);
+      }
+    } else {
+      _showSnackBarMessage(errorMessage);
+    }
+  }
+
+  void _navigateToCompleteStaffRegistration(User firebaseUser) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            CompleteStaffRegistration(firebaseUser: firebaseUser),
       ),
     );
   }
