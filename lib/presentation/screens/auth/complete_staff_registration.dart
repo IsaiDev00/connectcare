@@ -1,9 +1,11 @@
+import 'package:connectcare/presentation/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:connectcare/services/shared_preferences_service.dart';
+import 'package:connectcare/data/services/shared_preferences_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:connectcare/core/constants/constants.dart';
 
 class CompleteStaffRegistration extends StatefulWidget {
   final User firebaseUser;
@@ -11,11 +13,11 @@ class CompleteStaffRegistration extends StatefulWidget {
   const CompleteStaffRegistration({required this.firebaseUser, super.key});
 
   @override
-  _CompleteStaffRegistrationState createState() =>
-      _CompleteStaffRegistrationState();
+  CompleteStaffRegistrationState createState() =>
+      CompleteStaffRegistrationState();
 }
 
-class _CompleteStaffRegistrationState extends State<CompleteStaffRegistration> {
+class CompleteStaffRegistrationState extends State<CompleteStaffRegistration> {
   final List<String> userTypes = [
     'Administrador',
     'Médico',
@@ -163,14 +165,12 @@ class _CompleteStaffRegistrationState extends State<CompleteStaffRegistration> {
                 ),
                 const SizedBox(height: 30),
 
-                // Botón para completar el registro
                 ElevatedButton(
                   onPressed: () async {
                     if (_formKey.currentState!.validate()) {
                       try {
-                        // Insertar el nuevo usuario en la base de datos
-                        final url = Uri.parse(
-                            'https://connectcare-queries-158294687720.us-central1.run.app/personal');
+                        // Construye el cuerpo de la solicitud para el registro completo en la base de datos
+                        final url = Uri.parse('$baseUrl/personal');
                         final response = await http.post(
                           url,
                           headers: {'Content-Type': 'application/json'},
@@ -181,40 +181,17 @@ class _CompleteStaffRegistrationState extends State<CompleteStaffRegistration> {
                             'apellido_materno': lastNameMaternalController.text,
                             'tipo': selectedUserType,
                             'correo_electronico': widget.firebaseUser.email,
-                            'contrasena': null,
+                            'contrasena':
+                                null, // No se envía contraseña en este caso
                             'telefono': null,
                             'firebase_uid': widget.firebaseUser.uid,
+                            'auth_provider':
+                                'google.com' // o 'facebook.com' según el caso
                           }),
                         );
-
-                        if (response.statusCode == 201) {
-                          // Guardar el ID del usuario de forma local
-                          await _sharedPreferencesService
-                              .saveUserId(idController.text);
-
-                          // Mostrar mensaje de éxito y redirigir a la pantalla principal
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Registration successful'),
-                            ),
-                          );
-
-                          Navigator.pushNamed(context, '/mainScreen');
-                        } else {
-                          // Error en el registro
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content:
-                                  Text('Registration failed: ${response.body}'),
-                            ),
-                          );
-                        }
+                        _responseRegistration(response);
                       } catch (e) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Registration failed: $e'),
-                          ),
-                        );
+                        _responseError(e);
                       }
                     }
                   },
@@ -226,5 +203,19 @@ class _CompleteStaffRegistrationState extends State<CompleteStaffRegistration> {
         ),
       ),
     );
+  }
+
+  void _responseRegistration(response) {
+    if (response.statusCode == 201) {
+      _sharedPreferencesService.saveUserId(idController.text);
+      showCustomSnackBar(context, "Registration successful");
+      Navigator.pushNamed(context, '/mainScreen');
+    } else {
+      showCustomSnackBar(context, 'Registration failed: ${response.body}');
+    }
+  }
+
+  void _responseError(e) {
+    showCustomSnackBar(context, 'Registration failed: $e');
   }
 }

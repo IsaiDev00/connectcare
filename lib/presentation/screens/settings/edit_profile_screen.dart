@@ -1,17 +1,18 @@
 import 'package:connectcare/core/constants/constants.dart';
+import 'package:connectcare/presentation/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http; // Importa el paquete http
 import 'dart:convert'; // Para convertir JSON
-import 'package:connectcare/services/shared_preferences_service.dart';
+import 'package:connectcare/data/services/shared_preferences_service.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
 
   @override
-  _EditProfileScreenState createState() => _EditProfileScreenState();
+  EditProfileScreenState createState() => EditProfileScreenState();
 }
 
-class _EditProfileScreenState extends State<EditProfileScreen> {
+class EditProfileScreenState extends State<EditProfileScreen> {
   final SharedPreferencesService _sharedPreferencesService =
       SharedPreferencesService();
 
@@ -63,9 +64,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       }
     } catch (e) {
       debugPrint('Error al cargar los datos del usuario: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al cargar los datos del usuario: $e')),
-      );
+      _userErrorResponse(e);
     }
   }
 
@@ -86,7 +85,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildEditableField(context, 'Name', "$userName $userApellidoPaterno $userApellidoMaterno" , false),
+            _buildEditableField(context, 'Name',
+                "$userName $userApellidoPaterno $userApellidoMaterno", false),
             const Divider(),
             _buildEditableField(context, 'Phone', userPhone, true),
             const Divider(),
@@ -212,21 +212,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     body: jsonEncode(requestBody),
                   );
 
-                  if (response.statusCode == 200) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content: Text('Profile updated successfully')),
-                    );
-                    setState(() {});
-                    Navigator.of(context).pop();
-                  } else {
-                    throw Exception('Failed to update profile');
-                  }
+                  _profileResponse(response);
                 } catch (e) {
                   debugPrint('Error al actualizar los datos del usuario: $e');
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Failed to update profile: $e')),
-                  );
+                  _updateProfileErrorResponse(e);
                 }
               },
               child: const Text('Save'),
@@ -235,5 +224,25 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         );
       },
     );
+  }
+
+  void _userErrorResponse(e) {
+    showCustomSnackBar(context, 'Error al cargar los datos del usuario: $e');
+  }
+
+  void _profileResponse(response) {
+    if (response.statusCode == 200) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Profile updated successfully')),
+      );
+      setState(() {});
+      Navigator.of(context).pop();
+    } else {
+      throw Exception('Failed to update profile');
+    }
+  }
+
+  void _updateProfileErrorResponse(e) {
+    showCustomSnackBar(context, 'Failed to update profile: $e');
   }
 }

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:connectcare/data/repositories/table/familiar_repository.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:connectcare/services/shared_preferences_service.dart';
 
 class FamilyRegistration extends StatefulWidget {
   const FamilyRegistration({super.key});
@@ -26,32 +24,6 @@ class FamilyRegistrationState extends State<FamilyRegistration> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
-
-  final FamiliarRepository _familiarRepository = FamiliarRepository();
-  final SharedPreferencesService _sharedPreferencesService =
-      SharedPreferencesService();
-
-// Función para validar si el email ya está en uso
-  Future<bool> _isEmailInUse(String email) async {
-    try {
-      final result = await _familiarRepository.isEmailInUse(email);
-      return result;
-    } catch (e) {
-      debugPrint("Error al verificar el email: $e");
-      return false;
-    }
-  }
-
-// Función para validar si el teléfono ya está en uso
-  Future<bool> _isPhoneInUse(String phone) async {
-    try {
-      final result = await _familiarRepository.isPhoneInUse(phone);
-      return result;
-    } catch (e) {
-      debugPrint("Error al verificar el teléfono: $e");
-      return false;
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -212,53 +184,8 @@ class FamilyRegistrationState extends State<FamilyRegistration> {
                 ElevatedButton(
                   onPressed: () async {
                     if (_formKey.currentState!.validate()) {
-                      final scaffoldMessenger = ScaffoldMessenger.of(context);
-
                       if (isEmailMode) {
-                        bool emailInUse =
-                            await _isEmailInUse(_emailOrPhoneController.text);
-                        if (!mounted) return;
-                        if (emailInUse) {
-                          _showErrorSnackBar(scaffoldMessenger,
-                              'This email is already in use');
-                          return;
-                        }
-                      } else {
-                        bool phoneInUse =
-                            await _isPhoneInUse(_emailOrPhoneController.text);
-                        if (!mounted) return;
-                        if (phoneInUse) {
-                          _showErrorSnackBar(scaffoldMessenger,
-                              'This phone number is already in use');
-                          return;
-                        }
-                      }
-
-                      try {
-                        // Insertar en la base de datos y obtener el ID generado
-                        int idFamiliar = await _familiarRepository.insert({
-                          'nombre': _firstNameController.text,
-                          'apellido_paterno': _lastNamePaternalController.text,
-                          'apellido_materno': _lastNameMaternalController.text,
-                          'correo_electronico':
-                              isEmailMode ? _emailOrPhoneController.text : null,
-                          'telefono':
-                              isEmailMode ? null : _emailOrPhoneController.text,
-                          'contrasena': _passwordController.text,
-                          'tipo': 'regular',
-                        });
-
-                        // Guardar el ID del usuario de forma local
-                        await _sharedPreferencesService
-                            .saveUserId(idFamiliar.toString());
-
-                        _navigateToMainScreen();
-                        _showSuccessSnackBar(
-                            scaffoldMessenger, 'Registration successful');
-                      } catch (e) {
-                        _showErrorSnackBar(
-                            scaffoldMessenger, 'Registration failed: $e');
-                      }
+                      } else {}
                     }
                   },
                   child: const Text('Continue'),
@@ -355,33 +282,5 @@ class FamilyRegistrationState extends State<FamilyRegistration> {
         ),
       ),
     );
-  }
-
-  void _navigateToMainScreen() {
-    if (mounted) {
-      Navigator.pushNamed(context, '/mainScreen');
-    }
-  }
-
-  void _showSuccessSnackBar(
-      ScaffoldMessengerState scaffoldMessenger, String message) {
-    if (mounted) {
-      scaffoldMessenger.showSnackBar(
-        SnackBar(
-          content: Text(message),
-        ),
-      );
-    }
-  }
-
-  void _showErrorSnackBar(
-      ScaffoldMessengerState scaffoldMessenger, String message) {
-    if (mounted) {
-      scaffoldMessenger.showSnackBar(
-        SnackBar(
-          content: Text(message),
-        ),
-      );
-    }
   }
 }

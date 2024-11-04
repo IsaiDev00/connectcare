@@ -3,18 +3,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:connectcare/presentation/widgets/snack_bar.dart';
+import 'package:intl/intl.dart'; // Importa intl para formateo de fechas
 
 class CreateRoomScreen extends StatefulWidget {
   const CreateRoomScreen({super.key});
 
   @override
-  _CreateRoomScreen createState() => _CreateRoomScreen();
+  CreateRoomScreenState createState() => CreateRoomScreenState();
 }
 
-class _CreateRoomScreen extends State<CreateRoomScreen> {
+class CreateRoomScreenState extends State<CreateRoomScreen> {
   final _formKey = GlobalKey<FormState>();
   bool is24_7 = true;
   bool hasVisitingHours = false;
+
+  List<Map<String, dynamic>> services = [];
+  String? selectedServiceId;
 
   final TextEditingController nameController = TextEditingController();
   final TextEditingController numberController = TextEditingController();
@@ -54,6 +59,56 @@ class _CreateRoomScreen extends State<CreateRoomScreen> {
     'Sunday': false,
   };
 
+  // Variable para manejar el estado de carga
+  bool isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchServices(); // Fetch services on initialization
+  }
+
+  Future<void> _fetchServices() async {
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/servicio/'));
+      if (response.statusCode == 200) {
+        List<dynamic> data = json.decode(response.body);
+        setState(() {
+          services = data
+              .map(
+                  (item) => {'id': item['id_servicio'], 'name': item['nombre']})
+              .toList();
+        });
+      } else {
+        throw Exception('Failed to load services');
+      }
+    } catch (e) {
+      print('Error fetching services: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error al cargar servicios: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  String _formatTime(String time) {
+    try {
+      // Parse the time using DateFormat (e.g., "2:30 PM")
+      DateFormat inputFormat = DateFormat.jm();
+      DateTime parsedTime = inputFormat.parse(time);
+
+      // Format it to "HH:mm:ss"
+      DateFormat outputFormat = DateFormat('HH:mm:ss');
+      return outputFormat.format(parsedTime);
+    } catch (e) {
+      print('Error formateando el tiempo: $e');
+      // Puedes manejar el error como prefieras. Aquí retornamos un valor por defecto.
+      return '00:00:00';
+    }
+  }
+
   Future<void> crearSalaConHorarios(
     String nombre,
     int numero,
@@ -63,96 +118,105 @@ class _CreateRoomScreen extends State<CreateRoomScreen> {
     TextEditingController maxVisitsController,
     TextEditingController startVisitingController,
     TextEditingController endVisitingController,
+    String idServicio,
   ) async {
-    final url = Uri.parse('$baseUrl/sala/crearSalaConHorarios');
+    setState(() {
+      isLoading = true; // Inicia el estado de carga
+    });
 
-    Map<String, Map<String, String?>> horarioAtencion = {};
+    try {
+      final url = Uri.parse('$baseUrl/sala/crearSalaConHorarios');
 
-    if (is24_7) {
-      // Set all days to 00:00:00 to 00:00:00
-      for (var day in startControllers.keys) {
-        horarioAtencion[day] = {
-          'hora_inicio': "00:00:00",
-          'hora_fin': "00:00:00",
-        };
-      }
-    } else {
-      // Process manual opening hours
-      for (var day in startControllers.keys) {
-        if (isClosed[day]!) {
-          horarioAtencion[day] = {'hora_inicio': null, 'hora_fin': null};
-        } else {
+      Map<String, Map<String, String?>> horarioAtencion = {};
+
+      if (is24_7) {
+        // Set all days to 00:00:00 to 00:00:00
+        for (var day in startControllers.keys) {
           horarioAtencion[day] = {
-            'hora_inicio': startControllers[day]!.text.isNotEmpty
-                ? _formatTime(startControllers[day]!.text)
-                : null,
-            'hora_fin': endControllers[day]!.text.isNotEmpty
-                ? _formatTime(endControllers[day]!.text)
-                : null,
+            'hora_inicio': "00:00:00",
+            'hora_fin': "00:00:00",
           };
         }
-      }
-    }
-
-    Map<String, dynamic> payload = {
-      'nombre': nombre,
-      'numero': numero,
-      'horarioAtencion': horarioAtencion,
-      'maxBeds': int.parse(maxBedsController.text),
-    };
-
-    // Handle Visiting Hours if enabled
-    if (hasVisitingHours) {
-      // Validate visiting hours fields
-      if (startVisitingController.text.isNotEmpty &&
-          endVisitingController.text.isNotEmpty &&
-          maxVisitsController.text.isNotEmpty) {
-        payload['horarioVisita'] = {
-          'inicio': _formatTime(startVisitingController.text),
-          'fin': _formatTime(endVisitingController.text),
-          'visitantes': int.parse(maxVisitsController.text),
-        };
       } else {
-        // Handle incomplete visiting hours data
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('Please complete all visiting hours fields')),
-        );
-        return;
+        // Process manual opening hours
+        for (var day in startControllers.keys) {
+          if (isClosed[day]!) {
+            horarioAtencion[day] = {'hora_inicio': null, 'hora_fin': null};
+          } else {
+            horarioAtencion[day] = {
+              'hora_inicio': startControllers[day]!.text.isNotEmpty
+                  ? _formatTime(startControllers[day]!.text)
+                  : null,
+              'hora_fin': endControllers[day]!.text.isNotEmpty
+                  ? _formatTime(endControllers[day]!.text)
+                  : null,
+            };
+          }
+        }
       }
-    }
 
-    // Convert data to JSON and send
-    final response = await http.post(
-      url,
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode(payload),
-    );
+      Map<String, dynamic> payload = {
+        'nombre': nombre,
+        'numero': numero,
+        'id_servicio': int.parse(idServicio),
+        'horarioAtencion': horarioAtencion,
+        'maxBeds': int.parse(maxBedsController.text),
+      };
 
-    if (response.statusCode == 201) {
-      print('Registros creados exitosamente');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Room created successfully!')),
+      // Handle Visiting Hours if enabled
+      if (hasVisitingHours) {
+        // Validate visiting hours fields
+        if (startVisitingController.text.isNotEmpty &&
+            endVisitingController.text.isNotEmpty &&
+            maxVisitsController.text.isNotEmpty) {
+          payload['horarioVisita'] = {
+            'inicio': _formatTime(startVisitingController.text),
+            'fin': _formatTime(endVisitingController.text),
+            'visitantes': int.parse(maxVisitsController.text),
+          };
+        } else {
+          // Handle incomplete visiting hours data
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content: Text('Please complete all visiting hours fields')),
+          );
+          return;
+        }
+      }
+
+      // Convert data to JSON and send
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(payload),
       );
-      Navigator.pop(context);
-    } else {
-      print('Error al crear los registros: ${response.body}');
+
+      _responseCreateRoom(response);
+    } catch (e) {
+      // Manejo de excepciones
+      print('Error al crear la sala: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: ${response.body}')),
+        SnackBar(
+          content: Text('Error al crear la sala: $e'),
+          backgroundColor: Colors.red,
+        ),
       );
+    } finally {
+      setState(() {
+        isLoading = false; // Finaliza el estado de carga
+      });
     }
   }
 
-  String _formatTime(String time) {
-    // Convert "hh:mm AM/PM" to "HH:mm:ss"
-    TimeOfDay tod = TimeOfDay(
-        hour: int.parse(time.split(":")[0]),
-        minute: int.parse(time.split(":")[1].split(" ")[0]));
-    final now = DateTime.now();
-    final dt = DateTime(now.year, now.month, now.day, tod.hour, tod.minute);
-    return TimeOfDay.fromDateTime(dt).format(context).contains("PM")
-        ? "${(tod.hour % 12) + 12}:${tod.minute.toString().padLeft(2, '0')}:00"
-        : "${tod.hour.toString().padLeft(2, '0')}:${tod.minute.toString().padLeft(2, '0')}:00";
+  void _responseCreateRoom(http.Response response) {
+    if (response.statusCode == 201) {
+      showCustomSnackBar(context, 'Sala creada con éxito');
+      // Opcional: Navegar de regreso o limpiar el formulario
+    } else {
+      showCustomSnackBar(context, 'Error al crear sala');
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+    }
   }
 
   @override
@@ -169,12 +233,13 @@ class _CreateRoomScreen extends State<CreateRoomScreen> {
   }
 
   Future<void> _selectTime(TextEditingController controller) async {
+    if (!mounted) return;
     TimeOfDay? pickedTime = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.now(),
     );
 
-    if (pickedTime != null) {
+    if (pickedTime != null && mounted) {
       String formattedTime = pickedTime.format(context);
       setState(() {
         controller.text = formattedTime;
@@ -223,258 +288,297 @@ class _CreateRoomScreen extends State<CreateRoomScreen> {
               : Brightness.light,
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const SizedBox(height: 30),
-
-                // NAME OF THE ROOM
-                TextFormField(
-                  controller: nameController,
-                  decoration: const InputDecoration(
-                    labelText: "Name of the room",
-                    border: OutlineInputBorder(),
-                  ),
-                  autofocus: true,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter a name for the room';
-                    }
-                    return null;
-                  },
-                ),
-
-                const SizedBox(height: 15),
-
-                // NUMBER OF THE ROOM
-                TextFormField(
-                  controller: numberController,
-                  decoration: const InputDecoration(
-                    labelText: "Number of the room",
-                    border: OutlineInputBorder(),
-                  ),
-                  autofocus: true,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly,
-                  ],
-                  keyboardType: TextInputType.number,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter a number for the room';
-                    }
-                    return null;
-                  },
-                ),
-
-                const SizedBox(height: 30),
-
-                // OPENING HOURS
-                Text("Opening hours"),
-                const SizedBox(height: 5),
-
-                SizedBox(
-                  width: 200,
-                  child: CheckboxListTile(
-                    title: Text("24/7"),
-                    value: is24_7,
-                    onChanged: (value) {
-                      setState(() {
-                        is24_7 = value ?? false;
-                        if (is24_7) {
-                          // Clear manual entries if 24/7 is selected
-                          startControllers
-                              .forEach((_, controller) => controller.clear());
-                          endControllers
-                              .forEach((_, controller) => controller.clear());
-                          // Ensure all days are open
-                          isClosed.updateAll((key, value) => false);
-                        }
-                      });
-                    },
-                  ),
-                ),
-
-                const SizedBox(height: 5),
-
-                Visibility(
-                  visible: is24_7,
+      body: isLoading
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: SingleChildScrollView(
+                child: Form(
+                  key: _formKey,
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        "When 24/7 is selected, the room is open all day, every day.",
-                        style: TextStyle(color: Colors.grey[700]),
+                      const SizedBox(height: 30),
+
+                      // NAME OF THE ROOM
+                      TextFormField(
+                        controller: nameController,
+                        decoration: const InputDecoration(
+                          labelText: "Name of the room",
+                          border: OutlineInputBorder(),
+                        ),
+                        autofocus: true,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter a name for the room';
+                          }
+                          return null;
+                        },
                       ),
-                    ],
-                  ),
-                ),
 
-                Visibility(
-                  visible: !is24_7,
-                  child: Column(
-                    children: startControllers.entries.map((entry) {
-                      String day = entry.key;
-                      TextEditingController startController = entry.value;
-                      TextEditingController endController =
-                          endControllers[day]!;
+                      const SizedBox(height: 15),
 
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 4.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                      // NUMBER OF THE ROOM
+                      TextFormField(
+                        controller: numberController,
+                        decoration: const InputDecoration(
+                          labelText: "Number of the room",
+                          border: OutlineInputBorder(),
+                        ),
+                        autofocus: true,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
+                        keyboardType: TextInputType.number,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter a number for the room';
+                          }
+                          return null;
+                        },
+                      ),
+
+                      const SizedBox(height: 30),
+
+                      // OPENING HOURS
+                      Text("Opening hours"),
+                      const SizedBox(height: 5),
+
+                      SizedBox(
+                        width: 200,
+                        child: CheckboxListTile(
+                          title: Text("24/7"),
+                          value: is24_7,
+                          onChanged: (value) {
+                            setState(() {
+                              is24_7 = value ?? false;
+                              if (is24_7) {
+                                // Clear manual entries if 24/7 is selected
+                                startControllers
+                                    .forEach((_, controller) => controller.clear());
+                                endControllers
+                                    .forEach((_, controller) => controller.clear());
+                                // Ensure all days are open
+                                isClosed.updateAll((key, value) => false);
+                              }
+                            });
+                          },
+                        ),
+                      ),
+
+                      const SizedBox(height: 5),
+
+                      Visibility(
+                        visible: is24_7,
+                        child: Column(
                           children: [
-                            SizedBox(
-                              width: 80,
-                              child: Text(day),
-                            ),
-                            const SizedBox(width: 40),
-                            SizedBox(
-                              width: 100,
-                              child: CheckboxListTile(
-                                value: isClosed[day],
-                                onChanged: (value) {
-                                  setState(() {
-                                    isClosed[day] = value ?? false;
-                                    if (isClosed[day]!) {
-                                      startController.clear();
-                                      endController.clear();
-                                    }
-                                  });
-                                },
-                                title: const Text("Closed"),
-                                contentPadding: EdgeInsets.zero,
-                              ),
-                            ),
-                            const SizedBox(width: 20),
-                            SizedBox(
-                              width: 100,
-                              child: TextFormField(
-                                controller: startController,
-                                readOnly: true,
-                                enabled: !isClosed[day]!,
-                                decoration: const InputDecoration(
-                                  labelText: "Start time",
-                                ),
-                                onTap: () => _selectTime(startController),
-                                validator: (value) {
-                                  if (!isClosed[day]! &&
-                                      (value == null || value.isEmpty)) {
-                                    return 'Required';
-                                  }
-                                  return null;
-                                },
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            SizedBox(
-                              width: 100,
-                              child: TextFormField(
-                                controller: endController,
-                                readOnly: true,
-                                enabled: !isClosed[day]!,
-                                decoration: const InputDecoration(
-                                  labelText: "End time",
-                                ),
-                                onTap: () => _selectTime(endController),
-                                validator: (value) {
-                                  if (!isClosed[day]! &&
-                                      (value == null || value.isEmpty)) {
-                                    return 'Required';
-                                  }
-                                  return null;
-                                },
-                              ),
+                            Text(
+                              "When 24/7 is selected, the room is open all day, every day.",
+                              style: TextStyle(color: Colors.grey[700]),
                             ),
                           ],
                         ),
-                      );
-                    }).toList(),
-                  ),
-                ),
-
-                const SizedBox(height: 30),
-
-                // VISITING HOURS
-                SizedBox(
-                  width: 200,
-                  child: CheckboxListTile(
-                    title: Text("Add Visiting Hours"),
-                    value: hasVisitingHours,
-                    onChanged: (value) {
-                      setState(() {
-                        hasVisitingHours = value ?? false;
-                        if (!hasVisitingHours) {
-                          startVisitingController.clear();
-                          endVisitingController.clear();
-                          maxVisitsController.clear();
-                        }
-                      });
-                    },
-                  ),
-                ),
-
-                Visibility(
-                  visible: hasVisitingHours,
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 10),
-                      Text("Visiting hours"),
-                      const SizedBox(height: 10),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SizedBox(
-                            width: 200,
-                            child: TextFormField(
-                              controller: startVisitingController,
-                              readOnly: true,
-                              decoration: const InputDecoration(
-                                labelText: "Start visiting time",
-                              ),
-                              onTap: () => _selectTime(startVisitingController),
-                              validator: (value) {
-                                if (hasVisitingHours &&
-                                    (value == null || value.isEmpty)) {
-                                  return 'Required';
-                                }
-                                return null;
-                              },
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          SizedBox(
-                            width: 200,
-                            child: TextFormField(
-                              controller: endVisitingController,
-                              readOnly: true,
-                              decoration: const InputDecoration(
-                                labelText: "End visiting time",
-                              ),
-                              onTap: () => _selectTime(endVisitingController),
-                              validator: (value) {
-                                if (hasVisitingHours &&
-                                    (value == null || value.isEmpty)) {
-                                  return 'Required';
-                                }
-                                return null;
-                              },
-                            ),
-                          ),
-                        ],
                       ),
 
-                      const SizedBox(height: 20),
+                      Visibility(
+                        visible: !is24_7,
+                        child: Column(
+                          children: startControllers.entries.map((entry) {
+                            String day = entry.key;
+                            TextEditingController startController = entry.value;
+                            TextEditingController endController =
+                                endControllers[day]!;
 
-                      // MAX NUMBER OF VISITORS
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 4.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  SizedBox(
+                                    width: 80,
+                                    child: Text(day),
+                                  ),
+                                  const SizedBox(width: 40),
+                                  SizedBox(
+                                    width: 100,
+                                    child: CheckboxListTile(
+                                      value: isClosed[day],
+                                      onChanged: (value) {
+                                        setState(() {
+                                          isClosed[day] = value ?? false;
+                                          if (isClosed[day]!) {
+                                            startController.clear();
+                                            endController.clear();
+                                          }
+                                        });
+                                      },
+                                      title: const Text("Closed"),
+                                      contentPadding: EdgeInsets.zero,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 20),
+                                  SizedBox(
+                                    width: 100,
+                                    child: TextFormField(
+                                      controller: startController,
+                                      readOnly: true,
+                                      enabled: !isClosed[day]!,
+                                      decoration: const InputDecoration(
+                                        labelText: "Start time",
+                                      ),
+                                      onTap: () => _selectTime(startController),
+                                      validator: (value) {
+                                        if (!isClosed[day]! &&
+                                            (value == null || value.isEmpty)) {
+                                          return 'Required';
+                                        }
+                                        return null;
+                                      },
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  SizedBox(
+                                    width: 100,
+                                    child: TextFormField(
+                                      controller: endController,
+                                      readOnly: true,
+                                      enabled: !isClosed[day]!,
+                                      decoration: const InputDecoration(
+                                        labelText: "End time",
+                                      ),
+                                      onTap: () => _selectTime(endController),
+                                      validator: (value) {
+                                        if (!isClosed[day]! &&
+                                            (value == null || value.isEmpty)) {
+                                          return 'Required';
+                                        }
+                                        return null;
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+
+                      const SizedBox(height: 30),
+
+                      // VISITING HOURS
+                      SizedBox(
+                        width: 200,
+                        child: CheckboxListTile(
+                          title: Text("Add Visiting Hours"),
+                          value: hasVisitingHours,
+                          onChanged: (value) {
+                            setState(() {
+                              hasVisitingHours = value ?? false;
+                              if (!hasVisitingHours) {
+                                startVisitingController.clear();
+                                endVisitingController.clear();
+                                maxVisitsController.clear();
+                              }
+                            });
+                          },
+                        ),
+                      ),
+
+                      Visibility(
+                        visible: hasVisitingHours,
+                        child: Column(
+                          children: [
+                            const SizedBox(height: 10),
+                            Text("Visiting hours"),
+                            const SizedBox(height: 10),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SizedBox(
+                                  width: 200,
+                                  child: TextFormField(
+                                    controller: startVisitingController,
+                                    readOnly: true,
+                                    decoration: const InputDecoration(
+                                      labelText: "Start visiting time",
+                                    ),
+                                    onTap: () =>
+                                        _selectTime(startVisitingController),
+                                    validator: (value) {
+                                      if (hasVisitingHours &&
+                                          (value == null || value.isEmpty)) {
+                                        return 'Required';
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                SizedBox(
+                                  width: 200,
+                                  child: TextFormField(
+                                    controller: endVisitingController,
+                                    readOnly: true,
+                                    decoration: const InputDecoration(
+                                      labelText: "End visiting time",
+                                    ),
+                                    onTap: () =>
+                                        _selectTime(endVisitingController),
+                                    validator: (value) {
+                                      if (hasVisitingHours &&
+                                          (value == null || value.isEmpty)) {
+                                        return 'Required';
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                            const SizedBox(height: 20),
+
+                            // MAX NUMBER OF VISITORS
+                            TextFormField(
+                              controller: maxVisitsController,
+                              decoration: const InputDecoration(
+                                labelText: "Max number of visitors",
+                                border: OutlineInputBorder(),
+                              ),
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly,
+                              ],
+                              keyboardType: TextInputType.number,
+                              validator: (value) {
+                                if (hasVisitingHours) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please enter a number of visitors';
+                                  }
+                                  int? num = int.tryParse(value);
+                                  if (num == null) {
+                                    return 'Invalid number';
+                                  }
+                                  if (num > 20) {
+                                    return 'Please enter a number below 20 visitors';
+                                  }
+                                }
+                                return null;
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 30),
+
+                      // MAX NUMBER OF BEDS/INCUBATORS/CRIBS
                       TextFormField(
-                        controller: maxVisitsController,
+                        controller: maxBedsController,
                         decoration: const InputDecoration(
-                          labelText: "Max number of visitors",
+                          labelText: "Max number of beds/incubators/cribs",
                           border: OutlineInputBorder(),
                         ),
                         inputFormatters: [
@@ -482,83 +586,84 @@ class _CreateRoomScreen extends State<CreateRoomScreen> {
                         ],
                         keyboardType: TextInputType.number,
                         validator: (value) {
-                          if (hasVisitingHours) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter a number of visitors';
-                            }
-                            int? num = int.tryParse(value);
-                            if (num == null) {
-                              return 'Invalid number';
-                            }
-                            if (num > 20) {
-                              return 'Please enter a number below 20 visitors';
-                            }
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter a max number of beds/incubators/cribs';
+                          }
+                          int? num = int.tryParse(value);
+                          if (num == null) {
+                            return 'Invalid number';
+                          }
+                          if (num > 50) {
+                            return 'Please enter a number below 50 beds/incubators/cribs';
                           }
                           return null;
                         },
                       ),
+
+                      const SizedBox(height: 30),
+
+                      // Service Selection
+                      DropdownButtonFormField<String>(
+                        decoration: const InputDecoration(
+                          labelText: "Select Service",
+                          border: OutlineInputBorder(),
+                        ),
+                        value: selectedServiceId,
+                        items: services.map((service) {
+                          return DropdownMenuItem<String>(
+                            value: service['id'].toString(),
+                            child: Text(
+                              service['name'],
+                              style: const TextStyle(
+                                fontSize: 13,
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            selectedServiceId = value;
+                          });
+                        },
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Please select a service";
+                          }
+                          return null;
+                        },
+                      ),
+
+                      const SizedBox(height: 40),
+
+                      ElevatedButton(
+                        onPressed: () {
+                          if (_formKey.currentState!.validate() && _validateDays()) {
+                            crearSalaConHorarios(
+                              nameController.text,
+                              int.parse(numberController.text),
+                              startControllers,
+                              endControllers,
+                              isClosed,
+                              maxVisitsController,
+                              startVisitingController,
+                              endVisitingController,
+                              selectedServiceId!,
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text(
+                                      'Please enter valid times for all open days')),
+                            );
+                          }
+                        },
+                        child: const Text("Register Room"),
+                      ),
                     ],
                   ),
                 ),
-
-                const SizedBox(height: 30),
-
-                // MAX NUMBER OF BEDS/INCUBATORS/CRIBS
-                TextFormField(
-                  controller: maxBedsController,
-                  decoration: const InputDecoration(
-                    labelText: "Max number of beds/incubators/cribs",
-                    border: OutlineInputBorder(),
-                  ),
-                  inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly,
-                  ],
-                  keyboardType: TextInputType.number,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter a max number of beds/incubators/cribs';
-                    }
-                    int? num = int.tryParse(value);
-                    if (num == null) {
-                      return 'Invalid number';
-                    }
-                    if (num > 50) {
-                      return 'Please enter a number below 50 beds/incubators/cribs';
-                    }
-                    return null;
-                  },
-                ),
-
-                const SizedBox(height: 40),
-
-                ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate() && _validateDays()) {
-                      crearSalaConHorarios(
-                        nameController.text,
-                        int.parse(numberController.text),
-                        startControllers,
-                        endControllers,
-                        isClosed,
-                        maxVisitsController,
-                        startVisitingController,
-                        endVisitingController,
-                      );
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                            content: Text(
-                                'Please enter valid times for all open days')),
-                      );
-                    }
-                  },
-                  child: const Text("Create Room"),
-                ),
-              ],
+              ),
             ),
-          ),
-        ),
-      ),
     );
   }
 }

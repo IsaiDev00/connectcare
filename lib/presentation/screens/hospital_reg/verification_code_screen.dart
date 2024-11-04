@@ -1,5 +1,5 @@
 import 'package:connectcare/core/constants/constants.dart';
-import 'package:connectcare/services/shared_preferences_service.dart';
+import 'package:connectcare/data/services/shared_preferences_service.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -12,7 +12,7 @@ class VerificationCodeScreen extends StatefulWidget {
 }
 
 class _VerificationCodeScreenState extends State<VerificationCodeScreen> {
-  String verificationCode = "";
+  String? verificationCode = "";
   final SharedPreferencesService _sharedPreferencesService =
       SharedPreferencesService();
 
@@ -23,41 +23,39 @@ class _VerificationCodeScreenState extends State<VerificationCodeScreen> {
   }
 
   Future<void> fetchVerificationCode() async {
-    try {
-      // Obtiene el userId desde SharedPreferences
-      final userId = await _sharedPreferencesService.getUserId();
+    // Obtiene el userId desde SharedPreferences
+    final userId = await _sharedPreferencesService.getUserId();
+    if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text("ID: $userId"),
         ),
       );
+    }
 
-      if (userId != null) {
-        // Llama al endpoint del backend para obtener el código de verificación
-        final response = await http.post(
-          Uri.parse('$baseUrl/codigo/generateCode'),
-          headers: {'Content-Type': 'application/json'},
-          body: jsonEncode({'user_id': userId}),
-        );
+    if (userId != null) {
+      // Llama al endpoint del backend para obtener el código de verificación
+      final response = await http.post(
+        Uri.parse('$baseUrl/codigo/generateCode'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'user_id': userId}),
+      );
 
-        if (response.statusCode == 201) {
-          // Decodifica la respuesta JSON y obtiene el código de verificación
-          final data = jsonDecode(response.body);
-          setState(() {
-            verificationCode = data['code'];
-          });
+      if (response.statusCode == 201) {
+        // Decodifica la respuesta JSON y obtiene el código de verificación
+        final data = jsonDecode(response.body);
+        setState(() {
+          verificationCode = data['code'];
+        });
 
-          // Guarda el código en SharedPreferences
-          await _sharedPreferencesService
-              .saveVerificationCode(verificationCode);
-        } else {
-          throw Exception('Error al generar el código de verificación');
-        }
+        // Guarda el código en SharedPreferences
+        await _sharedPreferencesService
+            .saveVerificationCode(verificationCode ?? '');
       } else {
-        throw Exception('ID de usuario no encontrado');
+        throw Exception('Error al generar el código de verificación');
       }
-    } catch (e) {
-      print('Error: $e');
+    } else {
+      throw Exception('ID de usuario no encontrado');
     }
   }
 

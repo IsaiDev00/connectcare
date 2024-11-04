@@ -1,17 +1,17 @@
-import 'dart:convert';
 import 'package:connectcare/core/constants/constants.dart';
 import 'package:connectcare/data/services/shared_preferences_service.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'dart:convert';
 
-class AdminHomeScreen extends StatefulWidget {
-  const AdminHomeScreen({super.key});
+class AdminStartScreen extends StatefulWidget {
+  const AdminStartScreen({super.key});
 
   @override
-  AdminHomeScreenState createState() => AdminHomeScreenState();
+  _AdminStartScreen createState() => _AdminStartScreen();
 }
 
-class AdminHomeScreenState extends State<AdminHomeScreen> {
+class _AdminStartScreen extends State<AdminStartScreen> {
   final SharedPreferencesService _sharedPreferencesService =
       SharedPreferencesService();
 
@@ -42,7 +42,7 @@ class AdminHomeScreenState extends State<AdminHomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Inicio del Administrador'),
+        title: const Text('Iniciar configuracion'),
       ),
       drawer: Drawer(
         child: ListView(
@@ -62,7 +62,7 @@ class AdminHomeScreenState extends State<AdminHomeScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.person),
-              title: const Text('Info'),
+              title: const Text('Profile'),
               onTap: () {
                 // Navegar a la pantalla de perfil
                 Navigator.pushNamed(context, '/profile');
@@ -112,7 +112,7 @@ class AdminHomeScreenState extends State<AdminHomeScreen> {
                   return Text(
                     snapshot.data ?? '',
                     style: const TextStyle(
-                      fontSize: 24,
+                      fontSize: 28,
                       fontWeight: FontWeight.bold,
                     ),
                     textAlign: TextAlign.center,
@@ -121,17 +121,39 @@ class AdminHomeScreenState extends State<AdminHomeScreen> {
               },
             ),
             const SizedBox(height: 40),
+            Text(
+              "It seems that you haven't done the initial configuration of your hospital",
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 15),
+            Text(
+              "Press Start! to start the hospital configuration",
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 40),
             Center(
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, '/hospitalFeaturesScreen');
+                  Navigator.pushNamed(context, '/addFloorsScreen');
                 },
                 style: ElevatedButton.styleFrom(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
                   textStyle: const TextStyle(fontSize: 18),
                 ),
-                child: const Text('Iniciar!'),
+                child: const Text(
+                  'Start!',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ),
             ),
           ],

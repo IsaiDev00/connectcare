@@ -4,10 +4,10 @@ class HospitalFeaturesScreen extends StatefulWidget {
   const HospitalFeaturesScreen({super.key});
 
   @override
-  _HospitalFeaturesScreen createState() => _HospitalFeaturesScreen();
+  HospitalFeaturesScreenState createState() => HospitalFeaturesScreenState();
 }
 
-class _HospitalFeaturesScreen extends State<HospitalFeaturesScreen> {
+class HospitalFeaturesScreenState extends State<HospitalFeaturesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

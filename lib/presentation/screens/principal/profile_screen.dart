@@ -2,16 +2,16 @@ import 'dart:convert';
 import 'package:connectcare/core/constants/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:connectcare/services/shared_preferences_service.dart';
+import 'package:connectcare/data/services/shared_preferences_service.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  _ProfileScreen createState() => _ProfileScreen();
+  ProfileScreenState createState() => ProfileScreenState();
 }
 
-class _ProfileScreen extends State<ProfileScreen> {
+class ProfileScreenState extends State<ProfileScreen> {
   final SharedPreferencesService _sharedPreferencesService =
       SharedPreferencesService();
 
