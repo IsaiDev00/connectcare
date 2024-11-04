@@ -21,7 +21,6 @@ void responseHandlerPost(
 
 void responseHandlerDelete(
     http.Response response, BuildContext context, String correct, String err) {
-  print(response.statusCode);
   if (response.statusCode == 200) {
     showCustomSnackBar(context, correct);
   } else {
@@ -40,8 +39,6 @@ void responseHandlerPut(
 
 void responseHandlerGet(
     http.Response response, BuildContext context, String correct, String err) {
-  print(response.statusCode);
-
   if (response.statusCode == 201) {
     showCustomSnackBar(context, correct);
   } else {
