@@ -85,6 +85,7 @@ class _WrapperState extends State<Wrapper> {
         top: -10,
         elevation: 30,
         style: TabStyle.reactCircle,
+        initialActiveIndex: _pageIndex,
         onTap: (index) {
           setState(() {
             _pageIndex = index;
