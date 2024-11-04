@@ -56,7 +56,7 @@ class MainScreenState extends State<MainScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               SizedBox(
-                width: MediaQuery.of(context).size.width / 2,
+                width: MediaQuery.of(context).size.width / 1.5,
                 child: ElevatedButton(
                   onPressed: () {
                     // Navegar a la pantalla de registro de hospital
@@ -72,7 +72,7 @@ class MainScreenState extends State<MainScreen> {
               ),
               const SizedBox(height: 30), // Espaciado entre los dos botones
               SizedBox(
-                width: MediaQuery.of(context).size.width / 2,
+                width: MediaQuery.of(context).size.width / 1.5,
                 child: ElevatedButton(
                   onPressed: () {
                     // Navegar a la pantalla de ingreso a hospital
