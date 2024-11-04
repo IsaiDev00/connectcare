@@ -1,4 +1,5 @@
 import 'package:connectcare/core/constants/constants.dart';
+import 'package:connectcare/data/services/shared_preferences_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
@@ -14,26 +15,33 @@ class CreateServiceScreen extends StatefulWidget {
 class _CreateServiceScreenState extends State<CreateServiceScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  List<Map<String, dynamic>> areas = [];
-
+  List<Map<String, dynamic>> floors = [];
   final TextEditingController nameController = TextEditingController();
-  String? areaController;
+  String? selectedFloor;
+  final SharedPreferencesService _sharedPreferencesService =
+      SharedPreferencesService();
 
   @override
   void initState() {
     super.initState();
-    _fetchItemsFromDatabase(); // Llama a la función para obtener los datos al iniciar
+    _fetchFloorsFromDatabase(); // Llama a la función para obtener los datos al iniciar
   }
 
-  Future<void> _fetchItemsFromDatabase() async {
+  Future<void> _fetchFloorsFromDatabase() async {
+    final clues = await _sharedPreferencesService.getClues();
     try {
-      final response = await http.get(Uri.parse('$baseUrl/api/items')); // URL de tu API
+      final response = await http.get(Uri.parse('$baseUrl/piso/clues/$clues'));
 
       if (response.statusCode == 200) {
         List<dynamic> data = json.decode(response.body);
 
         setState(() {
-          areas = data.map((item) => {'name': item['name'], 'isChecked': false}).toList();
+          floors = data
+              .map((item) => {
+                    'name': 'Floor ${item['numero_piso']}',
+                    'id': item['id_piso']
+                  })
+              .toList();
         });
       } else {
         throw Exception('Error al cargar los datos');
@@ -43,9 +51,31 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
     }
   }
 
+  Future<void> createService(String nombre, String idPiso) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/servicio/'), // URL de tu API
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'nombre': nombre,
+          'id_piso': int.parse(idPiso), // Convertir idPiso a entero
+        }),
+      );
 
-  bool isAnyItemChecked() {
-    return areas.any((item) => item['isChecked'] == true);
+      if (response.statusCode == 201) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Service registered successfully')),
+        );
+        Navigator.pushNamed(context, '/manageServiceScreen');
+      } else {
+        throw Exception('Failed to create service');
+      }
+    } catch (e) {
+      print('Error: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error registering service')),
+      );
+    }
   }
 
   @override
@@ -85,7 +115,7 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
               children: [
                 const SizedBox(height: 30),
 
-                //NOMBRE
+                // NOMBRE
                 TextFormField(
                   controller: nameController,
                   decoration: const InputDecoration(
@@ -103,34 +133,52 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
 
                 const SizedBox(height: 15),
 
-                //AREA
-                ExpansionTile(
-                  title: const Text("Select Area"),
-                  children: areas.map((item) {
-                    return CheckboxListTile(
-                      title: Text(item['name']),
-                      value: item['isChecked'],
-                      onChanged: (bool? value) {
-                        setState(() {
-                          item['isChecked'] = value!;
-                        });
-                      },
+                // PISO
+                DropdownButtonFormField<String>(
+                  decoration: const InputDecoration(
+                    labelText: "Select Floor",
+                    border: OutlineInputBorder(),
+                  ),
+                  value: selectedFloor,
+                  items: floors.map((floor) {
+                    return DropdownMenuItem<String>(
+                      value: floor['id'].toString(),
+                      child: Text(
+                        floor['name'],
+                        style: const TextStyle(
+                          fontSize: 13,
+                        ),
+                      ),
                     );
                   }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      selectedFloor = value;
+                    });
+                  },
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return "Please select a floor";
+                    }
+                    return null;
+                  },
                 ),
 
-                SizedBox(height: 15),
+                const SizedBox(height: 15),
 
-                //GUARDAR
+                // GUARDAR
+                // GUARDAR
                 ElevatedButton(
                   onPressed: () {
                     if (_formKey.currentState!.validate() &&
-                        isAnyItemChecked()) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Bien hecho')));
+                        selectedFloor != null) {
+                      createService(nameController.text, selectedFloor!);
                     } else {
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                          content: Text('Please enter at least one Area')));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content:
+                                Text('Please complete all required fields')),
+                      );
                     }
                   },
                   child: const Text("Register service"),

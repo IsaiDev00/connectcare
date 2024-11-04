@@ -25,21 +25,6 @@ class ManagementState extends State<Management> {
                 width: MediaQuery.of(context).size.width / 2,
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.pushNamed(context, '/manageRoomScreen');
-                  },
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 40, vertical: 20),
-                    textStyle: const TextStyle(fontSize: 18),
-                  ),
-                  child: const Text('Gestionar salas'),
-                ),
-              ),
-              const SizedBox(height: 30),
-              SizedBox(
-                width: MediaQuery.of(context).size.width / 2,
-                child: ElevatedButton(
-                  onPressed: () {
                     Navigator.pushNamed(context, '/manageServiceScreen');
                   },
                   style: ElevatedButton.styleFrom(
@@ -51,6 +36,22 @@ class ManagementState extends State<Management> {
                 ),
               ),
               const SizedBox(height: 30),
+              SizedBox(
+                width: MediaQuery.of(context).size.width / 2,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/manageRoomScreen');
+                  },
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 40, vertical: 20),
+                    textStyle: const TextStyle(fontSize: 18),
+                  ),
+                  child: const Text('Gestionar salas'),
+                ),
+              ),
+              const SizedBox(height: 30),
+              
               SizedBox(
                 width: MediaQuery.of(context).size.width / 2,
                 child: ElevatedButton(
