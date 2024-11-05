@@ -95,16 +95,22 @@ class CreateRoomScreenState extends State<CreateRoomScreen> {
 
   String _formatTime(String time) {
     try {
-      // Parse the time using DateFormat (e.g., "2:30 PM")
-      DateFormat inputFormat = DateFormat.jm();
-      DateTime parsedTime = inputFormat.parse(time);
+      // Remueve caracteres especiales o espacios no visibles
+      time = time.replaceAll(RegExp(r'[\u202F\u00A0]'), '').trim();
 
-      // Format it to "HH:mm:ss"
-      DateFormat outputFormat = DateFormat('HH:mm:ss');
-      return outputFormat.format(parsedTime);
+      // Intenta parsear el formato en formato de 12 horas si detecta "AM" o "PM"
+      DateTime parsedTime;
+      if (time.contains(RegExp(r'AM|PM', caseSensitive: false))) {
+        parsedTime = DateFormat.jm().parse(time);
+      } else {
+        // Asume que está en formato de 24 horas si no hay AM/PM
+        parsedTime = DateFormat.Hms().parse(time);
+      }
+
+      // Devuelve en formato HH:mm:ss
+      return DateFormat('HH:mm:ss').format(parsedTime);
     } catch (e) {
       print('Error formateando el tiempo: $e');
-      // Puedes manejar el error como prefieras. Aquí retornamos un valor por defecto.
       return '00:00:00';
     }
   }
@@ -115,30 +121,28 @@ class CreateRoomScreenState extends State<CreateRoomScreen> {
     Map<String, TextEditingController> startControllers,
     Map<String, TextEditingController> endControllers,
     Map<String, bool> isClosed,
-    TextEditingController maxVisitsController,
+    TextEditingController maxBedsController,
     TextEditingController startVisitingController,
     TextEditingController endVisitingController,
+    TextEditingController maxVisitsController,
     String idServicio,
   ) async {
     setState(() {
-      isLoading = true; // Inicia el estado de carga
+      isLoading = true;
     });
 
     try {
       final url = Uri.parse('$baseUrl/sala/crearSalaConHorarios');
-
       Map<String, Map<String, String?>> horarioAtencion = {};
 
       if (is24_7) {
-        // Set all days to 00:00:00 to 00:00:00
         for (var day in startControllers.keys) {
           horarioAtencion[day] = {
             'hora_inicio': "00:00:00",
-            'hora_fin': "00:00:00",
+            'hora_fin': "00:00:00"
           };
         }
       } else {
-        // Process manual opening hours
         for (var day in startControllers.keys) {
           if (isClosed[day]!) {
             horarioAtencion[day] = {'hora_inicio': null, 'hora_fin': null};
@@ -163,9 +167,7 @@ class CreateRoomScreenState extends State<CreateRoomScreen> {
         'maxBeds': int.parse(maxBedsController.text),
       };
 
-      // Handle Visiting Hours if enabled
       if (hasVisitingHours) {
-        // Validate visiting hours fields
         if (startVisitingController.text.isNotEmpty &&
             endVisitingController.text.isNotEmpty &&
             maxVisitsController.text.isNotEmpty) {
@@ -175,7 +177,6 @@ class CreateRoomScreenState extends State<CreateRoomScreen> {
             'visitantes': int.parse(maxVisitsController.text),
           };
         } else {
-          // Handle incomplete visiting hours data
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
                 content: Text('Please complete all visiting hours fields')),
@@ -184,7 +185,6 @@ class CreateRoomScreenState extends State<CreateRoomScreen> {
         }
       }
 
-      // Convert data to JSON and send
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
@@ -193,7 +193,6 @@ class CreateRoomScreenState extends State<CreateRoomScreen> {
 
       _responseCreateRoom(response);
     } catch (e) {
-      // Manejo de excepciones
       print('Error al crear la sala: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -203,7 +202,7 @@ class CreateRoomScreenState extends State<CreateRoomScreen> {
       );
     } finally {
       setState(() {
-        isLoading = false; // Finaliza el estado de carga
+        isLoading = false;
       });
     }
   }
@@ -211,7 +210,7 @@ class CreateRoomScreenState extends State<CreateRoomScreen> {
   void _responseCreateRoom(http.Response response) {
     if (response.statusCode == 201) {
       showCustomSnackBar(context, 'Sala creada con éxito');
-      // Opcional: Navegar de regreso o limpiar el formulario
+      Navigator.pushNamed(context, '/manageRoomScreen');
     } else {
       showCustomSnackBar(context, 'Error al crear sala');
       print('Response status: ${response.statusCode}');
@@ -240,7 +239,12 @@ class CreateRoomScreenState extends State<CreateRoomScreen> {
     );
 
     if (pickedTime != null && mounted) {
-      String formattedTime = pickedTime.format(context);
+      final now = DateTime.now();
+      // Formatea a HH:mm:ss
+      final formattedTime = DateFormat('HH:mm:ss').format(
+        DateTime(
+            now.year, now.month, now.day, pickedTime.hour, pickedTime.minute),
+      );
       setState(() {
         controller.text = formattedTime;
       });
@@ -357,10 +361,10 @@ class CreateRoomScreenState extends State<CreateRoomScreen> {
                               is24_7 = value ?? false;
                               if (is24_7) {
                                 // Clear manual entries if 24/7 is selected
-                                startControllers
-                                    .forEach((_, controller) => controller.clear());
-                                endControllers
-                                    .forEach((_, controller) => controller.clear());
+                                startControllers.forEach(
+                                    (_, controller) => controller.clear());
+                                endControllers.forEach(
+                                    (_, controller) => controller.clear());
                                 // Ensure all days are open
                                 isClosed.updateAll((key, value) => false);
                               }
@@ -393,7 +397,8 @@ class CreateRoomScreenState extends State<CreateRoomScreen> {
                                 endControllers[day]!;
 
                             return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 4.0),
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 4.0),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
@@ -637,16 +642,18 @@ class CreateRoomScreenState extends State<CreateRoomScreen> {
 
                       ElevatedButton(
                         onPressed: () {
-                          if (_formKey.currentState!.validate() && _validateDays()) {
+                          if (_formKey.currentState!.validate() &&
+                              _validateDays()) {
                             crearSalaConHorarios(
                               nameController.text,
                               int.parse(numberController.text),
                               startControllers,
                               endControllers,
                               isClosed,
-                              maxVisitsController,
+                              maxBedsController,
                               startVisitingController,
                               endVisitingController,
+                              maxVisitsController,
                               selectedServiceId!,
                             );
                           } else {
