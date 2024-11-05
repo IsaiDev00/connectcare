@@ -17,6 +17,7 @@ class WrapperAdmin extends StatefulWidget {
 class _WrapperAdmin extends State<WrapperAdmin> {
   late int _pageIndex;
 
+  @override
   void initState() {
     setIndex(widget.index);
     super.initState();
