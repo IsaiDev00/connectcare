@@ -73,7 +73,7 @@ class _ManageMedicationsState extends State<ManageMedications> {
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
+            children: [
               const SizedBox(height: 20),
               SizedBox(
                 width: 400,
@@ -87,7 +87,7 @@ class _ManageMedicationsState extends State<ManageMedications> {
                   autofocus: true,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter a name for the room';
+                      return 'Por favor ingrese el nombre del medicamento';
                     }
                     return null;
                   },

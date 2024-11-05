@@ -10,6 +10,7 @@ import 'package:connectcare/presentation/screens/admin/manage_procedure_screen.d
 import 'package:connectcare/presentation/screens/admin/manage_room_screen.dart';
 import 'package:connectcare/presentation/screens/admin/manage_service_screen.dart';
 import 'package:connectcare/presentation/screens/admin/short_tutorial_screen.dart';
+import 'package:connectcare/presentation/screens/admin/wrapper_admin.dart';
 import 'package:connectcare/presentation/screens/auth/login_screen.dart';
 import 'package:connectcare/presentation/screens/auth/password_recovery.dart';
 import 'package:connectcare/presentation/screens/auth/verification_code.dart';
@@ -20,8 +21,8 @@ import 'package:connectcare/presentation/screens/hospital_reg/register_hospital_
 import 'package:connectcare/presentation/screens/hospital_reg/submit_clues_screen.dart';
 import 'package:connectcare/presentation/screens/hospital_reg/verification_code_screen.dart';
 import 'package:connectcare/presentation/screens/principal/profile_screen.dart';
-import 'package:connectcare/presentation/screens/principal/wrapper.dart';
-import 'package:connectcare/presentation/screens/principal/wrapper_admin.dart';
+import 'package:connectcare/presentation/screens/staff/main_screen_staff.dart';
+import 'package:connectcare/presentation/screens/staff/wrapper_staff.dart';
 import 'package:connectcare/presentation/screens/settings/edit_profile_screen.dart';
 import 'package:connectcare/presentation/screens/settings/settings_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -40,6 +41,7 @@ import 'package:connectcare/presentation/screens/auth/complete_staff_registratio
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
+    name: "connectcare",
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
@@ -57,7 +59,7 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.lightTheme(),
       darkTheme: AppTheme.darkTheme(),
       themeMode: ThemeMode.system,
-      initialRoute: '/',
+      initialRoute: '/mainScreenStaff',
       routes: {
         '/': (context) => ChooseRoleScreen(),
         '/hospitalStaffRegistration': (context) => HospitalStaffRegistration(),
@@ -71,9 +73,9 @@ class MyApp extends StatelessWidget {
         '/settings': (context) => SettingsScreen(),
         '/registerHospital': (context) => RegisterHospitalScreen(),
         '/enterHospital': (context) => EnterHospitalScreen(),
-        '/mainScreen': (context) => Wrapper(index: 0),
-        '/example': (context) => Wrapper(index: 2),
-        '/example2': (context) => Wrapper(index: 3),
+        '/mainScreen': (context) => WrapperStaff(index: 0),
+        '/example': (context) => WrapperStaff(index: 2),
+        '/example2': (context) => WrapperStaff(index: 3),
         '/editProfileScreen': (context) => EditProfileScreen(),
         '/submitCluesScreen': (context) => SubmitCluesScreen(),
         '/cluesErrScreen': (context) => CluesErrScreen(),
@@ -98,6 +100,7 @@ class MyApp extends StatelessWidget {
         '/adminStartScreen': (context) => AdminStartScreen(),
         '/addFloorsScreen': (context) => AddFloorsScreen(),
         '/shortTutorialScreen': (context) => ShortTutorialScreen(),
+        '/mainScreenStaff': (context) => MainScreenStaff(),
       },
     );
   }
