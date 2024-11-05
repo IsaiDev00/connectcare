@@ -30,8 +30,8 @@ class _WrapperState extends State<Wrapper> {
   final List<Widget> _pages = [
     const MainScreen(),
     const ProfileScreen(),
-    const SettingsScreen(),
     const MainScreen(),
+    const SettingsScreen(),
   ];
 
   @override
@@ -69,11 +69,11 @@ class _WrapperState extends State<Wrapper> {
           ),
           TabItem(
             icon: Icons.design_services_outlined,
-            title: 'settings',
+            title: 'service',
           ),
           TabItem(
-            icon: Icons.design_services_outlined,
-            title: 'service',
+            icon: Icons.settings,
+            title: 'settings',
           ),
         ],
         color: theme.colorScheme.onPrimary,
@@ -85,6 +85,7 @@ class _WrapperState extends State<Wrapper> {
         top: -10,
         elevation: 30,
         style: TabStyle.reactCircle,
+        initialActiveIndex: _pageIndex,
         onTap: (index) {
           setState(() {
             _pageIndex = index;

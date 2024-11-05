@@ -65,7 +65,7 @@ class _WrapperAdmin extends State<WrapperAdmin> {
             title: 'Main page',
           ),
           TabItem(
-            icon: Icons.business_center ,
+            icon: Icons.business_center,
             title: 'Management',
           ),
           TabItem(
@@ -86,6 +86,7 @@ class _WrapperAdmin extends State<WrapperAdmin> {
         top: -10,
         elevation: 30,
         style: TabStyle.reactCircle,
+        initialActiveIndex: _pageIndex,
         onTap: (index) {
           setState(() {
             _pageIndex = index;

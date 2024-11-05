@@ -9,14 +9,15 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 
-class CreateMedicamentScreen extends StatefulWidget {
-  const CreateMedicamentScreen({super.key});
+class UpdateMedicamentScreen extends StatefulWidget {
+  final String id;
+  const UpdateMedicamentScreen({required this.id, super.key});
 
   @override
-  State<CreateMedicamentScreen> createState() => _CreateMedicamentScreenState();
+  State<UpdateMedicamentScreen> createState() => _UpdateMedicamentScreenState();
 }
 
-class _CreateMedicamentScreenState extends State<CreateMedicamentScreen> {
+class _UpdateMedicamentScreenState extends State<UpdateMedicamentScreen> {
   int idAdministrador = 4;
   TextEditingController nameController = TextEditingController();
   TextEditingController brandController = TextEditingController();
@@ -26,7 +27,6 @@ class _CreateMedicamentScreenState extends State<CreateMedicamentScreen> {
   String? selectedMedicament;
   List<String> medicamentList = [];
   TextEditingController amountController = TextEditingController();
-  TextEditingController expirationDateController = TextEditingController();
   TextEditingController stockController = TextEditingController();
 
   DateTime? expirationDay;
@@ -150,12 +150,66 @@ class _CreateMedicamentScreenState extends State<CreateMedicamentScreen> {
     super.initState();
   }
 
-  void setMedicamentList() {
-    medicamentList = medicamentListTypes();
-    setState(() {});
+  Future<void> medicamentInit() async {
+    var url = Uri.parse('$baseUrl/medicamento/${widget.id}');
+    var response = await http.get(url);
+    final Map data = json.decode(response.body);
+    setState(() {
+      idAdministrador = data['id_administrador'];
+      nameController.text = data['nombre'];
+      brandController.text = data['marca'];
+      concentrationController.text = data['concentracion'];
+      medicamentList = ['${data['tipo']}'];
+      selectedMedicament = data['tipo'];
+      formattedDate = data['caducidad'];
+      amountController.text = data['cantidad_presentacion'].toString();
+      stockController.text = data['cantidad_stock'].toString();
+    });
+    setState(() {
+      selectedMedicamentType = lookForType();
+    });
   }
 
-  Future<void> agregarMedicamento(
+  String lookForType() {
+    switch (selectedMedicament) {
+      case 'Cápsula':
+      case 'Tableta':
+      case 'Gragea':
+      case 'Píldora':
+      case 'Parche':
+      case 'Supositorio':
+      case 'Óvulo':
+        return 'Unidad';
+      case 'Aerosol':
+      case 'Gotas':
+      case 'Inyectable':
+      case 'Suspensión':
+      case 'Jarabe':
+      case 'Elixir':
+        return 'Volumen';
+
+      case 'Polvo':
+      case 'Pomada':
+      case 'Crema':
+      case 'Gel':
+        return 'Peso';
+
+      case 'Inhalador':
+      case 'Nebulizador':
+        return 'Dosis';
+
+      default:
+        return '';
+    }
+  }
+
+  void setMedicamentList() async {
+    medicamentList = medicamentListTypes();
+    setState(() {});
+    await medicamentInit();
+  }
+
+  Future<void> updateMedicament(
       String nombre,
       String marca,
       String tipo,
@@ -164,7 +218,7 @@ class _CreateMedicamentScreenState extends State<CreateMedicamentScreen> {
       int cantidadStock,
       String caducidad,
       int idAdministrador) async {
-    final url = Uri.parse('$baseUrl/medicamento');
+    final url = Uri.parse('$baseUrl/medicamento/${widget.id}');
     Medicamento medicamento = Medicamento(
         nombre: nombre,
         marca: marca,
@@ -175,14 +229,14 @@ class _CreateMedicamentScreenState extends State<CreateMedicamentScreen> {
         caducidad: caducidad,
         idAdministrador: idAdministrador);
 
-    final response = await http.post(
+    final response = await http.put(
       url,
       headers: {'Content-Type': 'application/json'},
       body: json.encode(medicamento.toMap()),
     );
     if (mounted) {
-      responseHandlerPost(response, context, 'Medicamento creado con exito',
-          'Error al crear medicamento');
+      responseHandlerPut(response, context, 'Medicamento actualizado con exito',
+          'Error al actualizar medicamento');
     }
   }
 
@@ -192,7 +246,7 @@ class _CreateMedicamentScreenState extends State<CreateMedicamentScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Crear medicamento"),
+        title: const Text("Editar medicamento"),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () {
@@ -450,7 +504,7 @@ class _CreateMedicamentScreenState extends State<CreateMedicamentScreen> {
                           Navigator.pop(context, 'created');
                         }
 
-                        await agregarMedicamento(
+                        await updateMedicament(
                             nameController.text,
                             brandController.text,
                             selectedMedicament!,
@@ -462,7 +516,7 @@ class _CreateMedicamentScreenState extends State<CreateMedicamentScreen> {
                         nav();
                       }
                     },
-                    child: const Text("Crear medicamento"),
+                    child: const Text("Aceptar cambios"),
                   ),
                 ],
               ),
