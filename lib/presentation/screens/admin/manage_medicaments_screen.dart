@@ -70,7 +70,7 @@ class _ManageMedicationsState extends State<ManageMedications> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Center(
+        child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
@@ -104,9 +104,10 @@ class _ManageMedicationsState extends State<ManageMedications> {
                         ),
                       ),
                     )
-                  : SizedBox(
+                  :
+                  //  Expanded(
+                  SizedBox(
                       height: 450,
-                      width: MediaQuery.of(context).size.width / 1.5,
                       child: ListView.builder(
                         itemCount: filterMedicaments.length,
                         itemBuilder: (context, index) {
@@ -117,7 +118,7 @@ class _ManageMedicationsState extends State<ManageMedications> {
                               children: [
                                 Text(
                                   item['nombre'],
-                                  style: theme.textTheme.headlineLarge,
+                                  style: theme.textTheme.headlineSmall,
                                 ),
                                 Row(
                                   children: [
@@ -155,20 +156,23 @@ class _ManageMedicationsState extends State<ManageMedications> {
                       ),
                     ),
               const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () async {
-                  final result = await Navigator.pushNamed(
-                      context, '/createMedicamentScreen');
-                  if (result == 'created') {
-                    await medicamentsInit();
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
-                  textStyle: const TextStyle(fontSize: 18),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10.0),
+                child: ElevatedButton(
+                  onPressed: () async {
+                    final result = await Navigator.pushNamed(
+                        context, '/createMedicamentScreen');
+                    if (result == 'created') {
+                      await medicamentsInit();
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 40, vertical: 20),
+                    textStyle: const TextStyle(fontSize: 18),
+                  ),
+                  child: const Text('Agregar medicamento'),
                 ),
-                child: const Text('Agregar medicamento'),
               ),
             ],
           ),
