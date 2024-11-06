@@ -118,13 +118,18 @@ class _CreateProcedureScreenState extends State<CreateProcedureScreen> {
           if (salaProcedimientoResponse.statusCode == 201) {
             _responseCreateProcedure();
           } else {
-            throw Exception('Error al crear el enlace con sala');
+            throw Exception('Error linking procedure with room');
           }
         } else {
-          throw Exception('Error al obtener el ID de la sala');
+          throw Exception('Error retrieving room ID');
         }
+      } else if (procedimientoResponse.statusCode == 409) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('A procedure with the same name already exists.')),
+        );
       } else {
-        throw Exception('Error al crear el procedimiento');
+        throw Exception('Failed to create procedure');
       }
     } catch (e) {
       _responseError(e);
@@ -179,6 +184,8 @@ class _CreateProcedureScreenState extends State<CreateProcedureScreen> {
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter a name for the procedure';
+                        } else if (value.length > 25) {
+                          return 'Please enter a shorter name, less than 26 char';
                         }
                         return null;
                       }),
@@ -196,6 +203,8 @@ class _CreateProcedureScreenState extends State<CreateProcedureScreen> {
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter a description for the procedure';
+                      } else if (value.length > 500) {
+                        return 'Please enter a shorter description, less than 501 char';
                       }
                       return null;
                     },
@@ -250,6 +259,8 @@ class _CreateProcedureScreenState extends State<CreateProcedureScreen> {
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter an amount of nurses';
+                      } else if (int.parse(value) > 25) {
+                        return 'Please enter a number less or equal than 25';
                       }
                       return null;
                     },
@@ -257,6 +268,7 @@ class _CreateProcedureScreenState extends State<CreateProcedureScreen> {
 
                   const SizedBox(height: 15),
 
+                  //CANTIDAD DOCTORES
                   TextFormField(
                     controller: cantDoctorController,
                     decoration: const InputDecoration(
@@ -272,6 +284,8 @@ class _CreateProcedureScreenState extends State<CreateProcedureScreen> {
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter an amount of doctors';
+                      } else if (int.parse(value) > 25) {
+                        return 'Please enter a number less or equal than 25';
                       }
                       return null;
                     },
@@ -311,6 +325,7 @@ class _CreateProcedureScreenState extends State<CreateProcedureScreen> {
   void _responseCreateProcedure() {
     showCustomSnackBar(
         context, "Procedimiento y enlace con sala creados exitosamente");
+    Navigator.pushNamed(context, '/manageProcedureScreen');
   }
 
   void _responseError(e) {

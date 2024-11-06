@@ -191,12 +191,20 @@ class CreateRoomScreenState extends State<CreateRoomScreen> {
         body: json.encode(payload),
       );
 
-      _responseCreateRoom(response);
+      if (response.statusCode == 409) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content:
+                  Text('A room with the same name and number already exists.')),
+        );
+      } else {
+        _responseCreateRoom(response);
+      }
     } catch (e) {
-      print('Error al crear la sala: $e');
+      print('Error creating the room: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error al crear la sala: $e'),
+          content: Text('Error creating the room: $e'),
           backgroundColor: Colors.red,
         ),
       );
@@ -318,6 +326,8 @@ class CreateRoomScreenState extends State<CreateRoomScreen> {
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter a name for the room';
+                          } else if (value.length > 30) {
+                            return 'Please enter a shorter name, less than 31 char';
                           }
                           return null;
                         },

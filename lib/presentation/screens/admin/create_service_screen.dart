@@ -67,6 +67,11 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
           const SnackBar(content: Text('Service registered successfully')),
         );
         Navigator.pushNamed(context, '/manageServiceScreen');
+      } else if (response.statusCode == 409) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('A service with the same name already exists.')),
+        );
       } else {
         throw Exception('Failed to create service');
       }
@@ -126,6 +131,8 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return "Please enter a name for the service";
+                    } else if (value.length > 25) {
+                      return 'Please enter a shorter name, less than 26 char';
                     }
                     return null;
                   },
@@ -166,7 +173,6 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
 
                 const SizedBox(height: 15),
 
-                // GUARDAR
                 // GUARDAR
                 ElevatedButton(
                   onPressed: () {
