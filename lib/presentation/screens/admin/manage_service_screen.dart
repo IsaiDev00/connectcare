@@ -15,7 +15,8 @@ class ManageServiceScreenState extends State<ManageServiceScreen> {
   List<Map<String, dynamic>> services = [];
   List<Map<String, dynamic>> filteredServices = [];
   TextEditingController searchController = TextEditingController();
-  final SharedPreferencesService _sharedPreferencesService = SharedPreferencesService();
+  final SharedPreferencesService _sharedPreferencesService =
+      SharedPreferencesService();
 
   @override
   void initState() {
@@ -26,7 +27,8 @@ class ManageServiceScreenState extends State<ManageServiceScreen> {
   Future<void> _fetchServices() async {
     final clues = await _sharedPreferencesService.getClues();
     try {
-      final response = await http.get(Uri.parse('$baseUrl/servicio/servicios/$clues')); // URL de tu API
+      final response = await http.get(
+          Uri.parse('$baseUrl/servicio/servicios/$clues')); // URL de tu API
 
       if (response.statusCode == 200) {
         List<dynamic> data = json.decode(response.body);
@@ -38,10 +40,11 @@ class ManageServiceScreenState extends State<ManageServiceScreen> {
                     'piso': item['numero_piso']
                   })
               .toList();
-          filteredServices = services; // Inicializar filtro con todos los servicios
+          filteredServices =
+              services; // Inicializar filtro con todos los servicios
         });
       } else {
-        throw Exception('Error al cargar los servicios');
+        throw Exception('Error loading services');
       }
     } catch (e) {
       print('Error: $e');
@@ -56,7 +59,7 @@ class ManageServiceScreenState extends State<ManageServiceScreen> {
 
         // Verificar si el nombre del servicio o el piso coinciden con la búsqueda
         return serviceName.contains(query.toLowerCase()) ||
-               floorNumber.contains(query.toLowerCase());
+            floorNumber.contains(query.toLowerCase());
       }).toList();
     });
   }
@@ -67,93 +70,86 @@ class ManageServiceScreenState extends State<ManageServiceScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Gestionar Servicios'),
+        title: const Text('Manage Services'),
         centerTitle: true,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Center(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              const SizedBox(height: 20),
-              
-              // Barra de búsqueda
-              SizedBox(
-                width: 400,
-                child: TextFormField(
-                  controller: searchController,
-                  onChanged: updateFilter,
-                  decoration: const InputDecoration(
-                    labelText: "Search...",
-                    border: OutlineInputBorder(),
-                  ),
-                  autofocus: true,
-                ),
-              ),
-              const SizedBox(height: 20),
+        child: Column(
+          children: <Widget>[
+            const SizedBox(height: 20),
 
-              // Lista de servicios
-              filteredServices.isEmpty
+            // Barra de búsqueda
+            TextFormField(
+              controller: searchController,
+              onChanged: updateFilter,
+              decoration: const InputDecoration(
+                labelText: "Search...",
+                border: OutlineInputBorder(),
+              ),
+              autofocus: false,
+            ),
+            const SizedBox(height: 20),
+
+            // Lista de servicios
+            Expanded(
+              child: filteredServices.isEmpty
                   ? const Center(
                       child: Text(
-                        'Nada que ver por aquí',
+                        'Nothing to see here',
                         style: TextStyle(fontSize: 18),
                       ),
                     )
-                  : SizedBox(
-                      height: 450,
-                      width: MediaQuery.of(context).size.width / 1.5,
-                      child: ListView.builder(
-                        itemCount: filteredServices.length,
-                        itemBuilder: (context, index) {
-                          final service = filteredServices[index];
-                          return ListTile(
-                            title: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  : ListView.builder(
+                      itemCount: filteredServices.length,
+                      itemBuilder: (context, index) {
+                        final service = filteredServices[index];
+                        return Card(
+                          margin: const EdgeInsets.symmetric(vertical: 8),
+                          child: ListTile(
+                            title: Text(
+                              '${service['nombre']} - Floor ${service['piso']}',
+                              style: theme.textTheme.bodyLarge,
+                            ),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
                               children: [
-                                Text(
-                                  '${service['nombre']} - Floor ${service['piso']}',
-                                  style: theme.textTheme.headlineLarge,
+                                IconButton(
+                                  icon: const Icon(Icons.edit),
+                                  onPressed: () {
+                                    // Acción para editar el servicio
+                                  },
                                 ),
-                                Row(
-                                  children: [
-                                    IconButton(
-                                      icon: Icon(Icons.edit),
-                                      onPressed: () {
-                                        // Acción para editar el servicio
-                                      },
-                                    ),
-                                    SizedBox(width: 8),
-                                    IconButton(
-                                      icon: Icon(Icons.delete),
-                                      onPressed: () {
-                                        // Acción para eliminar el servicio
-                                      },
-                                    ),
-                                  ],
+                                IconButton(
+                                  icon: const Icon(Icons.delete),
+                                  onPressed: () {
+                                    // Acción para eliminar el servicio
+                                  },
                                 ),
                               ],
                             ),
-                          );
-                        },
-                      ),
+                          ),
+                        );
+                      },
                     ),
-              const SizedBox(height: 20),
+            ),
+            const SizedBox(height: 20),
 
-              // Botón para agregar nuevo servicio
-              ElevatedButton(
+            // Botón para agregar nuevo servicio
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
                 onPressed: () {
                   Navigator.pushNamed(context, '/createServiceScreen');
                 },
                 style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
                   textStyle: const TextStyle(fontSize: 18),
                 ),
-                child: const Text('Agregar servicio'),
+                child: const Text('Add Service'),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

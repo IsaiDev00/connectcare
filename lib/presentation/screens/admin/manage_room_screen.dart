@@ -39,7 +39,7 @@ class ManageRoomScreenState extends State<ManageRoomScreen> {
           filteredRooms = rooms; // Inicializa con todas las salas
         });
       } else {
-        throw Exception('Error al cargar las salas');
+        throw Exception('Error loading rooms');
       }
     } catch (e) {
       print('Error: $e');
@@ -61,95 +61,86 @@ class ManageRoomScreenState extends State<ManageRoomScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Gestionar Salas'),
+        title: const Text('Manage Rooms'),
         centerTitle: true,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Center(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              const SizedBox(height: 20),
-          
-              // Barra de búsqueda
-              SizedBox(
-                width: 400,
-                child: TextFormField(
-                  controller: searchController,
-                  onChanged: updateFilter,
-                  decoration: const InputDecoration(
-                    labelText: "Search...",
-                    border: OutlineInputBorder(),
-                  ),
-                  autofocus: true,
-                ),
+        child: Column(
+          children: <Widget>[
+            const SizedBox(height: 20),
+
+            // Barra de búsqueda
+            TextFormField(
+              controller: searchController,
+              onChanged: updateFilter,
+              decoration: const InputDecoration(
+                labelText: "Search...",
+                border: OutlineInputBorder(),
               ),
-              const SizedBox(height: 20),
-          
-              // Lista de salas
-              filteredRooms.isEmpty
+              autofocus: false,
+            ),
+            const SizedBox(height: 20),
+
+            // Lista de salas
+            Expanded(
+              child: filteredRooms.isEmpty
                   ? const Center(
                       child: Text(
-                        'Nada que ver por aquí',
+                        'Nothing to see here',
                         style: TextStyle(fontSize: 18),
                       ),
                     )
-                  : SizedBox(
-                      height: 450, // Altura fija para la lista
-                      width: MediaQuery.of(context).size.width /
-                          1.5, // Ancho responsivo similar a ManageServiceScreen
-                      child: ListView.builder(
-                        itemCount: filteredRooms.length,
-                        itemBuilder: (context, index) {
-                          final room = filteredRooms[index];
-                          return ListTile(
-                            title: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  : ListView.builder(
+                      itemCount: filteredRooms.length,
+                      itemBuilder: (context, index) {
+                        final room = filteredRooms[index];
+                        return Card(
+                          margin: const EdgeInsets.symmetric(vertical: 8),
+                          child: ListTile(
+                            title: Text(
+                              room['nombre'],
+                              style: theme.textTheme.bodyLarge,
+                            ),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
                               children: [
-                                Text(
-                                  room['nombre'],
-                                  style: theme.textTheme.headlineLarge,
+                                IconButton(
+                                  icon: const Icon(Icons.edit),
+                                  onPressed: () {
+                                    // Acción para editar la sala
+                                  },
                                 ),
-                                Row(
-                                  children: [
-                                    IconButton(
-                                      icon: Icon(Icons.edit),
-                                      onPressed: () {
-                                        // Acción para editar la sala
-                                      },
-                                    ),
-                                    SizedBox(width: 8),
-                                    IconButton(
-                                      icon: Icon(Icons.delete),
-                                      onPressed: () {
-                                        // Acción para eliminar la sala
-                                      },
-                                    ),
-                                  ],
+                                IconButton(
+                                  icon: const Icon(Icons.delete),
+                                  onPressed: () {
+                                    // Acción para eliminar la sala
+                                  },
                                 ),
                               ],
                             ),
-                          );
-                        },
-                      ),
+                          ),
+                        );
+                      },
                     ),
-              const SizedBox(height: 20),
-          
-              // Botón para agregar nueva sala
-              ElevatedButton(
+            ),
+            const SizedBox(height: 20),
+
+            // Botón para agregar nueva sala
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
                 onPressed: () {
                   Navigator.pushNamed(context, '/createRoomScreen');
                 },
                 style: ElevatedButton.styleFrom(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
                   textStyle: const TextStyle(fontSize: 18),
                 ),
-                child: const Text('Agregar sala'),
+                child: const Text('Add Room'),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

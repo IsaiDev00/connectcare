@@ -12,7 +12,7 @@ class ManagementState extends State<Management> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Gestion'),
+        title: const Text('Management'),
       ),
       body: Center(
         child: Column(
@@ -30,7 +30,7 @@ class ManagementState extends State<Management> {
                       const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
                   textStyle: const TextStyle(fontSize: 18),
                 ),
-                child: const Text('Servicios'),
+                child: const Text('Services'),
               ),
             ),
             const SizedBox(height: 30),
@@ -45,7 +45,7 @@ class ManagementState extends State<Management> {
                       const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
                   textStyle: const TextStyle(fontSize: 18),
                 ),
-                child: const Text('Salas'),
+                child: const Text('Rooms'),
               ),
             ),
             const SizedBox(height: 30),
@@ -60,7 +60,7 @@ class ManagementState extends State<Management> {
                       const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
                   textStyle: const TextStyle(fontSize: 18),
                 ),
-                child: const Text('Procedimientos'),
+                child: const Text('Procedures'),
               ),
             ),
             const SizedBox(height: 30),
@@ -75,7 +75,7 @@ class ManagementState extends State<Management> {
                       const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
                   textStyle: const TextStyle(fontSize: 18),
                 ),
-                child: const Text('Medicamentos'),
+                child: const Text('Medications'),
               ),
             ),
           ],
