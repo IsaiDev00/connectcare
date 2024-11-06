@@ -46,7 +46,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '1061884124346',
     projectId: 'connectcare-8576a',
     authDomain: 'connectcare-8576a.firebaseapp.com',
-    storageBucket: 'connectcare-8576a.appspot.com',
+    storageBucket: 'connectcare-8576a.firebasestorage.app',
     measurementId: 'G-PCXETTZKTY',
   );
 
@@ -55,7 +55,7 @@ class DefaultFirebaseOptions {
     appId: '1:1061884124346:android:48612fee86203d2792f683',
     messagingSenderId: '1061884124346',
     projectId: 'connectcare-8576a',
-    storageBucket: 'connectcare-8576a.appspot.com',
+    storageBucket: 'connectcare-8576a.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
@@ -63,8 +63,8 @@ class DefaultFirebaseOptions {
     appId: '1:1061884124346:ios:e1778e1eceb7750b92f683',
     messagingSenderId: '1061884124346',
     projectId: 'connectcare-8576a',
-    storageBucket: 'connectcare-8576a.appspot.com',
-    androidClientId: '1061884124346-77r5e60o55825ups9cgudphm8tm7fvtt.apps.googleusercontent.com',
+    storageBucket: 'connectcare-8576a.firebasestorage.app',
+    androidClientId: '1061884124346-66n0pl4jav730t5vje31uda56ipjk2oi.apps.googleusercontent.com',
     iosClientId: '1061884124346-p0fsadlka2s6jklv6vnc655vq52ae2f4.apps.googleusercontent.com',
     iosBundleId: 'com.example.connectcare',
   );
