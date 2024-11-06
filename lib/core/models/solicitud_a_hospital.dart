@@ -22,7 +22,7 @@ class SolicitudAHospital {
 
   Map<String, dynamic> toMap() {
     return {
-      'fecha': fecha.toIso8601String(),
+      'fecha': fecha,
       'peticion': peticion,
       'clues': clues,
       'id_personal': idPersonal,

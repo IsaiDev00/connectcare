@@ -63,7 +63,7 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.lightTheme(),
       darkTheme: AppTheme.darkTheme(),
       themeMode: ThemeMode.system,
-      initialRoute: '/',
+      initialRoute: '/mainScreenStaff',
       routes: {
         '/': (context) => ChooseRoleScreen(),
         '/hospitalStaffRegistration': (context) => HospitalStaffRegistration(),
@@ -77,6 +77,7 @@ class MyApp extends StatelessWidget {
         '/settings': (context) => SettingsScreen(),
         '/registerHospital': (context) => RegisterHospitalScreen(),
         '/enterHospital': (context) => EnterHospitalScreen(),
+        '/mainScreenStaff': (context) => MainScreenStaff(),
         '/mainScreen': (context) => WrapperStaff(index: 0),
         '/example': (context) => WrapperStaff(index: 2),
         '/example2': (context) => WrapperStaff(index: 3),
@@ -111,7 +112,6 @@ class MyApp extends StatelessWidget {
         '/adminStartScreen': (context) => AdminStartScreen(),
         '/addFloorsScreen': (context) => AddFloorsScreen(),
         '/shortTutorialScreen': (context) => ShortTutorialScreen(),
-        '/mainScreenStaff': (context) => MainScreenStaff(),
         '/emailVerification': (context) {
           final arguments =
               ModalRoute.of(context)!.settings.arguments as Map<String, String>;

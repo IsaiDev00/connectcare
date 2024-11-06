@@ -117,7 +117,7 @@ class MainScreenState extends State<MainScreenStaff> {
 
         return Container(
           decoration: BoxDecoration(
-            color: theme.colorScheme.onPrimary,
+            color: theme.colorScheme.surface,
             borderRadius: BorderRadius.vertical(top: Radius.circular(16.0)),
           ),
           child: Column(
@@ -128,7 +128,7 @@ class MainScreenState extends State<MainScreenStaff> {
                 maxLines: 6,
                 keyboardType: TextInputType.text,
                 decoration: const InputDecoration(
-                  labelText: "Descripcion...",
+                  labelText: "Carta de solicitud...",
                   border: OutlineInputBorder(),
                 ),
                 autofocus: true,
@@ -136,7 +136,10 @@ class MainScreenState extends State<MainScreenStaff> {
               Column(
                 children: [
                   IconButton(
-                    icon: Icon(Icons.send_rounded),
+                    icon: Icon(
+                      Icons.send_rounded,
+                      color: theme.colorScheme.onSurface,
+                    ),
                     onPressed: () {
                       crearSolicitudAHospital(
                         clues,
@@ -148,7 +151,9 @@ class MainScreenState extends State<MainScreenStaff> {
                   ),
                   Text(
                     'Enviar',
-                    style: theme.textTheme.bodyLarge,
+                    style: theme.textTheme.bodyLarge!.copyWith(
+                      color: theme.colorScheme.onSurface,
+                    ),
                   )
                 ],
               ),
@@ -167,8 +172,7 @@ class MainScreenState extends State<MainScreenStaff> {
   ) async {
     final url = Uri.parse('$baseUrl/solicitud_a_hospital');
     SolicitudAHospital solicitud = SolicitudAHospital(
-        peticion: peticion, clues: clues, fecha: date, idPersonal: idPersonal);
-
+        fecha: date, peticion: peticion, clues: clues, idPersonal: idPersonal);
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
