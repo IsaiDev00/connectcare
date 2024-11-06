@@ -18,10 +18,22 @@
 				<!-- TODO Replace this value: -->
 				<!-- Copied from GoogleService-Info.plist key REVERSED_CLIENT_ID -->
 				<string>com.googleusercontent.apps.1061884124346-p0fsadlka2s6jklv6vnc655vq52ae2f4</string>
+				<string>fb1637864136944316</string>
 			</array>
 		</dict>
 	</array>
 	<!-- End of the Google Sign-in Section -->
+	<key>FacebookAppID</key>
+	<string>1637864136944316</string>
+	<key>FacebookClientToken</key>
+	<string>a878332f06c56ecf1043633063ebf7d4</string>
+	<key>FacebookDisplayName</key>
+	<string>User Authentication App</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>fbapi</string>
+		<string>fb-messenger-share-api</string>
+	</array>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>

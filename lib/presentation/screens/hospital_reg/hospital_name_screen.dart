@@ -14,9 +14,11 @@ class HospitalNameScreen extends StatefulWidget {
 
 class HospitalNameScreenState extends State<HospitalNameScreen> {
   final TextEditingController _nameController = TextEditingController();
-  bool isButtonEnabled = false;
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final SharedPreferencesService _sharedPreferencesService =
       SharedPreferencesService();
+
+  bool isButtonEnabled = false;
 
   @override
   void initState() {
@@ -30,35 +32,44 @@ class HospitalNameScreenState extends State<HospitalNameScreen> {
 
   Future<void> _registerHospital() async {
     try {
-      // Obtener CLUES desde SharedPreferences
       final cluesData = await _sharedPreferencesService.getCluesCode();
-      // Obtener id_personal desde SharedPreferences
       final userId = await _sharedPreferencesService.getUserId();
 
       if (cluesData != null && userId != null) {
         final clues = cluesData;
 
-        // Realiza la solicitud al backend para crear el registro de hospital y administrador
+        // Verificar si el nombre ya está registrado
+        final checkNameResponse = await http.post(
+          Uri.parse('$baseUrl/hospital/checkName'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({'nombre': _nameController.text.trim()}),
+        );
+
+        if (checkNameResponse.statusCode == 409) {
+          showCustomSnackBar(context, 'Hospital name already in use.');
+          return;
+        }
+
+        // Realiza la solicitud para registrar el hospital
         final response = await http.post(
           Uri.parse('$baseUrl/hospital/registrarHospital'),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({
-            'clues': clues, // Enviar el CLUES obtenido
-            'nombre': _nameController.text
-                .trim(), // Nombre del hospital que se ingresa en la UI
-            'id_personal': userId, // id_personal obtenido
+            'clues': clues,
+            'nombre': _nameController.text.trim(),
+            'id_personal': userId,
           }),
         );
 
         _responseHospitalRegister(response);
       } else {
-        String mensaje = 'Faltan datos necesarios para registrar el hospital.';
+        String message = 'Missing necessary data to register the hospital.';
         if (cluesData == null) {
-          mensaje = 'No se encontró un registro de CLUES válido.';
+          message = 'No valid CLUES record found.';
         }
-        if (userId == null) mensaje = 'No se encontró un ID de usuario válido.';
+        if (userId == null) message = 'No valid user ID found.';
 
-        _validationsHospitalRegister(mensaje);
+        _validationsHospitalRegister(message);
       }
     } catch (e) {
       _responseError(e);
@@ -69,38 +80,51 @@ class HospitalNameScreenState extends State<HospitalNameScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Nombre del Hospital'),
+        title: const Text('Hospital Name'),
         centerTitle: true,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'Ahora debes agregar un nombre al hospital, procura ser lo más claro posible.\nEj. IMSS Clinica 14',
-              style: TextStyle(fontSize: 18),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 40),
-            TextField(
-              controller: _nameController,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'Ingresa el nombre del hospital',
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              const Text(
+                'Please add a name for the hospital. Be as clear as possible.\nE.g., IMSS Clinic 14',
+                style: TextStyle(fontSize: 18),
+                textAlign: TextAlign.center,
               ),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: isButtonEnabled
-                  ? () async {
-                      await _registerHospital();
-                    }
-                  : null,
-              child: const Text('Siguiente'),
-            ),
-          ],
+              const SizedBox(height: 40),
+              TextFormField(
+                controller: _nameController,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Enter the hospital name',
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a name for the hospital';
+                  } else if (value.length > 25) {
+                    return 'Please make it shorter, less than 26 characters';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: isButtonEnabled
+                    ? () {
+                        if (_formKey.currentState?.validate() ?? false) {
+                          _registerHospital();
+                        }
+                      }
+                    : null,
+                child: const Text('Register'),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -108,19 +132,18 @@ class HospitalNameScreenState extends State<HospitalNameScreen> {
 
   void _responseHospitalRegister(response) {
     if (response.statusCode == 201) {
-      showCustomSnackBar(
-          context, 'Hospital y Administrador registrados exitosamente.');
-      Navigator.pushNamed(context, '/adminHomeScreen');
+      showCustomSnackBar(context, 'Hospital registered successfully');
+      Navigator.pushNamed(context, '/adminStartScreen');
     } else {
       throw Exception(
-          'Error en la respuesta del servidor: ${response.statusCode} - ${response.body}');
+          'Server response error: ${response.statusCode} - ${response.body}');
     }
   }
 
-  void _validationsHospitalRegister(mensaje) {
+  void _validationsHospitalRegister(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(mensaje),
+        content: Text(message),
       ),
     );
   }
@@ -128,7 +151,7 @@ class HospitalNameScreenState extends State<HospitalNameScreen> {
   void _responseError(e) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Error al registrar el hospital: $e'),
+        content: Text('Hospital registration error: $e'),
       ),
     );
   }

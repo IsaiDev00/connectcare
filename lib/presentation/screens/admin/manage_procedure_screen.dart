@@ -1,4 +1,7 @@
+import 'package:connectcare/core/constants/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class ManageProcedureScreen extends StatefulWidget {
   const ManageProcedureScreen({super.key});
@@ -8,47 +11,131 @@ class ManageProcedureScreen extends StatefulWidget {
 }
 
 class ManageProcedureScreenState extends State<ManageProcedureScreen> {
-  List<String> procedures = [];
+  List<Map<String, dynamic>> procedures = [];
+  List<Map<String, dynamic>> fliteredProcedures = [];
+  TextEditingController searchController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchProcedures();
+  }
+
+  Future<void> _fetchProcedures() async {
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/procedimiento/'));
+
+      if (response.statusCode == 200) {
+        List<dynamic> data = json.decode(response.body);
+
+        setState(() {
+          procedures = data
+              .map((item) => {
+                    'id_procedimiento': item['id_procedimiento'],
+                    'nombre': item['nombre']
+                  })
+              .toList();
+          fliteredProcedures = procedures;
+        });
+      } else {
+        throw Exception('Error loading procedures');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
+  void updateFilter(String query) {
+    setState(() {
+      fliteredProcedures = procedures.where((procedure) {
+        final procedureName = procedure['nombre'].toLowerCase();
+        return procedureName.contains(query.toLowerCase());
+      }).toList();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    var theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Gestionar Procedimientos'),
+        title: const Text('Manage Procedures'),
         centerTitle: true,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
+            const SizedBox(height: 20),
+            // Barra de búsqueda
+            TextFormField(
+              controller: searchController,
+              onChanged: updateFilter,
+              decoration: const InputDecoration(
+                labelText: "Search...",
+                border: OutlineInputBorder(),
+              ),
+              autofocus: false,
+            ),
+            const SizedBox(height: 20),
+
+            // Lista de procedimientos
             Expanded(
-              child: procedures.isEmpty
+              child: fliteredProcedures.isEmpty
                   ? const Center(
                       child: Text(
-                        'Nada que ver por aquí',
+                        'Nothing to see here',
                         style: TextStyle(fontSize: 18),
                       ),
                     )
                   : ListView.builder(
-                      itemCount: procedures.length,
+                      itemCount: fliteredProcedures.length,
                       itemBuilder: (context, index) {
-                        return ListTile(
-                          title: Text(procedures[index]),
+                        final procedure = fliteredProcedures[index];
+                        return Card(
+                          margin: const EdgeInsets.symmetric(vertical: 8),
+                          child: ListTile(
+                            title: Text(
+                              procedure['nombre'],
+                              style: theme.textTheme.bodyLarge,
+                            ),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.edit),
+                                  onPressed: () {
+                                    // Acción para editar el procedimiento
+                                  },
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.delete),
+                                  onPressed: () {
+                                    // Acción para eliminar el procedimiento
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
                         );
                       },
                     ),
             ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/createProcedureScreen');
-              },
-              style: ElevatedButton.styleFrom(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
-                textStyle: const TextStyle(fontSize: 18),
+            const SizedBox(height: 20),
+
+            // Botón para agregar nuevo procedimiento
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/createProcedureScreen');
+                },
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  textStyle: const TextStyle(fontSize: 18),
+                ),
+                child: const Text('Add Procedure'),
               ),
-              child: const Text('Agregar procedimiento'),
             ),
           ],
         ),
