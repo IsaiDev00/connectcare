@@ -19,12 +19,12 @@ class CompleteStaffRegistration extends StatefulWidget {
 
 class CompleteStaffRegistrationState extends State<CompleteStaffRegistration> {
   final List<String> userTypes = [
-    'Administrador',
-    'Médico',
-    'Enfermero',
-    'Trabajador social',
-    'Camillero',
-    'Recursos humanos'
+    'Administrator',
+    'Doctor',
+    'Nurse',
+    'Social worker',
+    'Stretcher bearer',
+    'Human resources'
   ];
 
   final TextEditingController idController = TextEditingController();
@@ -180,13 +180,11 @@ class CompleteStaffRegistrationState extends State<CompleteStaffRegistration> {
                             'apellido_paterno': lastNamePaternalController.text,
                             'apellido_materno': lastNameMaternalController.text,
                             'tipo': selectedUserType,
-                            'correo_electronico': widget.firebaseUser.email,
-                            'contrasena':
-                                null, // No se envía contraseña en este caso
-                            'telefono': null,
+                            'correo_electronico':
+                                widget.firebaseUser.email ?? '',
                             'firebase_uid': widget.firebaseUser.uid,
                             'auth_provider':
-                                'google.com' // o 'facebook.com' según el caso
+                                widget.firebaseUser.providerData[0].providerId,
                           }),
                         );
                         _responseRegistration(response);

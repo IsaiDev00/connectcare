@@ -1,10 +1,11 @@
 import 'package:connectcare/main.dart';
+import 'package:connectcare/presentation/screens/auth/email_verification_screen.dart';
+import 'package:connectcare/presentation/screens/auth/phone_verification_screen.dart';
 import 'package:connectcare/presentation/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:connectcare/core/constants/constants.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:connectcare/data/services/shared_preferences_service.dart';
 import 'package:connectcare/data/api/google_auth.dart';
@@ -20,13 +21,22 @@ class HospitalStaffRegistration extends StatefulWidget {
 }
 
 class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
-  final List<String> userTypes = [
+  /*final List<String> userTypes = [
     'Administrador',
     'Médico',
     'Enfermero',
     'Trabajador social',
     'Camillero',
     'Recursos humanos'
+  ];*/
+
+  final List<String> userTypes = [
+    'Administrator',
+    'Doctor',
+    'Nurse',
+    'Social worker',
+    'Stretcher bearer',
+    'Human resources'
   ];
 
   final _formKey = GlobalKey<FormState>();
@@ -210,7 +220,6 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                 ),
                 const SizedBox(height: 15),
 
-                // Campo dinámico para el número de teléfono o correo electrónico
                 TextFormField(
                   controller: _emailOrPhoneController,
                   decoration: InputDecoration(
@@ -221,10 +230,11 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                       ? TextInputType.emailAddress
                       : TextInputType.phone,
                   inputFormatters: isEmailMode
-                      ? [] // Permitir cualquier entrada para el correo electrónico
+                      ? []
                       : [
-                          FilteringTextInputFormatter.digitsOnly
-                        ], // Solo números para el teléfono
+                          FilteringTextInputFormatter.digitsOnly,
+                          LengthLimitingTextInputFormatter(10),
+                        ],
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return isEmailMode
@@ -261,10 +271,9 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                       return 'Please enter your password';
                     }
                     final passwordRegex = RegExp(
-                        r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&*()!]).{8,}$');
-
+                        r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#%^&*~`+\-/<>,.]).{8,}$');
                     if (!passwordRegex.hasMatch(value)) {
-                      return 'Password must be at least 8 characters and include uppercase, lowercase, numbers, and symbols';
+                      return 'Password must be at least 8 characters and include uppercase, lowercase, numbers, and symbols ¡@#%^&*~`+-/<>,.';
                     }
                     return null;
                   },
@@ -293,75 +302,86 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                   onPressed: () async {
                     if (_formKey.currentState!.validate()) {
                       final scaffoldMessenger = ScaffoldMessenger.of(context);
-
-                      // Verificar si el email o teléfono ya existe
-                      bool emailExists = isEmailMode
-                          ? await checkEmailExists(_emailOrPhoneController.text)
-                          : false;
-                      bool phoneExists = !isEmailMode
-                          ? await checkPhoneExists(_emailOrPhoneController.text)
-                          : false;
-
-                      if (emailExists) {
-                        scaffoldMessenger.showSnackBar(SnackBar(
-                            content: Text('El correo ya está registrado')));
-                        return;
-                      } else if (phoneExists) {
-                        scaffoldMessenger.showSnackBar(SnackBar(
-                            content: Text('El teléfono ya está registrado')));
-                        return;
-                      }
-
-                      try {
-                        Map<String, dynamic> requestBody = {
-                          'id_personal': idController.text,
-                          'nombre': _firstNameController.text,
-                          'apellido_paterno': _lastNamePaternalController.text,
-                          'apellido_materno': _lastNameMaternalController.text,
-                          'tipo': _selectedUserType,
-                          'correo_electronico':
-                              isEmailMode ? _emailOrPhoneController.text : null,
-                          'telefono':
-                              isEmailMode ? null : _emailOrPhoneController.text,
-                          'contrasena': _passwordController.text,
-                          'estatus': 'activo',
-                          'auth_provider': isEmailMode
-                              ? 'email'
-                              : 'phone' // Agregar este campo
-                        };
-
-                        // peticion al api rest
-                        var url = Uri.parse('$baseUrl/personal');
-                        var response = await http.post(
-                          url,
-                          headers: {'Content-Type': 'application/json'},
-                          body: jsonEncode(requestBody),
-                        );
-
-                        // validaciones
+                      if (isEmailMode) {
                         try {
-                          var responseBody = jsonDecode(response.body);
-                          if (response.statusCode == 201) {
-                            String idPersonal =
-                                responseBody['id_personal'].toString();
-                            await _sharedPreferencesService
-                                .saveUserId(idPersonal);
-                            scaffoldMessenger.showSnackBar(SnackBar(
-                                content: Text('Registration successful')));
-                            _navigateToMainScreen();
-                          } else {
-                            scaffoldMessenger.showSnackBar(SnackBar(
-                                content: Text(responseBody['error'] ??
-                                    'Registration failed')));
-                          }
-                        } catch (e) {
-                          //por si no es json
+                          final UserCredential userCredential =
+                              await FirebaseAuth.instance
+                                  .createUserWithEmailAndPassword(
+                            email: _emailOrPhoneController.text,
+                            password: _passwordController.text,
+                          );
+
+                          Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(
+                              builder: (context) => EmailVerificationScreen(
+                                firstName: _firstNameController.text,
+                                lastNamePaternal:
+                                    _lastNamePaternalController.text,
+                                lastNameMaternal:
+                                    _lastNameMaternalController.text,
+                                userType: _selectedUserType!,
+                                id: idController.text,
+                                email: _emailOrPhoneController.text,
+                              ),
+                            ),
+                          );
+                        } on FirebaseAuthException catch (e) {
                           scaffoldMessenger.showSnackBar(SnackBar(
-                              content: Text('Error: ${response.body}')));
+                              content:
+                                  Text(e.message ?? 'Registration failed')));
+                        } catch (e) {
+                          scaffoldMessenger.showSnackBar(
+                            SnackBar(content: Text('Unexpected error: $e')),
+                          );
                         }
-                      } catch (e) {
-                        scaffoldMessenger.showSnackBar(
-                            SnackBar(content: Text('Registration failed: $e')));
+                      } else {
+                        // Registro con teléfono
+                        final phoneNumber =
+                            '+1 ${_emailOrPhoneController.text}';
+                        try {
+                          await FirebaseAuth.instance.verifyPhoneNumber(
+                            phoneNumber: phoneNumber,
+                            verificationCompleted:
+                                (PhoneAuthCredential credential) async {
+                              // Si la verificación se completa automáticamente
+                              await FirebaseAuth.instance
+                                  .signInWithCredential(credential);
+                              //_registerUserToDatabase();
+                            },
+                            verificationFailed: (FirebaseAuthException e) {
+                              scaffoldMessenger.showSnackBar(
+                                SnackBar(
+                                    content: Text(
+                                        'Failed to verify phone number: ${e.message}')),
+                              );
+                            },
+                            codeSent:
+                                (String verificationId, int? resendToken) {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => PhoneVerificationScreen(
+                                    verificationId: verificationId,
+                                    phoneNumber: phoneNumber,
+                                    password: _passwordController.text,
+                                    id: idController.text,
+                                    firstName: _firstNameController.text,
+                                    lastNamePaternal:
+                                        _lastNamePaternalController.text,
+                                    lastNameMaternal:
+                                        _lastNameMaternalController.text,
+                                    userType: _selectedUserType!,
+                                  ),
+                                ),
+                              );
+                            },
+                            codeAutoRetrievalTimeout:
+                                (String verificationId) {},
+                          );
+                        } catch (e) {
+                          scaffoldMessenger.showSnackBar(
+                            SnackBar(content: Text('Error: $e')),
+                          );
+                        }
                       }
                     }
                   },
@@ -389,6 +409,10 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                     setState(() {
                       isEmailMode = !isEmailMode;
                       _emailOrPhoneController.clear();
+                      FocusScope.of(context).requestFocus(FocusNode());
+                      Future.delayed(Duration(milliseconds: 50), () {
+                        _focusScope();
+                      });
                     });
                   },
                   icon: Icon(
@@ -467,10 +491,6 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
     );
   }
 
-  void _navigateToMainScreen() {
-    Navigator.pushNamed(context, '/mainScreen');
-  }
-
   void _showSnackBarMessage(String message) {
     if (mounted) {
       showCustomSnackBar(context, message);
@@ -480,12 +500,12 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
   Future<void> _registerWithGoogle() async {
     try {
       final userCredential = await _googleAuthService.signInWithGoogle();
-      if (userCredential != null) {
-        final firebaseUser = userCredential.user;
-        if (firebaseUser != null) {
-          MyApp.nav.navigateTo('/completeStaffRegistration',
-              arguments: firebaseUser);
-        }
+      if (userCredential != null && userCredential.user != null) {
+        final firebaseUser = userCredential.user!;
+        MyApp.nav
+            .navigateTo('/completeStaffRegistration', arguments: firebaseUser);
+      } else {
+        _showSnackBarMessage('Failed to retrieve Google user.');
       }
     } catch (e) {
       _showSnackBarMessage(e.toString());
@@ -510,5 +530,10 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
     } else {
       _showSnackBarMessage(errorMessage);
     }
+  }
+
+  void _focusScope() {
+    FocusScope.of(context).requestFocus(FocusNode());
+    FocusScope.of(context).requestFocus(FocusNode());
   }
 }

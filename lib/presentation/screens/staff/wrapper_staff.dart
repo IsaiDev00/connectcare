@@ -5,15 +5,15 @@ import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class Wrapper extends StatefulWidget {
+class WrapperStaff extends StatefulWidget {
   final int index;
-  const Wrapper({required this.index, super.key});
+  const WrapperStaff({required this.index, super.key});
 
   @override
-  State<Wrapper> createState() => _WrapperState();
+  State<WrapperStaff> createState() => _WrapperState();
 }
 
-class _WrapperState extends State<Wrapper> {
+class _WrapperState extends State<WrapperStaff> {
   late int _pageIndex;
   @override
   void initState() {
