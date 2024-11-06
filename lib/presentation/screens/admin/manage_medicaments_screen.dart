@@ -51,12 +51,15 @@ class _ManageMedicationsState extends State<ManageMedications> {
   Future<void> deleteMedicament(String id) async {
     var url = Uri.parse('$baseUrl/medicamento/$id');
     var response = await http.delete(url);
-    if (mounted) {
-      responseHandlerDelete(response, context, 'Medicamento creado con exito',
-          'Error al crear medicamento');
-    }
+    _responseHandlerPost(response);
+
     medicamentsInit();
     setState(() {});
+  }
+
+  _responseHandlerPost(response) {
+    responseHandlerDelete(response, context, 'Medicamento creado con exito',
+        'Error al crear medicamento');
   }
 
   @override

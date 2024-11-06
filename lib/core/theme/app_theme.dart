@@ -83,6 +83,7 @@ class AppTheme {
         onError: Colors.white,
         surface: Color(0xFF121212),
         onSurface: Colors.white,
+
         // Eliminamos background y onBackground
       ),
       scaffoldBackgroundColor: Colors.black,

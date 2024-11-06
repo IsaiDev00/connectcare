@@ -180,10 +180,13 @@ class _CreateMedicamentScreenState extends State<CreateMedicamentScreen> {
       headers: {'Content-Type': 'application/json'},
       body: json.encode(medicamento.toMap()),
     );
-    if (mounted) {
-      responseHandlerPost(response, context, 'Medicamento creado con exito',
-          'Error al crear medicamento');
-    }
+
+    _responseHandlerPost(response);
+  }
+
+  void _responseHandlerPost(response) {
+    responseHandlerPost(response, context, 'Medicamento creado con exito',
+        'Error al crear medicamento');
   }
 
   @override
