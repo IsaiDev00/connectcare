@@ -234,10 +234,13 @@ class _UpdateMedicamentScreenState extends State<UpdateMedicamentScreen> {
       headers: {'Content-Type': 'application/json'},
       body: json.encode(medicamento.toMap()),
     );
-    if (mounted) {
-      responseHandlerPut(response, context, 'Medicamento actualizado con exito',
-          'Error al actualizar medicamento');
-    }
+
+    _responseHandlerPut(response);
+  }
+
+  _responseHandlerPut(response) {
+    responseHandlerPut(response, context, 'Medicamento actualizado con exito',
+        'Error al actualizar medicamento');
   }
 
   @override

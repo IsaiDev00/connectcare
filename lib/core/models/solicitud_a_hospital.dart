@@ -1,12 +1,10 @@
 class SolicitudAHospital {
-  final int id;
   final DateTime fecha;
   final String peticion;
-  final int clues;
+  final String clues;
   final int idPersonal;
 
   SolicitudAHospital({
-    required this.id,
     required this.fecha,
     required this.peticion,
     required this.clues,
@@ -15,7 +13,6 @@ class SolicitudAHospital {
 
   factory SolicitudAHospital.fromMap(Map<String, dynamic> map) {
     return SolicitudAHospital(
-      id: map['id_solicitud_a_hospital'],
       fecha: DateTime.parse(map['fecha']),
       peticion: map['peticion'],
       clues: map['clues'],
@@ -25,8 +22,7 @@ class SolicitudAHospital {
 
   Map<String, dynamic> toMap() {
     return {
-      'id_solicitud_a_hospital': id,
-      'fecha': fecha.toIso8601String(),
+      'fecha': fecha,
       'peticion': peticion,
       'clues': clues,
       'id_personal': idPersonal,
