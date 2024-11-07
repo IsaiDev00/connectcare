@@ -54,6 +54,50 @@ class ManageProcedureScreenState extends State<ManageProcedureScreen> {
     });
   }
 
+    void _confirmDeleteProcedure(int procedureID) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Deletion'),
+          content: const Text('Are you sure you want to delete this procedure?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Cerrar el cuadro de diálogo
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                deleteProcedure(procedureID);
+                Navigator.of(context).pop(); // Cerrar el cuadro de diálogo
+              },
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> deleteProcedure(int id) async {
+    try{
+      final response = await http.delete(Uri.parse('$baseUrl/procedure/$id'));
+
+      if(response.statusCode == 200){
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Procedure deleted successfully')),
+        );
+        _fetchProcedures();
+      } else {
+        throw Exception('Error deleting the procedure');
+      }
+    } catch (e){
+      print('Error: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     var theme = Theme.of(context);
@@ -111,7 +155,7 @@ class ManageProcedureScreenState extends State<ManageProcedureScreen> {
                                 IconButton(
                                   icon: const Icon(Icons.delete),
                                   onPressed: () {
-                                    // Acción para eliminar el procedimiento
+                                    _confirmDeleteProcedure(procedure['id_procedimiento']);
                                   },
                                 ),
                               ],
