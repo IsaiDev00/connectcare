@@ -4,6 +4,7 @@ import 'package:connectcare/core/models/solicitud_a_hospital.dart';
 import 'package:connectcare/presentation/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 
 class MainScreenStaff extends StatefulWidget {
   const MainScreenStaff({super.key});
@@ -45,7 +46,6 @@ class MainScreenState extends State<MainScreenStaff> {
           'nombre': item['nombre'],
         };
       }).toList();
-      print(hospitals);
       filterHospitals = List.from(hospitals);
     });
   }
@@ -55,13 +55,15 @@ class MainScreenState extends State<MainScreenStaff> {
     var url =
         Uri.parse('$baseUrl/personal_hospital/personal/$currentPersonalId');
     var response = await http.get(url);
-    final List<dynamic> data = json.decode(response.body);
-    setState(() {
-      myHospitals = data.map((item) {
-        return {'clues': item['clues'], 'nombre': item['nombre_hospital']};
-      }).toList();
-    });
-    print(myHospitals);
+
+    if (response.body.isNotEmpty) {
+      final List<dynamic> data = json.decode(response.body);
+      setState(() {
+        myHospitals = data.map((item) {
+          return {'clues': item['clues'], 'nombre': item['nombre_hospital']};
+        }).toList();
+      });
+    }
   }
 
   int _selectedIndex = 0;
@@ -147,6 +149,8 @@ class MainScreenState extends State<MainScreenStaff> {
                         date,
                         idPersonal,
                       );
+
+                      // Navigator.pop(context);
                     },
                   ),
                   Text(
@@ -171,8 +175,15 @@ class MainScreenState extends State<MainScreenStaff> {
     int idPersonal,
   ) async {
     final url = Uri.parse('$baseUrl/solicitud_a_hospital');
+
+    String formattedDate = DateFormat('dd/MM/yyyy').format(date);
+
     SolicitudAHospital solicitud = SolicitudAHospital(
-        fecha: date, peticion: peticion, clues: clues, idPersonal: idPersonal);
+        fecha: formattedDate,
+        peticion: peticion,
+        clues: clues,
+        idPersonal: idPersonal);
+
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
@@ -182,6 +193,8 @@ class MainScreenState extends State<MainScreenStaff> {
   }
 
   _responseHandlerPost(response) {
+    Navigator.of(context).pop();
+
     responseHandlerPost(response, context, 'Solicitud creada con exito',
         'Error al crear solicitud');
   }
@@ -278,7 +291,7 @@ class MainScreenState extends State<MainScreenStaff> {
                                                   name: item['nombre'],
                                                   clues: item['clues'],
                                                   date: now,
-                                                  idPersonal: 4);
+                                                  idPersonal: 21100286);
                                             },
                                           ),
                                         ],
@@ -332,8 +345,8 @@ class MainScreenState extends State<MainScreenStaff> {
                                                 onPressed: () {
                                                   showCustomSnackBar(
                                                       context, item['clues']);
-                                                  // Navigator.pushNamed(context,
-                                                  //     '/enterHospital');
+                                                  Navigator.pushNamed(context,
+                                                      '/enterHospital');
                                                 },
                                               ),
                                               Text(
