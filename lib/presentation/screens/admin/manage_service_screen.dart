@@ -37,7 +37,8 @@ class ManageServiceScreenState extends State<ManageServiceScreen> {
           services = data
               .map((item) => {
                     'nombre': item['servicio_nombre'],
-                    'piso': item['numero_piso']
+                    'piso': item['numero_piso'],
+                    'id': item['id_servicio']
                   })
               .toList();
           filteredServices =
@@ -47,6 +48,23 @@ class ManageServiceScreenState extends State<ManageServiceScreen> {
         throw Exception('Error loading services');
       }
     } catch (e) {
+      print('Error: $e');
+    }
+  }
+
+  Future<void> deleteService(int id) async {
+    try{
+      final response = await http.delete(Uri.parse('$baseUrl/servicio/$id'));
+
+      if(response.statusCode == 200){
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Service deleted successfully')),
+        );
+        _fetchServices();
+      } else {
+        throw Exception('Error deleting the service');
+      }
+    } catch (e){
       print('Error: $e');
     }
   }
@@ -62,6 +80,33 @@ class ManageServiceScreenState extends State<ManageServiceScreen> {
             floorNumber.contains(query.toLowerCase());
       }).toList();
     });
+  }
+
+  void _confirmDeleteService(int serviceID) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Deletion'),
+          content: const Text('Are you sure you want to delete this service?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Cerrar el cuadro de diálogo
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                deleteService(serviceID);
+                Navigator.of(context).pop(); // Cerrar el cuadro de diálogo
+              },
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -123,7 +168,7 @@ class ManageServiceScreenState extends State<ManageServiceScreen> {
                                 IconButton(
                                   icon: const Icon(Icons.delete),
                                   onPressed: () {
-                                    // Acción para eliminar el servicio
+                                    _confirmDeleteService(service['id']);
                                   },
                                 ),
                               ],

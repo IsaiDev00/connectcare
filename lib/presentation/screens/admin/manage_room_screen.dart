@@ -55,6 +55,51 @@ class ManageRoomScreenState extends State<ManageRoomScreen> {
     });
   }
 
+  void _confirmDeleteRoom(int roomID) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Deletion'),
+          content: const Text('Are you sure you want to delete this room?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Cerrar el cuadro de diálogo
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                deleteRoom(roomID);
+                Navigator.of(context).pop(); // Cerrar el cuadro de diálogo
+              },
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> deleteRoom(int id) async {
+    try {
+      final response = await http.delete(Uri.parse('$baseUrl/sala/$id'));
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Room deleted successfully')),
+        );
+        _fetchRooms();
+      } else {
+        print('Error: ${response.body}'); // Mostrar el cuerpo de la respuesta
+        throw Exception('Error deleting the room');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     var theme = Theme.of(context);
@@ -114,7 +159,7 @@ class ManageRoomScreenState extends State<ManageRoomScreen> {
                                 IconButton(
                                   icon: const Icon(Icons.delete),
                                   onPressed: () {
-                                    // Acción para eliminar la sala
+                                    _confirmDeleteRoom(room['id_sala']);
                                   },
                                 ),
                               ],
