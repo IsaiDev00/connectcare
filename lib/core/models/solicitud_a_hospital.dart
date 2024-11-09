@@ -1,5 +1,5 @@
 class SolicitudAHospital {
-  final DateTime fecha;
+  final String fecha;
   final String peticion;
   final String clues;
   final int idPersonal;
@@ -13,7 +13,7 @@ class SolicitudAHospital {
 
   factory SolicitudAHospital.fromMap(Map<String, dynamic> map) {
     return SolicitudAHospital(
-      fecha: DateTime.parse(map['fecha']),
+      fecha: map['fecha'],
       peticion: map['peticion'],
       clues: map['clues'],
       idPersonal: map['id_personal'],
