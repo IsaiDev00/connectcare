@@ -4,6 +4,7 @@ import 'package:connectcare/presentation/screens/admin/create_medicament_screen.
 import 'package:connectcare/presentation/screens/admin/create_procedure_screen.dart';
 import 'package:connectcare/presentation/screens/admin/create_room_screen.dart';
 import 'package:connectcare/presentation/screens/admin/create_service_screen.dart';
+import 'package:connectcare/presentation/screens/admin/edit_room_screen.dart';
 import 'package:connectcare/presentation/screens/admin/hospital_features_screen.dart';
 import 'package:connectcare/presentation/screens/admin/manage_medicaments_screen.dart';
 import 'package:connectcare/presentation/screens/admin/manage_procedure_screen.dart';
@@ -63,7 +64,7 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.lightTheme(),
       darkTheme: AppTheme.darkTheme(),
       themeMode: ThemeMode.system,
-      initialRoute: '/mainScreenStaff',
+      initialRoute: '/',
       routes: {
         '/': (context) => ChooseRoleScreen(),
         '/hospitalStaffRegistration': (context) => HospitalStaffRegistration(),

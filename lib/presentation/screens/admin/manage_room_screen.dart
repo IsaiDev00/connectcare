@@ -1,4 +1,5 @@
 import 'package:connectcare/core/constants/constants.dart';
+import 'package:connectcare/presentation/screens/admin/edit_room_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -153,7 +154,14 @@ class ManageRoomScreenState extends State<ManageRoomScreen> {
                                 IconButton(
                                   icon: const Icon(Icons.edit),
                                   onPressed: () {
-                                    // Acción para editar la sala
+                                    // Navegar a la pantalla de edición de la sala con roomId
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => EditRoomScreen(
+                                            roomId: room['id_sala']),
+                                      ),
+                                    );
                                   },
                                 ),
                                 IconButton(
