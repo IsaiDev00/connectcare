@@ -111,7 +111,7 @@ class _EditProcedureScreenState extends State<EditProcedureScreen> {
           final salaNombre = sala['nombre'];
           final salaNumero = sala['numero'];
           setState(() {
-            salaController = '${salaNombre} No. ${salaNumero}';
+            salaController = '$salaNombre No. $salaNumero';
           });
         }
       } else {
@@ -180,7 +180,7 @@ class _EditProcedureScreenState extends State<EditProcedureScreen> {
           final salaProcedimientoUrl = Uri.parse(
               '$baseUrl/sala_procedimiento/procedimiento/${widget.procedureId}');
           final salaProcedimientoPayload = {
-            'numero_sala': salaId,
+            'id_sala': salaId,
             'id_procedimiento': widget.procedureId,
           };
 
