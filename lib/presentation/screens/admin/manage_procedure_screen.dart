@@ -1,4 +1,5 @@
 import 'package:connectcare/core/constants/constants.dart';
+import 'package:connectcare/presentation/screens/admin/edit_procedure_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -149,7 +150,12 @@ class ManageProcedureScreenState extends State<ManageProcedureScreen> {
                                 IconButton(
                                   icon: const Icon(Icons.edit),
                                   onPressed: () {
-                                    // Acción para editar el procedimiento
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => EditProcedureScreen(procedureId: procedure['id_procedimiento']),
+                                      ),
+                                    );
                                   },
                                 ),
                                 IconButton(

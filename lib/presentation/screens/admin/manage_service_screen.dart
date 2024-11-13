@@ -1,5 +1,6 @@
 import 'package:connectcare/core/constants/constants.dart';
 import 'package:connectcare/data/services/shared_preferences_service.dart';
+import 'package:connectcare/presentation/screens/admin/edit_service_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -162,7 +163,12 @@ class ManageServiceScreenState extends State<ManageServiceScreen> {
                                 IconButton(
                                   icon: const Icon(Icons.edit),
                                   onPressed: () {
-                                    // Acción para editar el servicio
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => EditServiceScreen(serviceId: service['id']),
+                                      ),
+                                    );
                                   },
                                 ),
                                 IconButton(

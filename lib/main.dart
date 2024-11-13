@@ -16,6 +16,7 @@ import 'package:connectcare/presentation/screens/auth/login_screen.dart';
 import 'package:connectcare/presentation/screens/auth/password_recovery.dart';
 import 'package:connectcare/presentation/screens/auth/phone_verification_screen.dart';
 import 'package:connectcare/presentation/screens/auth/verification_code.dart';
+import 'package:connectcare/presentation/screens/documents.dart/patient_reg_screen.dart';
 import 'package:connectcare/presentation/screens/hospital_reg/clues_err_screen.dart';
 import 'package:connectcare/presentation/screens/hospital_reg/enter_hospital_screen.dart';
 import 'package:connectcare/presentation/screens/hospital_reg/hospital_name_screen.dart';
@@ -96,6 +97,7 @@ class MyApp extends StatelessWidget {
         '/createRoomScreen': (context) => CreateRoomScreen(),
         '/createProcedureScreen': (context) => CreateProcedureScreen(),
         '/createMedicamentScreen': (context) => CreateMedicamentScreen(),
+        '/pacientReg': (context) => PatientRegScreen(),
         '/completeStaffRegistration': (context) {
           final arguments = ModalRoute.of(context)!.settings.arguments;
           if (arguments is User) {
