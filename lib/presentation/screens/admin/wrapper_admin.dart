@@ -1,6 +1,6 @@
 import 'package:connectcare/presentation/screens/admin/admin_home_screen.dart';
+import 'package:connectcare/presentation/screens/admin/manage_staff_users.dart';
 import 'package:connectcare/presentation/screens/principal/management.dart';
-import 'package:connectcare/presentation/screens/principal/profile_screen.dart';
 import 'package:connectcare/presentation/screens/settings/settings_screen.dart';
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +11,7 @@ class WrapperAdmin extends StatefulWidget {
   const WrapperAdmin({required this.index, super.key});
 
   @override
-  _WrapperAdmin createState() => _WrapperAdmin();
+  State<WrapperAdmin> createState() => _WrapperAdmin();
 }
 
 class _WrapperAdmin extends State<WrapperAdmin> {
@@ -32,7 +32,7 @@ class _WrapperAdmin extends State<WrapperAdmin> {
   final List<Widget> _pages = [
     const AdminHomeScreen(),
     const Management(),
-    const ProfileScreen(),
+    const ManageStaffUsers(),
     const SettingsScreen(),
   ];
 
@@ -69,8 +69,8 @@ class _WrapperAdmin extends State<WrapperAdmin> {
             title: 'Management',
           ),
           TabItem(
-            icon: Icons.person,
-            title: 'Profile',
+            icon: Icons.person_add_alt_1_outlined,
+            title: 'Staff',
           ),
           TabItem(
             icon: Icons.settings,

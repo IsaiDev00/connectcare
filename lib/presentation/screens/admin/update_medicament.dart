@@ -282,7 +282,7 @@ class _UpdateMedicamentScreenState extends State<UpdateMedicamentScreen> {
                 children: [
                   const SizedBox(height: 30),
                   SizedBox(
-                    width: MediaQuery.of(context).size.width / 2,
+                    width: MediaQuery.of(context).size.width / 1.5,
                     child: TextFormField(
                       controller: nameController,
                       keyboardType: TextInputType.name,
@@ -304,7 +304,7 @@ class _UpdateMedicamentScreenState extends State<UpdateMedicamentScreen> {
                   ),
                   const SizedBox(height: 15),
                   SizedBox(
-                    width: MediaQuery.of(context).size.width / 2,
+                    width: MediaQuery.of(context).size.width / 1.5,
                     child: TextFormField(
                       controller: brandController,
                       keyboardType: TextInputType.name,
@@ -326,7 +326,7 @@ class _UpdateMedicamentScreenState extends State<UpdateMedicamentScreen> {
                   ),
                   const SizedBox(height: 15),
                   SizedBox(
-                    width: MediaQuery.of(context).size.width / 2,
+                    width: MediaQuery.of(context).size.width / 1.5,
                     child: TextFormField(
                       controller: concentrationController,
                       keyboardType: TextInputType.number,
@@ -348,7 +348,7 @@ class _UpdateMedicamentScreenState extends State<UpdateMedicamentScreen> {
                   ),
                   const SizedBox(height: 15),
                   SizedBox(
-                    width: MediaQuery.of(context).size.width / 2,
+                    width: MediaQuery.of(context).size.width / 1.5,
                     child: DropdownButtonFormField<String>(
                       value: selectedMedicamentType,
                       decoration: const InputDecoration(
@@ -382,7 +382,7 @@ class _UpdateMedicamentScreenState extends State<UpdateMedicamentScreen> {
                   ),
                   const SizedBox(height: 15),
                   SizedBox(
-                    width: MediaQuery.of(context).size.width / 2,
+                    width: MediaQuery.of(context).size.width / 1.5,
                     child: DropdownButtonFormField<String>(
                       value: selectedMedicament,
                       decoration: const InputDecoration(
@@ -413,7 +413,7 @@ class _UpdateMedicamentScreenState extends State<UpdateMedicamentScreen> {
                   ),
                   const SizedBox(height: 15),
                   SizedBox(
-                    width: MediaQuery.of(context).size.width / 2,
+                    width: MediaQuery.of(context).size.width / 1.5,
                     child: TextFormField(
                       controller: amountController,
                       keyboardType: TextInputType.number,
@@ -435,7 +435,7 @@ class _UpdateMedicamentScreenState extends State<UpdateMedicamentScreen> {
                   ),
                   const SizedBox(height: 15),
                   SizedBox(
-                    width: MediaQuery.of(context).size.width / 2,
+                    width: MediaQuery.of(context).size.width / 1.5,
                     child: Container(
                       decoration: BoxDecoration(
                         border: Border.all(
@@ -467,14 +467,17 @@ class _UpdateMedicamentScreenState extends State<UpdateMedicamentScreen> {
                           textStyle: const TextStyle(fontSize: 14),
                           padding: const EdgeInsets.symmetric(vertical: 15),
                         ),
-                        child: Text(
-                            'Seleccionar fecha de caducidad ${dateView()}'),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                          child: Text(
+                              'Seleccionar fecha de caducidad ${dateView()}'),
+                        ),
                       ),
                     ),
                   ),
                   const SizedBox(height: 15),
                   SizedBox(
-                    width: MediaQuery.of(context).size.width / 2,
+                    width: MediaQuery.of(context).size.width / 1.5,
                     child: TextFormField(
                       controller: stockController,
                       keyboardType: TextInputType.number,
