@@ -52,9 +52,11 @@ class _ManageStaffUsersState extends State<ManageStaffUsers> {
   @override
   void initState() {
     super.initState();
-    staffMembersInit();
-    requestsToHospital();
-    currentCLUES;
+    if (mounted) {
+      staffMembersInit();
+      requestsToHospital();
+      currentCLUES;
+    }
   }
 
   Future<void> staffMembersInit() async {
@@ -372,7 +374,7 @@ class _ManageStaffUsersState extends State<ManageStaffUsers> {
                       children: [
                         Center(
                           child: Text(
-                            'staff members',
+                            'Staff members',
                             style: theme.textTheme.headlineLarge,
                           ),
                         ),
