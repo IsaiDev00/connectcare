@@ -17,6 +17,7 @@ import 'package:connectcare/presentation/screens/auth/login_screen.dart';
 import 'package:connectcare/presentation/screens/auth/password_recovery.dart';
 import 'package:connectcare/presentation/screens/auth/phone_verification_screen.dart';
 import 'package:connectcare/presentation/screens/auth/verification_code.dart';
+import 'package:connectcare/presentation/screens/documents.dart/hoja_enfermeria_screen.dart';
 import 'package:connectcare/presentation/screens/documents.dart/patient_reg_screen.dart';
 import 'package:connectcare/presentation/screens/hospital_reg/clues_err_screen.dart';
 import 'package:connectcare/presentation/screens/hospital_reg/enter_hospital_screen.dart';
@@ -65,7 +66,7 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.lightTheme(),
       darkTheme: AppTheme.darkTheme(),
       themeMode: ThemeMode.system,
-      initialRoute: '/pacientReg',
+      initialRoute: '/hojaEnfermeriaScreen',
       routes: {
         '/': (context) => ChooseRoleScreen(),
         '/hospitalStaffRegistration': (context) => HospitalStaffRegistration(),
@@ -99,6 +100,7 @@ class MyApp extends StatelessWidget {
         '/createProcedureScreen': (context) => CreateProcedureScreen(),
         '/createMedicamentScreen': (context) => CreateMedicamentScreen(),
         '/pacientReg': (context) => PatientRegScreen(),
+        '/hojaEnfermeriaScreen': (context) => HojaEnfermeriaScreen(),
         '/completeStaffRegistration': (context) {
           final arguments = ModalRoute.of(context)!.settings.arguments;
           if (arguments is User) {
