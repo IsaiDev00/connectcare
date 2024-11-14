@@ -1,4 +1,3 @@
-
 import 'package:connectcare/presentation/screens/admin/add_floors_screen.dart';
 import 'package:connectcare/presentation/screens/admin/admin_start_screen.dart';
 import 'package:connectcare/presentation/screens/admin/create_medicament_screen.dart';
@@ -61,6 +60,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'ConnectCare',
       navigatorKey: nav.navigatorKey,
       theme: AppTheme.lightTheme(),
@@ -139,7 +139,6 @@ class MyApp extends StatelessWidget {
               lastNameMaternal: '',
               userType: '',
             ),
-            
       },
     );
   }

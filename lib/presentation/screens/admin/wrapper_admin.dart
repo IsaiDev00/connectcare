@@ -1,6 +1,7 @@
 import 'package:connectcare/presentation/screens/admin/admin_home_screen.dart';
+import 'package:connectcare/presentation/screens/admin/daily_reports.dart';
+import 'package:connectcare/presentation/screens/admin/manage_staff_users.dart';
 import 'package:connectcare/presentation/screens/principal/management.dart';
-import 'package:connectcare/presentation/screens/principal/profile_screen.dart';
 import 'package:connectcare/presentation/screens/settings/settings_screen.dart';
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +12,7 @@ class WrapperAdmin extends StatefulWidget {
   const WrapperAdmin({required this.index, super.key});
 
   @override
-  _WrapperAdmin createState() => _WrapperAdmin();
+  State<WrapperAdmin> createState() => _WrapperAdmin();
 }
 
 class _WrapperAdmin extends State<WrapperAdmin> {
@@ -32,27 +33,15 @@ class _WrapperAdmin extends State<WrapperAdmin> {
   final List<Widget> _pages = [
     const AdminHomeScreen(),
     const Management(),
-    const ProfileScreen(),
+    const ManageStaffUsers(),
+    const DailyReports(),
     const SettingsScreen(),
   ];
 
   @override
   Widget build(BuildContext context) {
-    var brightness = Theme.of(context).brightness;
     var theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(
-        systemOverlayStyle: SystemUiOverlayStyle(
-          statusBarColor:
-              brightness == Brightness.dark ? Colors.transparent : Colors.white,
-          statusBarIconBrightness: brightness == Brightness.dark
-              ? Brightness.light
-              : Brightness.dark,
-          statusBarBrightness: brightness == Brightness.dark
-              ? Brightness.dark
-              : Brightness.light,
-        ),
-      ),
       body: Stack(
         children: [
           _pages[_pageIndex],
@@ -62,15 +51,19 @@ class _WrapperAdmin extends State<WrapperAdmin> {
         items: [
           TabItem(
             icon: Icons.home,
-            title: 'Main page',
+            title: 'Home',
           ),
           TabItem(
             icon: Icons.business_center,
-            title: 'Management',
+            title: 'Control',
           ),
           TabItem(
-            icon: Icons.person,
-            title: 'Profile',
+            icon: Icons.person_add_alt_1_outlined,
+            title: 'Staff',
+          ),
+          TabItem(
+            icon: Icons.stacked_bar_chart_rounded,
+            title: 'Daily Info',
           ),
           TabItem(
             icon: Icons.settings,

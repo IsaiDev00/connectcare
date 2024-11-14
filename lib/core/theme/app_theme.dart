@@ -59,6 +59,18 @@ class AppTheme {
           fontWeight: FontWeight.w400,
           color: Color.fromARGB(255, 59, 59, 59),
         ),
+        titleMedium: TextStyle(
+          fontSize: 28.0,
+          fontWeight: FontWeight.w200,
+          color: Color.fromARGB(255, 53, 53, 53),
+          letterSpacing: 1.2,
+        ),
+        titleLarge: TextStyle(
+          fontSize: 34.0,
+          fontWeight: FontWeight.w700,
+          color: Color.fromARGB(255, 53, 53, 53),
+          letterSpacing: 1.4,
+        ),
       ),
       inputDecorationTheme: _inputDecorationTheme(
         textColor: Colors.black,
@@ -124,6 +136,18 @@ class AppTheme {
           fontSize: 11.0,
           fontWeight: FontWeight.w400,
           color: Colors.white,
+        ),
+        titleMedium: TextStyle(
+          fontSize: 28.0,
+          fontWeight: FontWeight.w200,
+          color: Color.fromARGB(255, 53, 53, 53),
+          letterSpacing: 1.2,
+        ),
+        titleLarge: TextStyle(
+          fontSize: 34.0,
+          fontWeight: FontWeight.w700,
+          color: Color.fromARGB(255, 53, 53, 53),
+          letterSpacing: 1.4,
         ),
       ),
       inputDecorationTheme: _inputDecorationTheme(
