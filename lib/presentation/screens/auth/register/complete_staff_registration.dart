@@ -1,3 +1,4 @@
+import 'package:connectcare/main.dart';
 import 'package:connectcare/presentation/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -62,8 +63,6 @@ class CompleteStaffRegistrationState extends State<CompleteStaffRegistration> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const SizedBox(height: 30),
-
-                // Campo para el ID del personal
                 TextFormField(
                   controller: idController,
                   decoration: const InputDecoration(
@@ -86,8 +85,6 @@ class CompleteStaffRegistrationState extends State<CompleteStaffRegistration> {
                   },
                 ),
                 const SizedBox(height: 15),
-
-                // Campo para el nombre
                 TextFormField(
                   controller: firstNameController,
                   decoration: const InputDecoration(
@@ -102,8 +99,6 @@ class CompleteStaffRegistrationState extends State<CompleteStaffRegistration> {
                   },
                 ),
                 const SizedBox(height: 15),
-
-                // Campo para el apellido paterno
                 TextFormField(
                   controller: lastNamePaternalController,
                   decoration: const InputDecoration(
@@ -118,8 +113,6 @@ class CompleteStaffRegistrationState extends State<CompleteStaffRegistration> {
                   },
                 ),
                 const SizedBox(height: 15),
-
-                // Campo para el apellido materno
                 TextFormField(
                   controller: lastNameMaternalController,
                   decoration: const InputDecoration(
@@ -134,8 +127,6 @@ class CompleteStaffRegistrationState extends State<CompleteStaffRegistration> {
                   },
                 ),
                 const SizedBox(height: 15),
-
-                // Campo para el tipo de usuario
                 DropdownButtonFormField<String>(
                   value: selectedUserType,
                   decoration: const InputDecoration(
@@ -164,33 +155,10 @@ class CompleteStaffRegistrationState extends State<CompleteStaffRegistration> {
                   },
                 ),
                 const SizedBox(height: 30),
-
                 ElevatedButton(
                   onPressed: () async {
                     if (_formKey.currentState!.validate()) {
-                      try {
-                        // Construye el cuerpo de la solicitud para el registro completo en la base de datos
-                        final url = Uri.parse('$baseUrl/personal');
-                        final response = await http.post(
-                          url,
-                          headers: {'Content-Type': 'application/json'},
-                          body: jsonEncode({
-                            'id_personal': idController.text,
-                            'nombre': firstNameController.text,
-                            'apellido_paterno': lastNamePaternalController.text,
-                            'apellido_materno': lastNameMaternalController.text,
-                            'tipo': selectedUserType,
-                            'correo_electronico':
-                                widget.firebaseUser.email ?? '',
-                            'firebase_uid': widget.firebaseUser.uid,
-                            'auth_provider':
-                                widget.firebaseUser.providerData[0].providerId,
-                          }),
-                        );
-                        _responseRegistration(response);
-                      } catch (e) {
-                        _responseError(e);
-                      }
+                      await _registerUser();
                     }
                   },
                   child: const Text('Register'),
@@ -203,17 +171,97 @@ class CompleteStaffRegistrationState extends State<CompleteStaffRegistration> {
     );
   }
 
-  void _responseRegistration(response) {
-    if (response.statusCode == 201) {
-      _sharedPreferencesService.saveUserId(idController.text);
-      showCustomSnackBar(context, "Registration successful");
-      Navigator.pushNamed(context, '/mainScreen');
-    } else {
-      showCustomSnackBar(context, 'Registration failed: ${response.body}');
+  Future<void> _registerUser() async {
+    try {
+      final firebaseUser = widget.firebaseUser;
+
+      final requestBody = {
+        'id_personal': idController.text,
+        'nombre': firstNameController.text,
+        'apellido_paterno': lastNamePaternalController.text,
+        'apellido_materno': lastNameMaternalController.text,
+        'tipo': selectedUserType,
+        'correo_electronico': firebaseUser.email ?? '',
+        'firebase_uid': firebaseUser.uid,
+        'auth_provider': firebaseUser.providerData[0].providerId,
+        'estatus': 'activo',
+      };
+
+      final url = Uri.parse('$baseUrl/personal');
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(requestBody),
+      );
+
+      if (response.statusCode == 201) {
+        await _sharedPreferencesService.saveUserId(firebaseUser.uid);
+
+        await _navigateToCorrectScreen(firebaseUser.uid);
+      } else {
+        throw Exception('Registration failed: ${response.body}');
+      }
+    } catch (e) {
+      _registrationFailed(e);
     }
   }
 
-  void _responseError(e) {
+  Future<void> _navigateToCorrectScreen(String firebaseUid) async {
+    try {
+      final url = Uri.parse('$baseUrl/auth/firebase_uid/$firebaseUid');
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final userData = jsonDecode(response.body);
+        final userType = userData['tipo'].toLowerCase();
+        final assignedHospital = userData['clues'] != null;
+
+        if (!assignedHospital) {
+          MyApp.nav.navigateTo('/mainScreenStaff');
+          return;
+        }
+
+        switch (userType) {
+          case 'medico':
+          case 'doctor':
+            MyApp.nav.navigateTo('/doctorHomeScreen');
+            break;
+          case 'enfermero':
+          case 'nurse':
+            MyApp.nav.navigateTo('/nurseHomeScreen');
+            break;
+          case 'camillero':
+          case 'stretcher bearer':
+            MyApp.nav.navigateTo('/stretcherBearerHomeScreen');
+            break;
+          case 'trabajo social':
+          case 'social worker':
+            MyApp.nav.navigateTo('/socialWorkerHomeScreen');
+            break;
+          case 'recursos humanos':
+          case 'human resources':
+            MyApp.nav.navigateTo('/humanResourcesHomeScreen');
+            break;
+          case 'administrador':
+          case 'administrator':
+            MyApp.nav.navigateTo('/mainScreen');
+            break;
+          default:
+            throw Exception('Unknown user type');
+        }
+      } else {
+        throw Exception('Error fetching user data: ${response.body}');
+      }
+    } catch (e) {
+      _errorDeterminigUserType(e);
+    }
+  }
+
+  void _errorDeterminigUserType(Object e) {
+    showCustomSnackBar(context, 'Error determining user type: $e');
+  }
+
+  void _registrationFailed(Object e) {
     showCustomSnackBar(context, 'Registration failed: $e');
   }
 }

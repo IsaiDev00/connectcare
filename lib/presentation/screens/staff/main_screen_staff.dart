@@ -1,10 +1,12 @@
 import 'dart:convert';
 import 'package:connectcare/core/constants/constants.dart';
 import 'package:connectcare/core/models/solicitud_a_hospital.dart';
+import 'package:connectcare/main.dart';
 import 'package:connectcare/presentation/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:connectcare/data/services/shared_preferences_service.dart';
 
 class MainScreenStaff extends StatefulWidget {
   const MainScreenStaff({super.key});
@@ -18,6 +20,8 @@ class MainScreenState extends State<MainScreenStaff> {
   List<Map<String, dynamic>> filterHospitals = [];
   List<Map<String, dynamic>> myHospitals = [];
   TextEditingController searchController = TextEditingController();
+  String? firebaseUid;
+  int? idPersonal;
 
   void updateFilter(String query) {
     setState(() {
@@ -31,8 +35,37 @@ class MainScreenState extends State<MainScreenStaff> {
   @override
   void initState() {
     super.initState();
-    hospitalsInit();
-    myHospitalsInit();
+    loadCurrentPersonalId();
+  }
+
+  Future<void> loadCurrentPersonalId() async {
+    firebaseUid = await SharedPreferencesService().getUserId();
+
+    if (firebaseUid != null && firebaseUid!.isNotEmpty) {
+      final url = Uri.parse('$baseUrl/auth/firebase_uid/$firebaseUid');
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final userData = jsonDecode(response.body);
+
+        if (userData['id'] != null) {
+          setState(() {
+            idPersonal = int.tryParse(userData['id'].toString());
+          });
+          await hospitalsInit();
+          await myHospitalsInit();
+        } else {
+          _personalError();
+          MyApp.nav.navigateTo('/loginScreen');
+        }
+      } else {
+        _unauthenticatedUser();
+        MyApp.nav.navigateTo('/loginScreen');
+      }
+    } else {
+      _unauthenticatedUser();
+      MyApp.nav.navigateTo('/loginScreen');
+    }
   }
 
   Future<void> hospitalsInit() async {
@@ -51,12 +84,16 @@ class MainScreenState extends State<MainScreenStaff> {
   }
 
   Future<void> myHospitalsInit() async {
-    int currentPersonalId = 21100286;
-    var url =
-        Uri.parse('$baseUrl/personal_hospital/personal/$currentPersonalId');
-    var response = await http.get(url);
+    if (idPersonal == null) {
+      showCustomSnackBar(
+          context, 'Error: No se encontró un idPersonal válido.');
+      return;
+    }
 
-    if (response.body.isNotEmpty) {
+    final url = Uri.parse('$baseUrl/personal_hospital/personal/$idPersonal');
+    final response = await http.get(url);
+
+    if (response.statusCode == 200 && response.body.isNotEmpty) {
       final List<dynamic> data = json.decode(response.body);
       setState(() {
         myHospitals = data.map((item) {
@@ -106,11 +143,16 @@ class MainScreenState extends State<MainScreenStaff> {
     );
   }
 
-  void _showBottomSheet(
-      {required String name,
-      required String clues,
-      required DateTime date,
-      required int idPersonal}) {
+  void _showBottomSheet({
+    required String name,
+    required String clues,
+    required DateTime date,
+  }) {
+    if (idPersonal == null) {
+      showCustomSnackBar(context, 'Error: Usuario no autenticado.');
+      return;
+    }
+
     showModalBottomSheet(
       context: context,
       builder: (context) {
@@ -147,10 +189,8 @@ class MainScreenState extends State<MainScreenStaff> {
                         clues,
                         descriptionController.text,
                         date,
-                        idPersonal,
+                        idPersonal!,
                       );
-
-                      // Navigator.pop(context);
                     },
                   ),
                   Text(
@@ -287,11 +327,16 @@ class MainScreenState extends State<MainScreenStaff> {
                                             icon: Icon(Icons.send_rounded),
                                             onPressed: () {
                                               DateTime now = DateTime.now();
-                                              _showBottomSheet(
+                                              if (idPersonal != null) {
+                                                _showBottomSheet(
                                                   name: item['nombre'],
                                                   clues: item['clues'],
                                                   date: now,
-                                                  idPersonal: 21100286);
+                                                );
+                                              } else {
+                                                showCustomSnackBar(context,
+                                                    'Error: Usuario no autenticado.');
+                                              }
                                             },
                                           ),
                                         ],
@@ -371,6 +416,18 @@ class MainScreenState extends State<MainScreenStaff> {
           ],
         ),
       ),
+    );
+  }
+
+  void _unauthenticatedUser() {
+    showCustomSnackBar(
+        context, 'Error: Usuario no autenticado. Por favor, inicie sesión.');
+  }
+
+  void _personalError() {
+    showCustomSnackBar(
+      context,
+      'Error: No se pudo obtener el idPersonal. Por favor, inténtelo de nuevo.',
     );
   }
 }

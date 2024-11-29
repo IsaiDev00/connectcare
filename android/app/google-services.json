@@ -1,45 +1,45 @@
 {
   "project_info": {
-    "project_number": "1061884124346",
-    "project_id": "connectcare-8576a",
-    "storage_bucket": "connectcare-8576a.firebasestorage.app"
+    "project_number": "189628446583",
+    "project_id": "connectcare2-d07d7",
+    "storage_bucket": "connectcare2-d07d7.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1061884124346:android:48612fee86203d2792f683",
+        "mobilesdk_app_id": "1:189628446583:android:e3ca30d79d398b62b69372",
         "android_client_info": {
           "package_name": "com.example.connectcare"
         }
       },
       "oauth_client": [
         {
-          "client_id": "1061884124346-66n0pl4jav730t5vje31uda56ipjk2oi.apps.googleusercontent.com",
+          "client_id": "189628446583-cqtc6krr0v42hc5qjhfntlfrjoj1m161.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.example.connectcare",
-            "certificate_hash": "717cef3af8c7fe29406d76b588889668cf8c6271"
+            "certificate_hash": "33d6a3fbcdc4f5a5db8f64ee077e10c2f8309282"
           }
         },
         {
-          "client_id": "1061884124346-597fc9j9omdlsnknl9nd6ul5nic59907.apps.googleusercontent.com",
+          "client_id": "189628446583-0io9gtkhpi3omm2250ntat0omqgbvjbf.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyAFLKf4Uqbn2rkE_D0QeyGjxvor8g15zPo"
+          "current_key": "AIzaSyCvZGFCPDr_5OlYiZJOTtLznH6YXviCZtk"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "1061884124346-597fc9j9omdlsnknl9nd6ul5nic59907.apps.googleusercontent.com",
+              "client_id": "189628446583-0io9gtkhpi3omm2250ntat0omqgbvjbf.apps.googleusercontent.com",
               "client_type": 3
             },
             {
-              "client_id": "1061884124346-p0fsadlka2s6jklv6vnc655vq52ae2f4.apps.googleusercontent.com",
+              "client_id": "189628446583-j5pkb79a6lolmc1cvphqaidmoqjkdhft.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
                 "bundle_id": "com.example.connectcare"

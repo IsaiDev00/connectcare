@@ -27,6 +27,8 @@ dependencies:
   convex_bottom_bar: ^3.2.0
   table_calendar: ^3.0.9
   intl: ^0.19.0
+  country_code_picker: ^3.1.0
+  firebase_app_check: ^0.3.1+6
 
 dev_dependencies:
   flutter_test:

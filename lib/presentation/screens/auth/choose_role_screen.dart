@@ -7,22 +7,18 @@ class ChooseRoleScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Cambiar el estilo de la barra de estado según el tema
     var brightness = Theme.of(context).brightness;
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent, // Fondo transparente
-      statusBarIconBrightness: brightness == Brightness.dark
-          ? Brightness.light // Íconos blancos en modo oscuro
-          : Brightness.dark, // Íconos negros en modo claro
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness:
+          brightness == Brightness.dark ? Brightness.light : Brightness.dark,
     ));
 
     return Scaffold(
-      backgroundColor:
-          Theme.of(context).scaffoldBackgroundColor, // Fondo basado en el tema
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Theme.of(context)
-            .scaffoldBackgroundColor, // Fondo basado en el tema
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -30,7 +26,6 @@ class ChooseRoleScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Logo o icono de la app
             Center(
               child: Image.asset(
                 'assets/images/cuidado-de-la-salud.png',
@@ -52,21 +47,18 @@ class ChooseRoleScreen extends StatelessWidget {
             SizedBox(height: 30),
             ElevatedButton(
               onPressed: () {
-                // Navegar a la pantalla de registro del personal hospitalario
-                Navigator.pushNamed(context, '/hospitalStaffRegistration');
+                Navigator.pushNamed(context, '/staffRegistration');
               },
               child: Text('Hospital staff'),
             ),
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                // Navegar a la pantalla de registro de familiares
-                Navigator.pushNamed(context, '/familyRegistration');
+                Navigator.pushNamed(context, '/familiarRegistration');
               },
               child: Text('Familiar'),
             ),
             SizedBox(height: 30),
-            // Texto de "¿Ya tienes una cuenta?" y enlaces a términos y condiciones
             Column(
               children: [
                 TextButton(
@@ -96,7 +88,6 @@ class ChooseRoleScreen extends StatelessWidget {
                         ),
                         recognizer: TapGestureRecognizer()
                           ..onTap = () {
-                            // Navegar a la pantalla de Términos y Condiciones
                             Navigator.pushNamed(context, '/termsAndConditions');
                           },
                       ),
@@ -109,9 +100,7 @@ class ChooseRoleScreen extends StatelessWidget {
                         ),
                         recognizer: TapGestureRecognizer()
                           ..onTap = () {
-                            // Navegar a la pantalla de Política de Privacidad
-                            Navigator.pushNamed(context,
-                                '/privacyPolicy'); // Esta ruta debe coincidir
+                            Navigator.pushNamed(context, '/privacyPolicy');
                           },
                       ),
                       TextSpan(text: '.'),

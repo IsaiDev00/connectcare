@@ -10,19 +10,16 @@ class SharedPreferencesService {
 
   SharedPreferencesService._internal();
 
-  // Guardar el ID del usuario
   Future<void> saveUserId(String userId) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('userId', userId);
   }
 
-  // Obtener el ID del usuario
   Future<String?> getUserId() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('userId');
   }
 
-  // Limpiar el ID del usuario
   Future<void> clearUserId() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('userId');
@@ -52,7 +49,7 @@ class SharedPreferencesService {
     return prefs.getString('code');
   }
 
- Future<void> saveIsAdmin(bool isAdmin) async {
+  Future<void> saveIsAdmin(bool isAdmin) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isAdmin', isAdmin);
   }

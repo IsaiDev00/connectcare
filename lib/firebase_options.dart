@@ -51,21 +51,21 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyAFLKf4Uqbn2rkE_D0QeyGjxvor8g15zPo',
-    appId: '1:1061884124346:android:48612fee86203d2792f683',
-    messagingSenderId: '1061884124346',
-    projectId: 'connectcare-8576a',
-    storageBucket: 'connectcare-8576a.firebasestorage.app',
+    apiKey: 'AIzaSyCvZGFCPDr_5OlYiZJOTtLznH6YXviCZtk',
+    appId: '1:189628446583:android:e3ca30d79d398b62b69372',
+    messagingSenderId: '189628446583',
+    projectId: 'connectcare2-d07d7',
+    storageBucket: 'connectcare2-d07d7.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyApXwlqjV5GgtchjNQZko9ivco4I56aPzY',
-    appId: '1:1061884124346:ios:e1778e1eceb7750b92f683',
-    messagingSenderId: '1061884124346',
-    projectId: 'connectcare-8576a',
-    storageBucket: 'connectcare-8576a.firebasestorage.app',
-    androidClientId: '1061884124346-66n0pl4jav730t5vje31uda56ipjk2oi.apps.googleusercontent.com',
-    iosClientId: '1061884124346-p0fsadlka2s6jklv6vnc655vq52ae2f4.apps.googleusercontent.com',
+    apiKey: 'AIzaSyDFLC60auVr6afpX-Q8wouDH-9zjLG0dIE',
+    appId: '1:189628446583:ios:94ddc636ce18cd27b69372',
+    messagingSenderId: '189628446583',
+    projectId: 'connectcare2-d07d7',
+    storageBucket: 'connectcare2-d07d7.firebasestorage.app',
+    androidClientId: '189628446583-3i002jqcmlq32ejs3sidu7qad862bi4p.apps.googleusercontent.com',
+    iosClientId: '189628446583-j5pkb79a6lolmc1cvphqaidmoqjkdhft.apps.googleusercontent.com',
     iosBundleId: 'com.example.connectcare',
   );
 

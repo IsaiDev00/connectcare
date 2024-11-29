@@ -14,7 +14,6 @@ class FamilyRegistrationState extends State<FamilyRegistration> {
 
   bool isEmailMode = false;
 
-  // Controladores de texto para cada campo
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNamePaternalController =
       TextEditingController();
@@ -60,8 +59,6 @@ class FamilyRegistrationState extends State<FamilyRegistration> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const SizedBox(height: 30),
-
-                // Campo para el nombre
                 TextFormField(
                   controller: _firstNameController,
                   decoration: const InputDecoration(
@@ -76,8 +73,6 @@ class FamilyRegistrationState extends State<FamilyRegistration> {
                   },
                 ),
                 const SizedBox(height: 15),
-
-                // Campo para el apellido paterno
                 TextFormField(
                   controller: _lastNamePaternalController,
                   decoration: const InputDecoration(
@@ -92,8 +87,6 @@ class FamilyRegistrationState extends State<FamilyRegistration> {
                   },
                 ),
                 const SizedBox(height: 15),
-
-                // Campo para el apellido materno
                 TextFormField(
                   controller: _lastNameMaternalController,
                   decoration: const InputDecoration(
@@ -108,8 +101,6 @@ class FamilyRegistrationState extends State<FamilyRegistration> {
                   },
                 ),
                 const SizedBox(height: 15),
-
-                // Campo dinámico para el número de teléfono o correo electrónico
                 TextFormField(
                   controller: _emailOrPhoneController,
                   decoration: InputDecoration(
@@ -140,8 +131,6 @@ class FamilyRegistrationState extends State<FamilyRegistration> {
                   },
                 ),
                 const SizedBox(height: 15),
-
-                // Campo para la contraseña
                 TextFormField(
                   controller: _passwordController,
                   decoration: const InputDecoration(
@@ -162,8 +151,6 @@ class FamilyRegistrationState extends State<FamilyRegistration> {
                   },
                 ),
                 const SizedBox(height: 15),
-
-                // Campo para confirmar la contraseña
                 TextFormField(
                   controller: _confirmPasswordController,
                   decoration: const InputDecoration(
@@ -179,8 +166,6 @@ class FamilyRegistrationState extends State<FamilyRegistration> {
                   },
                 ),
                 const SizedBox(height: 30),
-
-                // Botón para continuar
                 ElevatedButton(
                   onPressed: () async {
                     if (_formKey.currentState!.validate()) {
@@ -191,8 +176,6 @@ class FamilyRegistrationState extends State<FamilyRegistration> {
                   child: const Text('Continue'),
                 ),
                 const SizedBox(height: 20),
-
-                // Texto "or"
                 Row(
                   children: [
                     const Expanded(child: Divider()),
@@ -204,8 +187,6 @@ class FamilyRegistrationState extends State<FamilyRegistration> {
                   ],
                 ),
                 const SizedBox(height: 20),
-
-                // Botón dinámico para alternar entre Email y Teléfono
                 ElevatedButton.icon(
                   onPressed: () {
                     setState(() {
@@ -231,11 +212,8 @@ class FamilyRegistrationState extends State<FamilyRegistration> {
                   ),
                 ),
                 const SizedBox(height: 10),
-
                 ElevatedButton.icon(
-                  onPressed: () {
-                    // Lógica para iniciar sesión con Facebook
-                  },
+                  onPressed: () {},
                   icon: FaIcon(FontAwesomeIcons.facebook,
                       color: brightness == Brightness.dark
                           ? Colors.white
@@ -254,11 +232,8 @@ class FamilyRegistrationState extends State<FamilyRegistration> {
                   ),
                 ),
                 const SizedBox(height: 10),
-
                 ElevatedButton.icon(
-                  onPressed: () {
-                    // Lógica para iniciar sesión con Google
-                  },
+                  onPressed: () {},
                   icon: FaIcon(FontAwesomeIcons.google,
                       color: brightness == Brightness.dark
                           ? Colors.white

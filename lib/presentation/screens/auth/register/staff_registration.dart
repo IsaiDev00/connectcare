@@ -1,35 +1,23 @@
 import 'package:connectcare/main.dart';
-import 'package:connectcare/presentation/screens/auth/email_verification_screen.dart';
-import 'package:connectcare/presentation/screens/auth/phone_verification_screen.dart';
 import 'package:connectcare/presentation/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:connectcare/core/constants/constants.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:connectcare/data/services/shared_preferences_service.dart';
 import 'package:connectcare/data/api/google_auth.dart';
 import 'package:connectcare/data/api/facebook_auth.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:country_code_picker/country_code_picker.dart';
 
-class HospitalStaffRegistration extends StatefulWidget {
-  const HospitalStaffRegistration({super.key});
+class StaffRegistration extends StatefulWidget {
+  const StaffRegistration({super.key});
 
   @override
-  HospitalStaffRegistrationState createState() =>
-      HospitalStaffRegistrationState();
+  StaffRegistrationState createState() => StaffRegistrationState();
 }
 
-class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
-  /*final List<String> userTypes = [
-    'Administrador',
-    'Médico',
-    'Enfermero',
-    'Trabajador social',
-    'Camillero',
-    'Recursos humanos'
-  ];*/
-
+class StaffRegistrationState extends State<StaffRegistration> {
   final List<String> userTypes = [
     'Administrator',
     'Doctor',
@@ -42,7 +30,12 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
   final _formKey = GlobalKey<FormState>();
 
   bool isEmailMode = false;
+  String _completePhoneNumber = '';
+  String _countryCode = "+52";
+  // ignore: unused_field
+  int? _resendToken;
 
+  final TextEditingController _phoneNumberController = TextEditingController();
   String? _selectedUserType;
   final TextEditingController idController = TextEditingController();
   final TextEditingController _firstNameController = TextEditingController();
@@ -54,9 +47,6 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
-
-  final SharedPreferencesService _sharedPreferencesService =
-      SharedPreferencesService();
 
   final GoogleAuthService _googleAuthService = GoogleAuthService();
   final FacebookAuthService _facebookAuthService = FacebookAuthService();
@@ -111,13 +101,11 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
           child: Form(
-            key: _formKey, // Añadimos el GlobalKey al Form
+            key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const SizedBox(height: 30),
-
-                // Campo para el ID
                 TextFormField(
                   controller: idController,
                   decoration: const InputDecoration(
@@ -140,10 +128,7 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                     return null;
                   },
                 ),
-
                 const SizedBox(height: 15),
-
-                // Campo para el nombre
                 TextFormField(
                   controller: _firstNameController,
                   decoration: const InputDecoration(
@@ -158,8 +143,6 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                   },
                 ),
                 const SizedBox(height: 15),
-
-                // Campo para el apellido paterno
                 TextFormField(
                   controller: _lastNamePaternalController,
                   decoration: const InputDecoration(
@@ -174,8 +157,6 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                   },
                 ),
                 const SizedBox(height: 15),
-
-                // Campo para el apellido materno
                 TextFormField(
                   controller: _lastNameMaternalController,
                   decoration: const InputDecoration(
@@ -190,7 +171,6 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                   },
                 ),
                 const SizedBox(height: 15),
-
                 DropdownButtonFormField<String>(
                   value: _selectedUserType,
                   decoration: const InputDecoration(
@@ -219,51 +199,74 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                   },
                 ),
                 const SizedBox(height: 15),
-
-                TextFormField(
-                  controller: _emailOrPhoneController,
-                  decoration: InputDecoration(
-                    labelText: isEmailMode ? 'Email Address' : 'Phone Number',
-                    border: const OutlineInputBorder(),
-                  ),
-                  keyboardType: isEmailMode
-                      ? TextInputType.emailAddress
-                      : TextInputType.phone,
-                  inputFormatters: isEmailMode
-                      ? []
-                      : [
-                          FilteringTextInputFormatter.digitsOnly,
-                          LengthLimitingTextInputFormatter(10),
+                isEmailMode
+                    ? TextFormField(
+                        controller: _emailOrPhoneController,
+                        decoration: const InputDecoration(
+                          labelText: 'Email Address',
+                          border: OutlineInputBorder(),
+                        ),
+                        keyboardType: TextInputType.emailAddress,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter your email address';
+                          }
+                          final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
+                          if (!emailRegex.hasMatch(value)) {
+                            return 'Please enter a valid email address (example@example.com)';
+                          }
+                          return null;
+                        },
+                      )
+                    : Row(
+                        children: [
+                          CountryCodePicker(
+                            initialSelection: 'MX',
+                            favorite: ['+52', 'MX'],
+                            onChanged: (country) {
+                              setState(() {
+                                _countryCode = country.dialCode ?? "+52";
+                              });
+                            },
+                            dialogBackgroundColor:
+                                Theme.of(context).scaffoldBackgroundColor,
+                            textStyle: Theme.of(context).textTheme.bodyLarge,
+                            dialogTextStyle:
+                                Theme.of(context).textTheme.bodyLarge,
+                            searchStyle: Theme.of(context).textTheme.bodyLarge,
+                          ),
+                          Expanded(
+                            child: TextFormField(
+                              controller: _phoneNumberController,
+                              decoration: const InputDecoration(
+                                labelText: 'Phone Number',
+                                border: OutlineInputBorder(),
+                              ),
+                              keyboardType: TextInputType.phone,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly,
+                                LengthLimitingTextInputFormatter(10),
+                              ],
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter your phone number';
+                                }
+                                if (value.length != 10) {
+                                  return 'Phone number must be exactly 10 digits';
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
                         ],
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return isEmailMode
-                          ? 'Please enter your email address'
-                          : 'Please enter your phone number';
-                    }
-                    if (isEmailMode) {
-                      final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
-                      if (!emailRegex.hasMatch(value)) {
-                        return 'Please enter a valid email address';
-                      }
-                    } else {
-                      final phoneRegex = RegExp(r'^\d{10}$');
-                      if (!phoneRegex.hasMatch(value)) {
-                        return 'Please enter a valid 10-digit phone number';
-                      }
-                    }
-                    return null;
-                  },
-                ),
-
+                      ),
                 const SizedBox(height: 15),
-
-                // Campo para la contraseña
                 TextFormField(
                   controller: _passwordController,
                   decoration: const InputDecoration(
                     labelText: 'Password',
                     border: OutlineInputBorder(),
+                    errorMaxLines: 3,
                   ),
                   obscureText: true,
                   validator: (value) {
@@ -279,8 +282,6 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                   },
                 ),
                 const SizedBox(height: 15),
-
-                // Campo para confirmar la contraseña
                 TextFormField(
                   controller: _confirmPasswordController,
                   decoration: const InputDecoration(
@@ -289,108 +290,174 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                   ),
                   obscureText: true,
                   validator: (value) {
-                    if (value != _passwordController.text) {
+                    if (value != _passwordController.text ||
+                        value == null ||
+                        value.isEmpty) {
                       return 'Passwords do not match';
                     }
                     return null;
                   },
                 ),
                 const SizedBox(height: 30),
-
-                // Botón para continuar
                 ElevatedButton(
                   onPressed: () async {
                     if (_formKey.currentState!.validate()) {
                       final scaffoldMessenger = ScaffoldMessenger.of(context);
+
                       if (isEmailMode) {
+                        bool emailExists = await checkEmailExists(
+                            _emailOrPhoneController.text);
+                        if (emailExists) {
+                          scaffoldMessenger.showSnackBar(
+                            SnackBar(content: Text('Email is already in use')),
+                          );
+                          return;
+                        }
                         try {
-                          final UserCredential userCredential =
-                              await FirebaseAuth.instance
-                                  .createUserWithEmailAndPassword(
+                          UserCredential userCredential = await FirebaseAuth
+                              .instance
+                              .createUserWithEmailAndPassword(
                             email: _emailOrPhoneController.text,
                             password: _passwordController.text,
                           );
-
-                          Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(
-                              builder: (context) => EmailVerificationScreen(
-                                firstName: _firstNameController.text,
-                                lastNamePaternal:
+                          if (userCredential.user != null) {
+                            MyApp.nav.navigateTo(
+                              '/emailVerification',
+                              arguments: {
+                                'firstName': _firstNameController.text,
+                                'lastNamePaternal':
                                     _lastNamePaternalController.text,
-                                lastNameMaternal:
+                                'lastNameMaternal':
                                     _lastNameMaternalController.text,
-                                userType: _selectedUserType!,
-                                id: idController.text,
-                                email: _emailOrPhoneController.text,
-                              ),
-                            ),
-                          );
+                                'email': _emailOrPhoneController.text,
+                                'userType': _selectedUserType!,
+                                'id': idController.text,
+                                'isStaff': true,
+                                'purpose': 'registration',
+                                'userData': {
+                                  'id_personal': idController.text,
+                                  'nombre': _firstNameController.text,
+                                  'apellido_paterno':
+                                      _lastNamePaternalController.text,
+                                  'apellido_materno':
+                                      _lastNameMaternalController.text,
+                                  'correo_electronico':
+                                      _emailOrPhoneController.text,
+                                  'contrasena': _passwordController.text,
+                                  'tipo': _selectedUserType!,
+                                  'estatus': 'activo',
+                                  'auth_provider': 'email',
+                                },
+                              },
+                            );
+                          }
                         } on FirebaseAuthException catch (e) {
-                          scaffoldMessenger.showSnackBar(SnackBar(
-                              content:
-                                  Text(e.message ?? 'Registration failed')));
+                          scaffoldMessenger.showSnackBar(
+                            SnackBar(
+                                content:
+                                    Text(e.message ?? 'Registration failed')),
+                          );
                         } catch (e) {
                           scaffoldMessenger.showSnackBar(
                             SnackBar(content: Text('Unexpected error: $e')),
                           );
                         }
                       } else {
-                        // Registro con teléfono
-                        final phoneNumber =
-                            '+1 ${_emailOrPhoneController.text}';
+                        _completePhoneNumber =
+                            '$_countryCode${_phoneNumberController.text}';
+
+                        bool phoneExists =
+                            await checkPhoneExists(_completePhoneNumber);
+                        if (phoneExists) {
+                          scaffoldMessenger.showSnackBar(
+                            SnackBar(
+                                content:
+                                    Text('Phone number is already in use')),
+                          );
+                          return;
+                        }
+
                         try {
+                          String formattedPhoneNumber = _completePhoneNumber
+                                  .startsWith('+')
+                              ? _completePhoneNumber
+                              : '+$_countryCode${_phoneNumberController.text}';
+
                           await FirebaseAuth.instance.verifyPhoneNumber(
-                            phoneNumber: phoneNumber,
+                            phoneNumber: formattedPhoneNumber,
+                            timeout: const Duration(minutes: 2),
                             verificationCompleted:
                                 (PhoneAuthCredential credential) async {
-                              // Si la verificación se completa automáticamente
                               await FirebaseAuth.instance
                                   .signInWithCredential(credential);
-                              //_registerUserToDatabase();
+                              _phoneNumberVerifiedAutomatically();
                             },
                             verificationFailed: (FirebaseAuthException e) {
-                              scaffoldMessenger.showSnackBar(
-                                SnackBar(
-                                    content: Text(
-                                        'Failed to verify phone number: ${e.message}')),
-                              );
+                              String errorMessage;
+                              if (e.code == 'invalid-phone-number') {
+                                errorMessage = 'Invalid phone number format.';
+                              } else if (e.code == 'too-many-requests') {
+                                errorMessage =
+                                    'Too many requests. Please try again later.';
+                              } else {
+                                errorMessage =
+                                    e.message ?? 'Verification failed.';
+                              }
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(SnackBar(
+                                content: Text(errorMessage),
+                              ));
                             },
                             codeSent:
                                 (String verificationId, int? resendToken) {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) => PhoneVerificationScreen(
-                                    verificationId: verificationId,
-                                    phoneNumber: phoneNumber,
-                                    password: _passwordController.text,
-                                    id: idController.text,
-                                    firstName: _firstNameController.text,
-                                    lastNamePaternal:
+                              setState(() {
+                                _resendToken = resendToken;
+                              });
+
+                              MyApp.nav.navigateTo(
+                                '/phoneVerification',
+                                arguments: {
+                                  'phoneNumber': formattedPhoneNumber,
+                                  'verificationId': verificationId,
+                                  'isStaff': true,
+                                  'purpose': "registration",
+                                  'firstName': _firstNameController.text,
+                                  'lastNamePaternal':
+                                      _lastNamePaternalController.text,
+                                  'lastNameMaternal':
+                                      _lastNameMaternalController.text,
+                                  'password': _passwordController.text,
+                                  'userType': _selectedUserType!,
+                                  'idPersonal': idController.text,
+                                  'resendToken': resendToken,
+                                  'userData': {
+                                    'id_personal': idController.text,
+                                    'nombre': _firstNameController.text,
+                                    'apellido_paterno':
                                         _lastNamePaternalController.text,
-                                    lastNameMaternal:
+                                    'apellido_materno':
                                         _lastNameMaternalController.text,
-                                    userType: _selectedUserType!,
-                                  ),
-                                ),
+                                    'telefono': formattedPhoneNumber,
+                                    'contrasena': _passwordController.text,
+                                    'tipo': _selectedUserType!,
+                                    'estatus': 'activo',
+                                    'auth_provider': 'phone',
+                                  },
+                                },
                               );
                             },
                             codeAutoRetrievalTimeout:
                                 (String verificationId) {},
                           );
                         } catch (e) {
-                          scaffoldMessenger.showSnackBar(
-                            SnackBar(content: Text('Error: $e')),
-                          );
+                          _catchError(e);
                         }
                       }
                     }
                   },
                   child: const Text('Continue'),
                 ),
-
                 const SizedBox(height: 20),
-
-                // Texto "or"
                 Row(
                   children: [
                     const Expanded(child: Divider()),
@@ -402,8 +469,6 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                   ],
                 ),
                 const SizedBox(height: 20),
-
-                // Botón para alternar entre Email y Teléfono
                 ElevatedButton.icon(
                   onPressed: () {
                     setState(() {
@@ -432,8 +497,6 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                   ),
                 ),
                 const SizedBox(height: 10),
-
-                // Botón para iniciar sesión con Facebook
                 ElevatedButton.icon(
                   onPressed: () async {
                     await _registerWithFacebook();
@@ -457,8 +520,6 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                   ),
                 ),
                 const SizedBox(height: 10),
-
-                // Botón para iniciar sesión con Google
                 ElevatedButton.icon(
                   onPressed: () async {
                     await _registerWithGoogle();
@@ -481,7 +542,6 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
                     elevation: 0,
                   ),
                 ),
-
                 const SizedBox(height: 10),
               ],
             ),
@@ -492,9 +552,7 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
   }
 
   void _showSnackBarMessage(String message) {
-    if (mounted) {
-      showCustomSnackBar(context, message);
-    }
+    showCustomSnackBar(context, message);
   }
 
   Future<void> _registerWithGoogle() async {
@@ -535,5 +593,13 @@ class HospitalStaffRegistrationState extends State<HospitalStaffRegistration> {
   void _focusScope() {
     FocusScope.of(context).requestFocus(FocusNode());
     FocusScope.of(context).requestFocus(FocusNode());
+  }
+
+  void _phoneNumberVerifiedAutomatically() {
+    showCustomSnackBar(context, 'Phone number verified automatically.');
+  }
+
+  void _catchError(e) {
+    showCustomSnackBar(context, 'Error: $e');
   }
 }

@@ -1,3 +1,4 @@
+import 'package:connectcare/main.dart';
 import 'package:flutter/material.dart';
 import 'package:connectcare/presentation/widgets/custom_button.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -69,20 +70,20 @@ class LoginScreenState extends State<LoginScreen> {
                 var pisoData = jsonDecode(pisoResponse.body);
                 if (pisoData.isNotEmpty) {
                   // Hay pisos registrados, ir a '/adminHomeScreen'
-                  Navigator.pushNamed(context, '/adminHomeScreen');
+                  MyApp.nav.navigateTo('/adminHomeScreen');
                 } else {
                   // No hay pisos registrados, ir a '/adminStartScreen'
-                  Navigator.pushNamed(context, '/adminStartScreen');
+                  MyApp.nav.navigateTo('/adminStartScreen');
                 }
               } else if (pisoResponse.statusCode == 404) {
                 // No hay pisos registrados, ir a '/adminStartScreen'
-                Navigator.pushNamed(context, '/adminStartScreen');
+                MyApp.nav.navigateTo('/adminStartScreen');
               } else {
                 throw Exception('Error al verificar los pisos');
               }
             } else if (adminResponse.statusCode == 404) {
               await _sharedPreferencesService.saveIsAdmin(false);
-              Navigator.pushNamed(context, '/mainScreen');
+              MyApp.nav.navigateTo('/mainScreen');
             }
             scaffoldMessenger.showSnackBar(
               const SnackBar(
@@ -126,8 +127,6 @@ class LoginScreenState extends State<LoginScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
                 const SizedBox(height: 30),
-
-                // Campo de email o número de teléfono
                 TextFormField(
                   controller: _emailOrPhoneController,
                   decoration: const InputDecoration(
@@ -142,8 +141,6 @@ class LoginScreenState extends State<LoginScreen> {
                   },
                 ),
                 const SizedBox(height: 15),
-
-                // Campo de contraseña
                 TextFormField(
                   controller: _passwordController,
                   decoration: const InputDecoration(
@@ -162,8 +159,6 @@ class LoginScreenState extends State<LoginScreen> {
                   },
                 ),
                 const SizedBox(height: 30),
-
-                // Botón de texto "Forgot Password?"
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
@@ -180,15 +175,11 @@ class LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 const SizedBox(height: 30),
-
-                // Botón de inicio de sesión
                 CustomButton(
                   text: 'Login',
                   onPressed: _login,
                 ),
                 const SizedBox(height: 20),
-
-                // Texto "or"
                 Row(
                   children: [
                     const Expanded(child: Divider()),
@@ -200,12 +191,8 @@ class LoginScreenState extends State<LoginScreen> {
                   ],
                 ),
                 const SizedBox(height: 20),
-
-                // Botón para iniciar sesión con Facebook
                 ElevatedButton.icon(
-                  onPressed: () {
-                    // Lógica para iniciar sesión con Facebook
-                  },
+                  onPressed: () {},
                   icon: Icon(
                     Icons.facebook,
                     color: brightness == Brightness.dark
@@ -226,12 +213,8 @@ class LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 const SizedBox(height: 10),
-
-                // Botón para iniciar sesión con Google
                 ElevatedButton.icon(
-                  onPressed: () {
-                    // Lógica para iniciar sesión con Google
-                  },
+                  onPressed: () {},
                   icon: FaIcon(FontAwesomeIcons.google,
                       color: brightness == Brightness.dark
                           ? Colors.white
