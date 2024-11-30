@@ -29,7 +29,7 @@ class PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
   final TextEditingController _codeController = TextEditingController();
   bool _isResendAllowed = false;
   Timer? _resendTimer;
-  int _resendWaitTime = 5;
+  int _resendWaitTime = 60;
   String? currentVerificationId;
   int? _resendToken;
   bool _showVerificationError = false;
@@ -184,7 +184,7 @@ class PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
   }
 
   void _startResendTimer() {
-    _resendWaitTime = 5;
+    _resendWaitTime = 60;
     _resendTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_resendWaitTime == 0) {
         setState(() {

@@ -52,7 +52,7 @@ class StaffRegistrationState extends State<StaffRegistration> {
   final FacebookAuthService _facebookAuthService = FacebookAuthService();
 
   Future<bool> checkEmailExists(String email) async {
-    var url = Uri.parse('$baseUrl/personal/email/$email');
+    var url = Uri.parse('$baseUrl/auth/email/$email');
     var response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -62,13 +62,26 @@ class StaffRegistrationState extends State<StaffRegistration> {
   }
 
   Future<bool> checkPhoneExists(String phone) async {
-    var url = Uri.parse('$baseUrl/personal/telefono/$phone');
+    var url = Uri.parse('$baseUrl/auth/telefono/$phone');
     var response = await http.get(url);
 
     if (response.statusCode == 200) {
       return true;
     }
     return false;
+  }
+
+  Future<bool> checkStaffIdExists(String staffId) async {
+    final url = Uri.parse('$baseUrl/auth/staff_id/$staffId');
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      return true;
+    } else if (response.statusCode == 404) {
+      return false;
+    } else {
+      throw Exception('Error verifying Staff ID: ${response.body}');
+    }
   }
 
   @override
@@ -305,6 +318,15 @@ class StaffRegistrationState extends State<StaffRegistration> {
                       final scaffoldMessenger = ScaffoldMessenger.of(context);
 
                       if (isEmailMode) {
+                        bool staffIdExists =
+                            await checkStaffIdExists(idController.text);
+                        if (staffIdExists) {
+                          scaffoldMessenger.showSnackBar(
+                            const SnackBar(
+                                content: Text('Staff ID is already in use')),
+                          );
+                          return;
+                        }
                         bool emailExists = await checkEmailExists(
                             _emailOrPhoneController.text);
                         if (emailExists) {
@@ -366,6 +388,15 @@ class StaffRegistrationState extends State<StaffRegistration> {
                         _completePhoneNumber =
                             '$_countryCode${_phoneNumberController.text}';
 
+                        bool staffIdExists =
+                            await checkStaffIdExists(idController.text);
+                        if (staffIdExists) {
+                          scaffoldMessenger.showSnackBar(
+                            const SnackBar(
+                                content: Text('Staff ID is already in use')),
+                          );
+                          return;
+                        }
                         bool phoneExists =
                             await checkPhoneExists(_completePhoneNumber);
                         if (phoneExists) {

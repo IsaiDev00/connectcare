@@ -7,6 +7,7 @@ class FacebookAuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   Future<String?> signInWithFacebook() async {
+    await FacebookAuth.instance.logOut();
     try {
       final LoginResult result = await FacebookAuth.instance.login(
         permissions: ['email', 'public_profile'],

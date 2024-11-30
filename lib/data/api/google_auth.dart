@@ -7,7 +7,9 @@ class GoogleAuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   Future<UserCredential?> signInWithGoogle() async {
-    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+    final GoogleSignIn googleSignIn = GoogleSignIn();
+    await googleSignIn.signOut();
+    final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
 
     if (googleUser == null) {
       return Future.error('Google sign-in canceled');

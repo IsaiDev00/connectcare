@@ -41,7 +41,7 @@ class EmailVerificationScreenState extends State<EmailVerificationScreen> {
   Timer? checkEmailVerifiedTimer;
   bool _isResendAllowed = false;
   Timer? _resendTimer;
-  int _resendWaitTime = 5;
+  int _resendWaitTime = 60;
 
   @override
   void initState() {
@@ -64,7 +64,7 @@ class EmailVerificationScreenState extends State<EmailVerificationScreen> {
     }
     setState(() {
       _isResendAllowed = false;
-      _resendWaitTime = 5;
+      _resendWaitTime = 60;
     });
     _startResendTimer();
   }

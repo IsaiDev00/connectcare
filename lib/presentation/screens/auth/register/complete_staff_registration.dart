@@ -158,6 +158,12 @@ class CompleteStaffRegistrationState extends State<CompleteStaffRegistration> {
                 ElevatedButton(
                   onPressed: () async {
                     if (_formKey.currentState!.validate()) {
+                      bool staffIdExists =
+                          await checkStaffIdExists(idController.text);
+                      if (staffIdExists) {
+                        _staffIdInUse();
+                        return;
+                      }
                       await _registerUser();
                     }
                   },
@@ -263,5 +269,22 @@ class CompleteStaffRegistrationState extends State<CompleteStaffRegistration> {
 
   void _registrationFailed(Object e) {
     showCustomSnackBar(context, 'Registration failed: $e');
+  }
+
+  Future<bool> checkStaffIdExists(String staffId) async {
+    final url = Uri.parse('$baseUrl/auth/staff_id/$staffId');
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      return true;
+    } else if (response.statusCode == 404) {
+      return false;
+    } else {
+      throw Exception('Error verifying Staff ID: ${response.body}');
+    }
+  }
+
+  void _staffIdInUse() {
+    showCustomSnackBar(context, 'Staff ID is already in use');
   }
 }
