@@ -1,12 +1,12 @@
 import 'dart:convert';
 import 'package:connectcare/core/constants/constants.dart';
 import 'package:connectcare/core/models/solicitud_a_hospital.dart';
+import 'package:connectcare/data/services/user_service.dart';
 import 'package:connectcare/main.dart';
 import 'package:connectcare/presentation/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-import 'package:connectcare/data/services/shared_preferences_service.dart';
 
 class MainScreenStaff extends StatefulWidget {
   const MainScreenStaff({super.key});
@@ -20,8 +20,9 @@ class MainScreenState extends State<MainScreenStaff> {
   List<Map<String, dynamic>> filterHospitals = [];
   List<Map<String, dynamic>> myHospitals = [];
   TextEditingController searchController = TextEditingController();
-  String? firebaseUid;
   int? idPersonal;
+  String? userId;
+  String? userType;
 
   void updateFilter(String query) {
     setState(() {
@@ -39,10 +40,14 @@ class MainScreenState extends State<MainScreenStaff> {
   }
 
   Future<void> loadCurrentPersonalId() async {
-    firebaseUid = await SharedPreferencesService().getUserId();
+    final userData = await UserService().loadUserData();
+    setState(() {
+      userId = userData['userId'];
+      userType = userData['userType'];
+    });
 
-    if (firebaseUid != null && firebaseUid!.isNotEmpty) {
-      final url = Uri.parse('$baseUrl/auth/firebase_uid/$firebaseUid');
+    if (userId != null && userId!.isNotEmpty) {
+      final url = Uri.parse('$baseUrl/auth/firebase_uid/$userId');
       final response = await http.get(url);
 
       if (response.statusCode == 200) {

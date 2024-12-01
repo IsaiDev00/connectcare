@@ -25,6 +25,21 @@ class SharedPreferencesService {
     await prefs.remove('userId');
   }
 
+  Future<void> saveUserType(String userType) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('userType', userType);
+  }
+
+  Future<String?> getUserType() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('userType');
+  }
+
+  Future<void> clearUserType() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('userType');
+  }
+
   // Guardar el código CLUES del usuario
   Future<void> saveCluesCode(String cluesCode) async {
     final prefs = await SharedPreferences.getInstance();

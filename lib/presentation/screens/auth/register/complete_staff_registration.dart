@@ -1,8 +1,8 @@
+import 'package:connectcare/data/services/user_service.dart';
 import 'package:connectcare/main.dart';
 import 'package:connectcare/presentation/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:connectcare/data/services/shared_preferences_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -35,10 +35,9 @@ class CompleteStaffRegistrationState extends State<CompleteStaffRegistration> {
   final TextEditingController lastNameMaternalController =
       TextEditingController();
   String? selectedUserType;
+  final userService = UserService();
 
   final _formKey = GlobalKey<FormState>();
-  final SharedPreferencesService _sharedPreferencesService =
-      SharedPreferencesService();
 
   @override
   Widget build(BuildContext context) {
@@ -201,8 +200,7 @@ class CompleteStaffRegistrationState extends State<CompleteStaffRegistration> {
       );
 
       if (response.statusCode == 201) {
-        await _sharedPreferencesService.saveUserId(firebaseUser.uid);
-
+        await userService.saveUserSession(firebaseUser.uid, selectedUserType!);
         await _navigateToCorrectScreen(firebaseUser.uid);
       } else {
         throw Exception('Registration failed: ${response.body}');

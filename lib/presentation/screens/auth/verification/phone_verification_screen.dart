@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:connectcare/core/constants/constants.dart';
 import 'package:connectcare/data/api/phone_auth.dart';
-import 'package:connectcare/data/services/shared_preferences_service.dart';
+import 'package:connectcare/data/services/user_service.dart';
 import 'package:connectcare/main.dart';
 import 'package:connectcare/presentation/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
@@ -33,6 +33,7 @@ class PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
   String? currentVerificationId;
   int? _resendToken;
   bool _showVerificationError = false;
+  final userService = UserService();
 
   @override
   void initState() {
@@ -85,11 +86,7 @@ class PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
     }
     try {
       final firebaseUid = FirebaseAuth.instance.currentUser?.uid;
-      if (firebaseUid == null) {
-        throw Exception("User UID not found");
-      }
-
-      await SharedPreferencesService().saveUserId(firebaseUid);
+      if (firebaseUid == null) throw Exception("User ID not found");
 
       await Future.delayed(const Duration(seconds: 2));
 
@@ -99,9 +96,10 @@ class PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
       if (response.statusCode == 200) {
         final userData = jsonDecode(response.body);
         final userType = userData['tipo'].toLowerCase();
-        final hasHospitalAssignment = userData['clues'] != null;
+        final assignedHospital = userData['clues'] != null;
+        await userService.saveUserSession(firebaseUid, userType);
 
-        if (!hasHospitalAssignment) {
+        if (widget.verificationModel.isStaff && !assignedHospital) {
           MyApp.nav.navigateTo('/mainScreenStaff');
           return;
         }
@@ -127,12 +125,11 @@ class PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
           case 'human resources':
             MyApp.nav.navigateTo('/humanResourcesHomeScreen');
             break;
-          case 'familiar principal':
-          case 'main family member':
+          case 'principal':
+          case 'main':
             MyApp.nav.navigateTo('/mainFamiliMemberHomeScreen');
             break;
-          case 'familiar regular':
-          case 'regular family member':
+          case 'regular':
             MyApp.nav.navigateTo('/regularFamilyMemberHomeScreen');
             break;
           case 'administrador':
@@ -170,14 +167,23 @@ class PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
         'estatus': 'activo',
       };
 
-      final url = Uri.parse('$baseUrl/personal');
+      final url = Uri.parse(
+        widget.verificationModel.isStaff
+            ? '$baseUrl/personal'
+            : '$baseUrl/familiar',
+      );
+
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(requestBody),
       );
 
-      _responseHandlerPost(response);
+      if (response.statusCode == 201) {
+        _responseHandlerPost(response);
+      } else {
+        throw Exception('Registration failed: ${response.body}');
+      }
     } catch (e) {
       _errorRegisteringUser(e);
     }

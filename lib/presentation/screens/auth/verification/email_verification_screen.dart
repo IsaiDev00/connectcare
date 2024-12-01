@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:connectcare/core/constants/constants.dart';
-import 'package:connectcare/data/services/shared_preferences_service.dart';
+import 'package:connectcare/data/services/user_service.dart';
 import 'package:connectcare/main.dart';
 import 'package:connectcare/presentation/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
@@ -42,6 +42,7 @@ class EmailVerificationScreenState extends State<EmailVerificationScreen> {
   bool _isResendAllowed = false;
   Timer? _resendTimer;
   int _resendWaitTime = 60;
+  final userService = UserService();
 
   @override
   void initState() {
@@ -115,7 +116,6 @@ class EmailVerificationScreenState extends State<EmailVerificationScreen> {
     if (widget.purpose == 'registration') {
       await _registerUser();
     }
-
     try {
       final firebaseUid = FirebaseAuth.instance.currentUser?.uid;
       if (firebaseUid == null) throw Exception("User ID not found");
@@ -129,9 +129,9 @@ class EmailVerificationScreenState extends State<EmailVerificationScreen> {
         final userData = jsonDecode(response.body);
         final userType = userData['tipo'].toLowerCase();
         final assignedHospital = userData['clues'] != null;
-        await SharedPreferencesService().saveUserId(firebaseUid.toString());
+        await userService.saveUserSession(firebaseUid, userType);
 
-        if (!assignedHospital) {
+        if (widget.isStaff && !assignedHospital) {
           MyApp.nav.navigateTo('/mainScreenStaff');
           return;
         }
@@ -157,12 +157,11 @@ class EmailVerificationScreenState extends State<EmailVerificationScreen> {
           case 'human resources':
             MyApp.nav.navigateTo('/humanResourcesHomeScreen');
             break;
-          case 'familiar principal':
-          case 'main family member':
+          case 'principal':
+          case 'main':
             MyApp.nav.navigateTo('/mainFamiliMemberHomeScreen');
             break;
-          case 'familiar regular':
-          case 'regular family member':
+          case 'regular':
             MyApp.nav.navigateTo('/regularFamilyMemberHomeScreen');
             break;
           case 'administrador':
@@ -170,7 +169,7 @@ class EmailVerificationScreenState extends State<EmailVerificationScreen> {
             MyApp.nav.navigateTo('/mainScreen');
             break;
           default:
-            throw Exception('Unknown user type');
+            throw Exception('Unknown user type: $userType');
         }
       } else {
         throw Exception('Error fetching user data: ${response.body}');

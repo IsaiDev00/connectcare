@@ -1,8 +1,5 @@
-import 'dart:convert';
-
-import 'package:connectcare/core/constants/constants.dart';
 import 'package:connectcare/core/models/phone_verification.dart';
-import 'package:connectcare/data/services/shared_preferences_service.dart';
+import 'package:connectcare/data/services/user_service.dart';
 import 'package:connectcare/presentation/screens/admin/add_floors_screen.dart';
 import 'package:connectcare/presentation/screens/admin/admin_start_screen.dart';
 import 'package:connectcare/presentation/screens/admin/create_medicament_screen.dart';
@@ -51,10 +48,10 @@ import 'firebase_options.dart';
 import 'package:connectcare/data/services/navigation_service.dart';
 import 'package:connectcare/presentation/screens/auth/register/complete_staff_registration.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
-import 'package:http/http.dart' as http;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -64,59 +61,48 @@ void main() async {
     appleProvider: AppleProvider.debug,
   );
 
-  final SharedPreferencesService sharedPreferences = SharedPreferencesService();
-  final firebaseUid = await sharedPreferences.getUserId();
+  final userService = UserService();
+  final userData = await userService.loadUserData();
 
-  String getInitialRouteForUserType(String userType) {
-    switch (userType) {
-      case 'medico':
-      case 'doctor':
-        return '/doctorHomeScreen';
-      case 'enfermero':
-      case 'nurse':
-        return '/nurseHomeScreen';
-      case 'camillero':
-      case 'stretcher bearer':
-        return '/stretcherBearerHomeScreen';
-      case 'trabajo social':
-      case 'social worker':
-        return '/socialWorkerHomeScreen';
-      case 'recursos humanos':
-      case 'human resources':
-        return '/humanResourcesHomeScreen';
-      case 'familiar principal':
-      case 'main family member':
-        return '/mainFamiliMemberHomeScreen';
-      case 'familiar regular':
-      case 'regular family member':
-        return '/regularFamilyMemberHomeScreen';
-      case 'administrador':
-      case 'administrator':
-        return '/mainScreen';
-      default:
-        return '/loginScreen';
-    }
+  final initialRoute = _determineInitialRoute(userData);
+
+  runApp(MyApp(initialRoute: initialRoute));
+}
+
+String _determineInitialRoute(Map<String, String?> userData) {
+  final userId = userData['userId'];
+  final userType = userData['userType'];
+
+  if (userId == null) {
+    return '/';
   }
 
-  if (firebaseUid != null) {
-    final url = Uri.parse('$baseUrl/auth/firebase_uid/$firebaseUid');
-    final response = await http.get(url);
-
-    if (response.statusCode == 200) {
-      final userData = jsonDecode(response.body);
-      final userType = userData['tipo'].toLowerCase();
-      final assignedHospital = userData['clues'] != null;
-
-      runApp(MyApp(
-        initialRoute: !assignedHospital
-            ? '/mainScreenStaff'
-            : getInitialRouteForUserType(userType),
-      ));
-    } else {
-      runApp(const MyApp(initialRoute: '/loginScreen'));
-    }
-  } else {
-    runApp(const MyApp(initialRoute: '/'));
+  switch (userType) {
+    case 'medico':
+    case 'doctor':
+      return '/doctorHomeScreen';
+    case 'enfermero':
+    case 'nurse':
+      return '/nurseHomeScreen';
+    case 'camillero':
+    case 'stretcher bearer':
+      return '/stretcherBearerHomeScreen';
+    case 'trabajo social':
+    case 'social worker':
+      return '/socialWorkerHomeScreen';
+    case 'recursos humanos':
+    case 'human resources':
+      return '/humanResourcesHomeScreen';
+    case 'principal':
+    case 'main':
+      return '/mainFamiliMemberHomeScreen';
+    case 'regular':
+      return '/regularFamilyMemberHomeScreen';
+    case 'administrador':
+    case 'administrator':
+      return '/mainScreen';
+    default:
+      return '/loginScreen';
   }
 }
 
@@ -134,11 +120,11 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.lightTheme(),
       darkTheme: AppTheme.darkTheme(),
       themeMode: ThemeMode.system,
-      initialRoute: '/',
+      initialRoute: initialRoute,
       routes: {
         '/': (context) => ChooseRoleScreen(),
         '/staffRegistration': (context) => StaffRegistration(),
-        '/familiarRegistration': (context) => FamilyRegistration(),
+        '/familiarRegistration': (context) => FamiliarRegistration(),
         '/termsAndConditions': (context) => TermsAndConditionsScreen(),
         '/privacyPolicy': (context) => PrivacyPolicyScreen(),
         '/loginScreen': (context) => LoginScreen(),

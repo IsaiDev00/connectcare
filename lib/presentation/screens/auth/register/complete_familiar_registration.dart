@@ -1,11 +1,11 @@
+import 'package:connectcare/data/services/user_service.dart';
 import 'package:connectcare/main.dart';
+import 'package:connectcare/presentation/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:connectcare/core/constants/constants.dart';
-import 'package:connectcare/data/services/shared_preferences_service.dart';
-import 'package:connectcare/presentation/widgets/snack_bar.dart';
 
 class CompleteFamiliarRegistration extends StatefulWidget {
   final User firebaseUser;
@@ -19,14 +19,14 @@ class CompleteFamiliarRegistration extends StatefulWidget {
 
 class CompleteFamiliarRegistrationState
     extends State<CompleteFamiliarRegistration> {
+  final userService = UserService();
   final TextEditingController firstNameController = TextEditingController();
   final TextEditingController lastNamePaternalController =
       TextEditingController();
   final TextEditingController lastNameMaternalController =
       TextEditingController();
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final SharedPreferencesService _sharedPreferencesService =
-      SharedPreferencesService();
+
+  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -99,7 +99,7 @@ class CompleteFamiliarRegistrationState
                       await _registerUser();
                     }
                   },
-                  child: const Text('Complete Registration'),
+                  child: const Text('Register'),
                 ),
               ],
             ),
@@ -117,6 +117,7 @@ class CompleteFamiliarRegistrationState
         'nombre': firstNameController.text,
         'apellido_paterno': lastNamePaternalController.text,
         'apellido_materno': lastNameMaternalController.text,
+        'tipo': "regular",
         'correo_electronico': firebaseUser.email ?? '',
         'firebase_uid': firebaseUser.uid,
         'auth_provider': firebaseUser.providerData[0].providerId,
@@ -130,9 +131,7 @@ class CompleteFamiliarRegistrationState
       );
 
       if (response.statusCode == 201) {
-        await _sharedPreferencesService.saveUserId(firebaseUser.uid);
-        _registrationSuccesful();
-
+        await userService.saveUserSession(firebaseUser.uid, "regular");
         await _navigateToCorrectScreen(firebaseUser.uid);
       } else {
         throw Exception('Registration failed: ${response.body}');
@@ -152,12 +151,7 @@ class CompleteFamiliarRegistrationState
         final userType = userData['tipo'].toLowerCase();
 
         switch (userType) {
-          case 'familiar principal':
-          case 'main family member':
-            MyApp.nav.navigateTo('/mainFamiliMemberHomeScreen');
-            break;
-          case 'familiar regular':
-          case 'regular family member':
+          case 'regular':
             MyApp.nav.navigateTo('/regularFamilyMemberHomeScreen');
             break;
           default:
@@ -167,19 +161,15 @@ class CompleteFamiliarRegistrationState
         throw Exception('Error fetching user data: ${response.body}');
       }
     } catch (e) {
-      _errorDeterminigUsertype(e);
+      _errorDeterminigUserType(e);
     }
   }
 
-  void _registrationSuccesful() {
-    showCustomSnackBar(context, "Registration successful");
+  void _errorDeterminigUserType(Object e) {
+    showCustomSnackBar(context, 'Error determining user type: $e');
   }
 
   void _registrationFailed(Object e) {
     showCustomSnackBar(context, 'Registration failed: $e');
-  }
-
-  void _errorDeterminigUsertype(Object e) {
-    showCustomSnackBar(context, 'Error determining user type: $e');
   }
 }
