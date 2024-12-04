@@ -1,11 +1,12 @@
-import 'package:connectcare/main.dart';
+import 'package:connectcare/presentation/screens/auth/verification/two_step_verification_screen.dart';
+import 'package:connectcare/presentation/widgets/snack_bar.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:connectcare/presentation/widgets/custom_button.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:connectcare/core/constants/constants.dart';
-import 'package:connectcare/data/services/shared_preferences_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -20,93 +21,97 @@ class LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailOrPhoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  final SharedPreferencesService _sharedPreferencesService =
-      SharedPreferencesService();
-
   Future<void> _login() async {
     if (_formKey.currentState!.validate()) {
-      final scaffoldMessenger = ScaffoldMessenger.of(context);
+      String identifier = _emailOrPhoneController.text.trim();
+      String password = _passwordController.text.trim();
 
       try {
-        String identifier = _emailOrPhoneController.text.trim();
-        var url = Uri.parse('$baseUrl/personal/emailOrPhone/$identifier');
-        var response = await http.get(
-          url,
-          headers: {'Content-Type': 'application/json'},
-        );
+        bool isEmail = identifier.contains('@');
 
-        if (response.statusCode == 200) {
-          var responseBody = jsonDecode(response.body);
-          String userId = responseBody['id_personal']?.toString() ?? '';
-
-          if (userId.isNotEmpty) {
-            await _sharedPreferencesService.saveUserId(userId);
-
-            var adminUrl = Uri.parse('$baseUrl/administrador/$userId');
-            var adminResponse = await http.get(
-              adminUrl,
-              headers: {'Content-Type': 'application/json'},
-            );
-
-            if (adminResponse.statusCode == 200) {
-              var adminData = jsonDecode(adminResponse.body);
-
-              // Guardar si el usuario es administrador
-              await _sharedPreferencesService.saveIsAdmin(true);
-
-              // Guardar el clues en SharedPreferences
-              String clues = adminData['clues'] ?? '';
-              await _sharedPreferencesService.saveClues(clues);
-
-              // Nueva consulta: Verificar si hay pisos registrados para el clues del administrador
-              var pisoUrl = Uri.parse('$baseUrl/piso/clues/$clues');
-              var pisoResponse = await http.get(
-                pisoUrl,
-                headers: {'Content-Type': 'application/json'},
-              );
-
-              // Redirige según la existencia de pisos
-              if (pisoResponse.statusCode == 200) {
-                var pisoData = jsonDecode(pisoResponse.body);
-                if (pisoData.isNotEmpty) {
-                  // Hay pisos registrados, ir a '/adminHomeScreen'
-                  MyApp.nav.navigateTo('/adminHomeScreen');
-                } else {
-                  // No hay pisos registrados, ir a '/adminStartScreen'
-                  MyApp.nav.navigateTo('/adminStartScreen');
-                }
-              } else if (pisoResponse.statusCode == 404) {
-                // No hay pisos registrados, ir a '/adminStartScreen'
-                MyApp.nav.navigateTo('/adminStartScreen');
-              } else {
-                throw Exception('Error al verificar los pisos');
-              }
-            } else if (adminResponse.statusCode == 404) {
-              await _sharedPreferencesService.saveIsAdmin(false);
-              MyApp.nav.navigateTo('/mainScreen');
-            }
-            scaffoldMessenger.showSnackBar(
-              const SnackBar(
-                content: Text('Login successful'),
-              ),
-            );
-          } else {
-            debugPrint('Error: User ID is empty');
-          }
+        if (isEmail) {
+          await _loginWithEmail(identifier, password);
         } else {
-          scaffoldMessenger.showSnackBar(
-            SnackBar(
-              content: Text('Error: ${response.body}'),
-            ),
-          );
+          await _loginWithPhone(identifier, password);
         }
       } catch (e) {
-        scaffoldMessenger.showSnackBar(
-          SnackBar(
-            content: Text('Login failed: $e'),
-          ),
-        );
+        _loginFailed(e);
       }
+    }
+  }
+
+  Future<void> _loginWithEmail(String email, String password) async {
+    try {
+      UserCredential userCredential = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(email: email, password: password);
+
+      final user = userCredential.user;
+
+      if (user != null) {
+        final url = Uri.parse('$baseUrl/auth/send-code');
+        final response = await http.post(
+          url,
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({'email': email}),
+        );
+
+        if (mounted && response.statusCode == 200) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => TwoStepVerificationScreen(
+                identifier: email,
+                isSmsVerification: false,
+              ),
+            ),
+          );
+        } else {
+          _errorSendingCode();
+        }
+      }
+    } catch (e) {
+      throw Exception('Login failed with email: $e');
+    }
+  }
+
+  Future<void> _loginWithPhone(String phone, String password) async {
+    try {
+      final url = Uri.parse('$baseUrl/auth/telefono/$phone');
+      final response =
+          await http.get(url, headers: {'Content-Type': 'application/json'});
+
+      if (response.statusCode == 200) {
+        final userData = jsonDecode(response.body);
+
+        if (userData['contrasena'] != password) {
+          throw Exception('Invalid password');
+        }
+
+        final sendCodeUrl = Uri.parse('$baseUrl/auth/send-sms-code');
+        final sendCodeResponse = await http.post(
+          sendCodeUrl,
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({'phone': phone}),
+        );
+
+        if (mounted && sendCodeResponse.statusCode == 200) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => TwoStepVerificationScreen(
+                identifier: phone,
+                isSmsVerification: true,
+              ),
+            ),
+          );
+        } else {
+          _errorSendingCode();
+        }
+      } else {
+        throw Exception('Phone number not found or invalid credentials');
+      }
+    } catch (e) {
+      throw Exception('Login failed with phone: $e');
     }
   }
 
@@ -238,5 +243,13 @@ class LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
+  }
+
+  void _loginFailed(Object e) {
+    showCustomSnackBar(context, 'Login failed: $e');
+  }
+
+  void _errorSendingCode() {
+    showCustomSnackBar(context, 'Error sending code');
   }
 }

@@ -563,9 +563,10 @@ class _ManageStaffUsersState extends State<ManageStaffUsers> {
                                                       id: item[
                                                               'id_solicitud_a_hospital']
                                                           .toString(),
-                                                      // email: user['correo_electronico'].toString()
-                                                      email:
-                                                          'damian.pebe@gmail.com'); //this is a temp email to verify only
+                                                      email: user[
+                                                              'correo_electronico']
+                                                          .toString());
+                                                  //email: 'damian.pebe@gmail.com'); //this is a temp email to verify only
                                                 },
                                               ),
                                             ],
