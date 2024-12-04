@@ -39,7 +39,7 @@ class PatientRegState extends State<PatientRegScreen> {
   ];
 
   // Fecha de registro (marca de tiempo)
-  DateTime _registrationDateTime = DateTime.now();
+  final DateTime _registrationDateTime = DateTime.now();
 
   @override
   void dispose() {
@@ -237,8 +237,8 @@ class PatientRegState extends State<PatientRegScreen> {
                   value: _selectedSex,
                   items: _sexOptions
                       .map((sex) => DropdownMenuItem(
-                            child: Text(sex),
                             value: sex,
+                            child: Text(sex),
                           ))
                       .toList(),
                   onChanged: (value) {
@@ -259,8 +259,8 @@ class PatientRegState extends State<PatientRegScreen> {
                   value: _selectedBloodGroup,
                   items: _bloodGroupOptions
                       .map((bg) => DropdownMenuItem(
-                            child: Text(bg),
                             value: bg,
+                            child: Text(bg),
                           ))
                       .toList(),
                   onChanged: (value) {

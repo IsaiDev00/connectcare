@@ -66,7 +66,7 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.lightTheme(),
       darkTheme: AppTheme.darkTheme(),
       themeMode: ThemeMode.system,
-      initialRoute: '/hojaEnfermeriaScreen',
+      initialRoute: '/pacientReg',
       routes: {
         '/': (context) => ChooseRoleScreen(),
         '/hospitalStaffRegistration': (context) => HospitalStaffRegistration(),
