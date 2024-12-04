@@ -2,45 +2,49 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 class PhoneAuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  int? _resendToken;
+
+  int? get resendToken => _resendToken;
 
   Future<void> verifyPhoneNumber(
     String phoneNumber,
     Function(String verificationId) onCodeSent,
-    Function(String error) onVerificationFailed,
-  ) async {
-    await _auth.verifyPhoneNumber(
-      phoneNumber: phoneNumber,
-      timeout: const Duration(minutes: 2),
-      verificationCompleted: (PhoneAuthCredential credential) async {
-        await _auth.signInWithCredential(credential);
-      },
-      verificationFailed: (FirebaseAuthException e) {
-        onVerificationFailed(e.message ?? "Verification failed");
-      },
-      codeSent: (String verificationId, int? resendToken) {
-        onCodeSent(verificationId);
-      },
-      codeAutoRetrievalTimeout: (String verificationId) {},
-    );
-  }
-
-  Future<void> signInWithSmsCode(
-    String verificationId,
-    String smsCode,
-    Function(User) onSuccess,
-    Function(String error) onError,
-  ) async {
+    Function(String error) onVerificationFailed, {
+    int? forceResendingToken,
+  }) async {
     try {
-      PhoneAuthCredential credential = PhoneAuthProvider.credential(
-        verificationId: verificationId,
-        smsCode: smsCode,
+      await _auth.verifyPhoneNumber(
+        phoneNumber: phoneNumber,
+        timeout: const Duration(minutes: 2),
+        forceResendingToken: forceResendingToken,
+        verificationCompleted: (PhoneAuthCredential credential) async {
+          try {
+            await _auth.signInWithCredential(credential);
+          } catch (e) {
+            onVerificationFailed('Automatic verification failed: $e');
+          }
+        },
+        verificationFailed: (FirebaseAuthException e) {
+          String errorMessage;
+          if (e.code == 'invalid-phone-number') {
+            errorMessage = 'The provided phone number is not valid.';
+          } else if (e.code == 'quota-exceeded') {
+            errorMessage = 'SMS quota for the project has been exceeded.';
+          } else if (e.code == 'too-many-requests') {
+            errorMessage = 'Too many requests. Please try again later.';
+          } else {
+            errorMessage = e.message ?? "Verification failed.";
+          }
+          onVerificationFailed(errorMessage);
+        },
+        codeSent: (String verificationId, int? resendToken) {
+          _resendToken = resendToken;
+          onCodeSent(verificationId);
+        },
+        codeAutoRetrievalTimeout: (String verificationId) {},
       );
-
-      UserCredential userCredential =
-          await _auth.signInWithCredential(credential);
-      onSuccess(userCredential.user!);
     } catch (e) {
-      onError("Failed to sign in: $e");
+      onVerificationFailed('Error during phone number verification: $e');
     }
   }
 }
