@@ -285,8 +285,8 @@ class PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
 
     final phoneAuthService = PhoneAuthService();
     phoneAuthService.verifyPhoneNumber(
-      widget.verificationModel.phoneNumber,
-      (String verificationId) {
+      phoneNumber: widget.verificationModel.phoneNumber,
+      onCodeSent: (String verificationId) {
         setState(() {
           currentVerificationId = verificationId;
           _resendToken = phoneAuthService.resendToken;
@@ -294,7 +294,7 @@ class PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
 
         showCustomSnackBar(context, 'Verification code resent successfully.');
       },
-      (String error) {
+      onVerificationFailed: (String error) {
         showCustomSnackBar(
             context, 'Failed to resend verification code: $error');
         setState(() {
