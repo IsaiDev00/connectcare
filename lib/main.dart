@@ -44,6 +44,7 @@ import 'core/theme/app_theme.dart';
 import 'presentation/screens/settings/terms_and_conditions_screen.dart';
 import 'presentation/screens/settings/privacy_policy_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:connectcare/presentation/screens/documents.dart/hoja_enfermeria_screen.dart';
 import 'firebase_options.dart';
 import 'package:connectcare/data/services/navigation_service.dart';
 import 'package:connectcare/presentation/screens/auth/register/complete_staff_registration.dart';
@@ -152,6 +153,7 @@ class MyApp extends StatelessWidget {
         '/createProcedureScreen': (context) => CreateProcedureScreen(),
         '/createMedicamentScreen': (context) => CreateMedicamentScreen(),
         '/pacientReg': (context) => PatientRegScreen(),
+        '/hojaEnfermeriaScreen': (context) => HojaEnfermeriaScreen(),
         '/completeStaffRegistration': (context) {
           final arguments = ModalRoute.of(context)!.settings.arguments;
           if (arguments is User) {

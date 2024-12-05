@@ -605,8 +605,8 @@ class _TriageScreen extends State<TriageScreen> {
                 value: _selectedSeverityLevel,
                 items: _severityLevels
                     .map((level) => DropdownMenuItem(
-                          child: Text(level),
                           value: level,
+                          child: Text(level),
                         ))
                     .toList(),
                 onChanged: (value) {
@@ -670,8 +670,8 @@ class _TriageScreen extends State<TriageScreen> {
                 value: _selectedDiagnosticAux,
                 items: _diagnosticAuxOptions
                     .map((option) => DropdownMenuItem(
-                          child: Text(option),
                           value: option,
+                          child: Text(option),
                         ))
                     .toList(),
                 onChanged: (value) {
@@ -730,8 +730,8 @@ class _TriageScreen extends State<TriageScreen> {
                 value: _selectedSAMM,
                 items: _yesNoOptions
                     .map((option) => DropdownMenuItem(
-                          child: Text(option),
                           value: option,
+                          child: Text(option),
                         ))
                     .toList(),
                 onChanged: (value) {
@@ -776,8 +776,8 @@ class _TriageScreen extends State<TriageScreen> {
                 value: _selectedArea,
                 items: services
                     .map((service) => DropdownMenuItem(
-                          child: Text(service['name']),
                           value: service['id'].toString(),
+                          child: Text(service['name']),
                         ))
                     .toList(),
                 onChanged: (value) {
@@ -804,8 +804,8 @@ class _TriageScreen extends State<TriageScreen> {
                   value: _selectedRoom,
                   items: rooms
                       .map((room) => DropdownMenuItem(
-                            child: Text(room['name']),
                             value: room['id'].toString(),
+                            child: Text(room['name']),
                           ))
                       .toList(),
                   onChanged: (value) {
@@ -830,8 +830,8 @@ class _TriageScreen extends State<TriageScreen> {
                   value: _selectedBed,
                   items: beds
                       .map((bed) => DropdownMenuItem(
-                            child: Text(bed['name']),
                             value: bed['id'].toString(),
+                            child: Text(bed['name']),
                           ))
                       .toList(),
                   onChanged: (value) {
