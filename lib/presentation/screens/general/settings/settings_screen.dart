@@ -10,7 +10,6 @@ class SettingsScreen extends StatefulWidget {
 class SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
-    var brightness = Theme.of(context).brightness;
     var theme = Theme.of(context);
     return SafeArea(
       child: Scaffold(

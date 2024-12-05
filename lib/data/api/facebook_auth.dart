@@ -50,6 +50,48 @@ class FacebookAuthService {
       return 'Error de autenticación con Facebook: $e';
     }
   }
+
+  Future<String?> loginWithFacebook() async {
+    await FacebookAuth.instance.logOut();
+    try {
+      final LoginResult result = await FacebookAuth.instance.login(
+        permissions: ['email', 'public_profile'],
+      );
+
+      if (result.status == LoginStatus.success) {
+        final OAuthCredential facebookAuthCredential =
+            FacebookAuthProvider.credential(result.accessToken!.tokenString);
+
+        final userData = await FacebookAuth.instance.getUserData();
+        final String? email = userData['email'];
+
+        if (email == null) {
+          return 'No se pudo obtener el correo electrónico de Facebook';
+        }
+
+        bool emailExists = await checkEmailExists(email);
+        if (!emailExists) {
+          return 'Este correo no está registrado. Por favor, regístrate primero.';
+        }
+
+        try {
+          await _auth.signInWithCredential(facebookAuthCredential);
+          return null;
+        } on FirebaseAuthException catch (e) {
+          if (e.code == 'account-exists-with-different-credential') {
+            return 'Este correo ya está registrado con otro proveedor. Por favor, inicia sesión usando el proveedor correcto.';
+          }
+          return 'Error al iniciar sesión con Facebook: ${e.message}';
+        }
+      } else if (result.status == LoginStatus.cancelled) {
+        return 'Inicio de sesión con Facebook cancelado';
+      } else {
+        return 'Error al iniciar sesión con Facebook';
+      }
+    } catch (e) {
+      return 'Error de autenticación con Facebook: $e';
+    }
+  }
 }
 
 Future<bool> checkEmailExists(String email) async {

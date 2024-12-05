@@ -1,6 +1,6 @@
-import 'package:connectcare/presentation/screens/principal/main_screen.dart';
-import 'package:connectcare/presentation/screens/principal/profile_screen.dart';
-import 'package:connectcare/presentation/screens/settings/settings_screen.dart';
+import 'package:connectcare/presentation/screens/admin/principal/main_screen.dart';
+import 'package:connectcare/presentation/screens/admin/principal/profile_screen.dart';
+import 'package:connectcare/presentation/screens/general/settings/settings_screen.dart';
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

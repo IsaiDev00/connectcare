@@ -1,6 +1,4 @@
 import 'dart:async';
-
-import 'package:connectcare/data/api/phone_auth.dart';
 import 'package:connectcare/main.dart';
 import 'package:connectcare/presentation/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
@@ -33,12 +31,10 @@ class _TwoStepVerificationScreenState extends State<TwoStepVerificationScreen> {
   bool _isResendAllowed = false;
   Timer? _resendTimer;
   int _resendWaitTime = 60;
-  int? _resendToken;
 
   @override
   void initState() {
     super.initState();
-    _resendToken = widget.resendToken;
     _startResendTimer();
   }
 
@@ -58,6 +54,61 @@ class _TwoStepVerificationScreenState extends State<TwoStepVerificationScreen> {
     });
   }
 
+  Future<void> _resendCode() async {
+    if (!_isResendAllowed) return;
+
+    setState(() {
+      _isResendAllowed = false;
+      _resendWaitTime = 60;
+    });
+
+    _startResendTimer();
+
+    try {
+      if (widget.isSmsVerification) {
+        final resendUrl = Uri.parse('$baseUrl/auth/send-sms-code');
+        final response = await http.post(
+          resendUrl,
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({'phone': widget.identifier}),
+        );
+
+        if (response.statusCode == 200) {
+          if (mounted) {
+            showCustomSnackBar(
+                context, 'Código reenviado exitosamente por SMS.');
+          }
+        } else {
+          throw Exception('Error al reenviar el código por SMS.');
+        }
+      } else {
+        // Reenvío de código por correo
+        final resendEmailUrl = Uri.parse('$baseUrl/auth/resend-code');
+        final response = await http.post(
+          resendEmailUrl,
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({'email': widget.identifier}),
+        );
+
+        if (response.statusCode == 200) {
+          if (mounted) {
+            showCustomSnackBar(
+                context, 'Código reenviado exitosamente al correo.');
+          }
+        } else {
+          throw Exception('Error al reenviar el código por correo.');
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        showCustomSnackBar(context, 'Error al reenviar el código: $e');
+      }
+      setState(() {
+        _isResendAllowed = true;
+      });
+    }
+  }
+
   @override
   void dispose() {
     _resendTimer?.cancel();
@@ -71,18 +122,17 @@ class _TwoStepVerificationScreenState extends State<TwoStepVerificationScreen> {
 
     try {
       if (widget.isSmsVerification) {
-        if (_codeController.text.isEmpty || _codeController.text.length != 6) {
-          throw Exception(
-              'El código de verificación debe tener exactamente 6 dígitos.');
-        }
-
-        final phoneAuth = PhoneAuthService();
-        final success = await phoneAuth.signInWithSmsCode(
-          _codeController.text.trim(),
-          widget.verificationId,
+        final url = Uri.parse('$baseUrl/auth/verify-sms-code');
+        final response = await http.post(
+          url,
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({
+            'phone': widget.identifier,
+            'code': _codeController.text.trim(),
+          }),
         );
 
-        if (success) {
+        if (response.statusCode == 200) {
           MyApp.nav.navigateTo('/mainScreen');
         } else {
           _invalidCode();
@@ -145,6 +195,15 @@ class _TwoStepVerificationScreenState extends State<TwoStepVerificationScreen> {
                     onPressed: _verifyCode,
                     child: const Text('Verificar Código'),
                   ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _isResendAllowed ? _resendCode : null,
+              child: Text(
+                _isResendAllowed
+                    ? 'Reenviar Código'
+                    : 'Reenviar Código ($_resendWaitTime)',
+              ),
+            ),
           ],
         ),
       ),

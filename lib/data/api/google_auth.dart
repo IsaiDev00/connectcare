@@ -43,6 +43,44 @@ class GoogleAuthService {
       return Future.error('Google sign-in failed: $e');
     }
   }
+
+  Future<UserCredential?> loginWithGoogle() async {
+    final GoogleSignIn googleSignIn = GoogleSignIn();
+    await googleSignIn.signOut();
+    final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+
+    if (googleUser == null) {
+      return Future.error('Inicio de sesión cancelado por el usuario');
+    }
+
+    final GoogleSignInAuthentication googleAuth =
+        await googleUser.authentication;
+
+    try {
+      bool emailExists = await checkEmailExists(googleUser.email);
+      if (!emailExists) {
+        return Future.error(
+            'Este correo no está registrado. Por favor, regístrate primero.');
+      }
+
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      UserCredential userCredential =
+          await _auth.signInWithCredential(credential);
+      return userCredential;
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'account-exists-with-different-credential') {
+        return Future.error(
+            'Este correo ya está registrado con otro proveedor. Por favor, inicia sesión usando el proveedor correcto.');
+      }
+      return Future.error('Error al iniciar sesión con Google: ${e.message}');
+    } catch (e) {
+      return Future.error('Error en el inicio de sesión con Google: $e');
+    }
+  }
 }
 
 Future<bool> checkEmailExists(String email) async {

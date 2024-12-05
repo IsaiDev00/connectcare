@@ -52,21 +52,4 @@ class PhoneAuthService {
       onVerificationFailed('Error during phone number verification: $e');
     }
   }
-
-  Future<bool> signInWithSmsCode(String smsCode, String? verificationId) async {
-    if (verificationId == null) {
-      throw Exception(
-          "No se recibió un Verification ID válido. Asegúrate de haber solicitado un código.");
-    }
-    try {
-      final credential = PhoneAuthProvider.credential(
-        verificationId: verificationId,
-        smsCode: smsCode,
-      );
-      await _auth.signInWithCredential(credential);
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
 }

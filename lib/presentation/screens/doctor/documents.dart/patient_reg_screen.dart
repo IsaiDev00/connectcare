@@ -1,4 +1,4 @@
-import 'package:connectcare/presentation/screens/documents.dart/triage_screen.dart';
+import 'package:connectcare/presentation/screens/doctor/documents.dart/triage_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 

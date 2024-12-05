@@ -1,8 +1,8 @@
 import 'package:connectcare/presentation/screens/admin/admin_home_screen.dart';
 import 'package:connectcare/presentation/screens/admin/daily_reports.dart';
 import 'package:connectcare/presentation/screens/admin/manage_staff_users.dart';
-import 'package:connectcare/presentation/screens/principal/management.dart';
-import 'package:connectcare/presentation/screens/settings/settings_screen.dart';
+import 'package:connectcare/presentation/screens/admin/principal/management.dart';
+import 'package:connectcare/presentation/screens/general/settings/settings_screen.dart';
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:flutter/material.dart';
 

@@ -1,4 +1,5 @@
-import 'package:connectcare/presentation/screens/auth/verification/two_step_verification_screen.dart';
+import 'package:connectcare/main.dart';
+import 'package:connectcare/presentation/screens/general/auth/verification/two_step_verification_screen.dart';
 import 'package:connectcare/presentation/widgets/snack_bar.dart';
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -8,7 +9,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:connectcare/core/constants/constants.dart';
-import 'package:connectcare/data/api/phone_auth.dart';
+import 'package:connectcare/data/api/google_auth.dart';
+import 'package:connectcare/data/api/facebook_auth.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -97,25 +99,26 @@ class LoginScreenState extends State<LoginScreen> {
           throw Exception('Contraseña inválida');
         }
 
-        final phoneAuth = PhoneAuthService();
-        await phoneAuth.verifyPhoneNumber(
-          phoneNumber: phone,
-          onCodeSent: (verificationId) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => TwoStepVerificationScreen(
-                  identifier: phone,
-                  isSmsVerification: true,
-                  verificationId: verificationId,
-                ),
-              ),
-            );
-          },
-          onVerificationFailed: (error) {
-            _loginFailed();
-          },
+        final sendCodeUrl = Uri.parse('$baseUrl/auth/send-sms-code');
+        final sendCodeResponse = await http.post(
+          sendCodeUrl,
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({'phone': phone}),
         );
+
+        if (mounted && sendCodeResponse.statusCode == 200) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => TwoStepVerificationScreen(
+                identifier: phone,
+                isSmsVerification: true,
+              ),
+            ),
+          );
+        } else {
+          throw Exception('Error al enviar el código de verificación por SMS.');
+        }
       } else {
         throw Exception(
             'Número de teléfono no encontrado o credenciales inválidas');
@@ -282,7 +285,9 @@ class LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 10),
                 ElevatedButton.icon(
-                  onPressed: () {},
+                  onPressed: () {
+                    _loginWithFacebook();
+                  },
                   icon: Icon(
                     Icons.facebook,
                     color: brightness == Brightness.dark
@@ -304,7 +309,9 @@ class LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 10),
                 ElevatedButton.icon(
-                  onPressed: () {},
+                  onPressed: () {
+                    _loginWithGoogle();
+                  },
                   icon: FaIcon(FontAwesomeIcons.google,
                       color: brightness == Brightness.dark
                           ? Colors.white
@@ -341,5 +348,38 @@ class LoginScreenState extends State<LoginScreen> {
   void _focusScope() {
     FocusScope.of(context).requestFocus(FocusNode());
     FocusScope.of(context).requestFocus(FocusNode());
+  }
+
+  Future<void> _loginWithGoogle() async {
+    try {
+      final GoogleAuthService googleAuthService = GoogleAuthService();
+      final userCredential = await googleAuthService.loginWithGoogle();
+
+      if (userCredential != null) {
+        MyApp.nav.navigateTo('/mainScreen');
+      }
+    } catch (e) {
+      if (mounted) {
+        showCustomSnackBar(context, e.toString());
+      }
+    }
+  }
+
+  Future<void> _loginWithFacebook() async {
+    try {
+      final FacebookAuthService facebookAuthService = FacebookAuthService();
+      final String? error = await facebookAuthService.loginWithFacebook();
+
+      if (error == null) {
+        MyApp.nav.navigateTo('/mainScreen');
+      } else if (mounted) {
+        showCustomSnackBar(context, error);
+      }
+    } catch (e) {
+      if (mounted) {
+        showCustomSnackBar(
+            context, 'Error de inicio de sesión con Facebook: $e');
+      }
+    }
   }
 }
