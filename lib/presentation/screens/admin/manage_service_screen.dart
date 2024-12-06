@@ -29,7 +29,7 @@ class ManageServiceScreenState extends State<ManageServiceScreen> {
     final clues = await _sharedPreferencesService.getClues();
     try {
       final response = await http.get(
-          Uri.parse('$baseUrl/servicio/servicios/$clues')); // URL de tu API
+          Uri.parse('$baseUrl/servicio//$clues'));
 
       if (response.statusCode == 200) {
         List<dynamic> data = json.decode(response.body);

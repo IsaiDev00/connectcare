@@ -12,11 +12,38 @@ class AdminHomeScreen extends StatefulWidget {
 }
 
 class AdminHomeScreenState extends State<AdminHomeScreen> {
+  String cluesdoc = "CSSSA009635";
+  String id = "21100286";
   final SharedPreferencesService _sharedPreferencesService =
       SharedPreferencesService();
 
+  @override
+  void initState() {
+    super.initState();
+    _initializeData(); // Carga y guarda datos al inicio
+  }
+
+  Future<void> _initializeData() async {
+    await _saveData(cluesdoc, id); // Guarda los valores iniciales
+    setState(() {}); // Fuerza la reconstrucción para sincronizar UI
+  }
+
+  // Guarda los datos en SharedPreferences
+  Future<void> _saveData(String newClues, String newId) async {
+    await _sharedPreferencesService.saveClues(newClues);
+    await _sharedPreferencesService.saveUserId(newId);
+    print("Datos guardados: CLUES $newClues, ID $newId");
+
+    // Verifica que los datos se hayan guardado correctamente
+    final savedClues = await _sharedPreferencesService.getClues();
+    final savedId = await _sharedPreferencesService.getUserId();
+    print("Datos verificados: CLUES $savedClues, ID $savedId");
+  }
+
   Future<String?> _getHospitalName() async {
+    // Obtiene el CLUES actual desde SharedPreferences
     final clues = await _sharedPreferencesService.getClues();
+    print("CLUES leído desde SharedPreferences: $clues"); // Debug log
 
     if (clues != null && clues.isNotEmpty) {
       var url = Uri.parse('$baseUrl/hospital/nombre/$clues');
@@ -27,14 +54,28 @@ class AdminHomeScreenState extends State<AdminHomeScreen> {
 
       if (response.statusCode == 200) {
         var responseBody = jsonDecode(response.body);
-        return responseBody['nombre']; // Devuelve el nombre del hospital
+        print("Nombre del hospital obtenido: ${responseBody['nombre']}");
+        return responseBody['nombre'];
       } else {
-        debugPrint('Error: ${response.body}');
+        debugPrint('Error al obtener nombre del hospital: ${response.body}');
         return null;
       }
     } else {
-      debugPrint('Error: Clues is empty');
+      debugPrint('Error: CLUES vacío o no disponible');
       return null;
+    }
+  }
+
+  // Cambia el CLUES y obtiene el nombre actualizado del hospital
+  Future<void> updateClues(String newClues) async {
+    await _saveData(newClues, id); // Actualiza el CLUES y guarda el ID
+    final hospitalName =
+        await _getHospitalName(); // Obtén el nuevo nombre del hospital
+
+    if (hospitalName != null) {
+      print("Nombre del hospital después de actualizar: $hospitalName");
+    } else {
+      print("No se pudo obtener el nombre del hospital después de actualizar.");
     }
   }
 
@@ -86,10 +127,11 @@ class AdminHomeScreenState extends State<AdminHomeScreen> {
           children: <Widget>[
             const SizedBox(height: 20),
             FutureBuilder<String?>(
-              future: _getHospitalName(),
+              future:
+                  _getHospitalName(), // Llama al Future que obtiene el nombre
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const CircularProgressIndicator();
+                  return const CircularProgressIndicator(); // Mientras espera los datos
                 } else if (snapshot.hasError) {
                   return const Text(
                     'Error al cargar el nombre del hospital',
@@ -109,8 +151,9 @@ class AdminHomeScreenState extends State<AdminHomeScreen> {
                     textAlign: TextAlign.center,
                   );
                 } else {
+                  // Muestra el nombre del hospital si está disponible
                   return Text(
-                    snapshot.data ?? '',
+                    snapshot.data!,
                     style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,

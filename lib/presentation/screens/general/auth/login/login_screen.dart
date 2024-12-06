@@ -41,6 +41,7 @@ class LoginScreenState extends State<LoginScreen> {
         String formattedPhoneNumber = _completePhoneNumber.startsWith('+')
             ? _completePhoneNumber
             : '+$_countryCode${_phoneNumberController.text}';
+        print(formattedPhoneNumber + " " + password);
         await _loginWithPhone(formattedPhoneNumber, password);
       }
     }
@@ -82,31 +83,47 @@ class LoginScreenState extends State<LoginScreen> {
 
   Future<void> _loginWithPhone(String phone, String password) async {
     try {
+      print('Iniciando el login con el número: $phone');
+
       if (!phone.startsWith('+')) {
+        print('Error: El número no incluye el código internacional.');
         throw Exception('El número debe incluir el código internacional.');
       }
 
       final url = Uri.parse('$baseUrl/auth/phoneAndPassword/$phone');
+      print('Haciendo GET request a: $url');
+
       final response = await http.get(
         url,
         headers: {'Content-Type': 'application/json'},
       );
+      print(
+          'Respuesta del servidor: ${response.statusCode} - ${response.body}');
 
       if (response.statusCode == 200) {
+        print('Número encontrado, verificando contraseña...');
         final userData = jsonDecode(response.body);
+        print('Datos recibidos: $userData');
 
         if (userData['contrasena'] != password) {
+          print('Error: Contraseña inválida');
           throw Exception('Contraseña inválida');
         }
 
         final sendCodeUrl = Uri.parse('$baseUrl/auth/send-sms-code');
+        print('Haciendo POST request a: $sendCodeUrl');
+
         final sendCodeResponse = await http.post(
           sendCodeUrl,
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({'phone': phone}),
         );
+        print(
+            'Respuesta al enviar código de verificación: ${sendCodeResponse.statusCode} - ${sendCodeResponse.body}');
 
         if (mounted && sendCodeResponse.statusCode == 200) {
+          print(
+              'Código de verificación enviado correctamente. Navegando a TwoStepVerificationScreen.');
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -117,13 +134,16 @@ class LoginScreenState extends State<LoginScreen> {
             ),
           );
         } else {
+          print('Error al enviar el código de verificación por SMS.');
           throw Exception('Error al enviar el código de verificación por SMS.');
         }
       } else {
+        print('Error: Teléfono no encontrado o credenciales inválidas.');
         throw Exception(
             'Número de teléfono no encontrado o credenciales inválidas');
       }
     } catch (e) {
+      print('Error atrapado en el catch: $e');
       _loginFailed();
     }
   }

@@ -1,4 +1,5 @@
 import 'package:connectcare/core/constants/constants.dart';
+import 'package:connectcare/data/services/shared_preferences_service.dart';
 import 'package:connectcare/presentation/screens/admin/edit_procedure_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -12,6 +13,11 @@ class ManageProcedureScreen extends StatefulWidget {
 }
 
 class ManageProcedureScreenState extends State<ManageProcedureScreen> {
+
+  final SharedPreferencesService _sharedPreferencesService =
+      SharedPreferencesService();
+
+
   List<Map<String, dynamic>> procedures = [];
   List<Map<String, dynamic>> fliteredProcedures = [];
   TextEditingController searchController = TextEditingController();
@@ -24,7 +30,8 @@ class ManageProcedureScreenState extends State<ManageProcedureScreen> {
 
   Future<void> _fetchProcedures() async {
     try {
-      final response = await http.get(Uri.parse('$baseUrl/procedimiento/'));
+      final clues = await _sharedPreferencesService.getClues();
+      final response = await http.get(Uri.parse('$baseUrl/procedimiento/$clues'));
 
       if (response.statusCode == 200) {
         List<dynamic> data = json.decode(response.body);
@@ -84,8 +91,8 @@ class ManageProcedureScreenState extends State<ManageProcedureScreen> {
 
   Future<void> deleteProcedure(int id) async {
     try{
-      final response = await http.delete(Uri.parse('$baseUrl/procedure/$id'));
-
+      final response = await http.delete(Uri.parse('$baseUrl/procedimiento/$id'));
+      print("id: $id");
       if(response.statusCode == 200){
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Procedure deleted successfully')),

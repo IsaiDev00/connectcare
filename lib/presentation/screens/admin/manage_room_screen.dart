@@ -1,4 +1,5 @@
 import 'package:connectcare/core/constants/constants.dart';
+import 'package:connectcare/data/services/shared_preferences_service.dart';
 import 'package:connectcare/presentation/screens/admin/edit_room_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -16,6 +17,9 @@ class ManageRoomScreenState extends State<ManageRoomScreen> {
   List<Map<String, dynamic>> filteredRooms = [];
   TextEditingController searchController = TextEditingController();
 
+  final SharedPreferencesService _sharedPreferencesService =
+      SharedPreferencesService();
+
   @override
   void initState() {
     super.initState();
@@ -24,7 +28,8 @@ class ManageRoomScreenState extends State<ManageRoomScreen> {
 
   Future<void> _fetchRooms() async {
     try {
-      final response = await http.get(Uri.parse('$baseUrl/sala/salas'));
+      final clues = await _sharedPreferencesService.getClues();
+      final response = await http.get(Uri.parse('$baseUrl/sala/$clues'));
 
       if (response.statusCode == 200) {
         List<dynamic> data = json.decode(response.body);

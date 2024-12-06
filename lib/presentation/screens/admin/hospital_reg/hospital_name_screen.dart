@@ -38,18 +38,6 @@ class HospitalNameScreenState extends State<HospitalNameScreen> {
       if (cluesData != null && userId != null) {
         final clues = cluesData;
 
-        // Verificar si el nombre ya está registrado
-        final checkNameResponse = await http.post(
-          Uri.parse('$baseUrl/hospital/checkName'),
-          headers: {'Content-Type': 'application/json'},
-          body: jsonEncode({'nombre': _nameController.text.trim()}),
-        );
-
-        if (checkNameResponse.statusCode == 409) {
-          showCustomSnackBar(context, 'Hospital name already in use.');
-          return;
-        }
-
         // Realiza la solicitud para registrar el hospital
         final response = await http.post(
           Uri.parse('$baseUrl/hospital/registrarHospital'),
@@ -61,13 +49,25 @@ class HospitalNameScreenState extends State<HospitalNameScreen> {
           }),
         );
 
-        _responseHospitalRegister(response);
-      } else {
-        String message = 'Missing necessary data to register the hospital.';
-        if (cluesData == null) {
-          message = 'No valid CLUES record found.';
+        if (response.statusCode == 409) {
+          // El backend indica que el nombre ya está en uso
+          showCustomSnackBar(context, 'El nombre del hospital ya está en uso.');
+          return;
         }
-        if (userId == null) message = 'No valid user ID found.';
+
+        if (response.statusCode == 200) {
+          // Registro exitoso
+          _responseHospitalRegister(response);
+        } else {
+          // Manejo de otros errores
+          throw Exception('Error al registrar el hospital: ${response.body}');
+        }
+      } else {
+        String message = 'Faltan datos necesarios para registrar el hospital.';
+        if (cluesData == null) {
+          message = 'No se encontró un registro CLUES válido.';
+        }
+        if (userId == null) message = 'No se encontró un ID de usuario válido.';
 
         _validationsHospitalRegister(message);
       }
