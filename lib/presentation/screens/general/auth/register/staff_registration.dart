@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:connectcare/main.dart';
 import 'package:connectcare/presentation/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
@@ -335,17 +336,22 @@ class StaffRegistrationState extends State<StaffRegistration> {
                           );
                           return;
                         }
+
                         try {
-                          UserCredential userCredential = await FirebaseAuth
-                              .instance
-                              .createUserWithEmailAndPassword(
-                            email: _emailOrPhoneController.text,
-                            password: _passwordController.text,
+                          final url = Uri.parse('$baseUrl/auth/send-code');
+                          final response = await http.post(
+                            url,
+                            headers: {'Content-Type': 'application/json'},
+                            body: jsonEncode(
+                                {'email': _emailOrPhoneController.text}),
                           );
-                          if (userCredential.user != null) {
+
+                          if (response.statusCode == 200) {
                             MyApp.nav.navigateTo(
-                              '/emailVerification',
+                              '/twoStepVerification',
                               arguments: {
+                                'identifier': _emailOrPhoneController.text,
+                                'isSmsVerification': false,
                                 'firstName': _firstNameController.text,
                                 'lastNamePaternal':
                                     _lastNamePaternalController.text,
@@ -353,7 +359,7 @@ class StaffRegistrationState extends State<StaffRegistration> {
                                     _lastNameMaternalController.text,
                                 'email': _emailOrPhoneController.text,
                                 'userType': _selectedUserType!,
-                                'id': idController.text,
+                                'idPersonal': idController.text,
                                 'isStaff': true,
                                 'purpose': 'registration',
                                 'userData': {
@@ -372,17 +378,12 @@ class StaffRegistrationState extends State<StaffRegistration> {
                                 },
                               },
                             );
+                          } else {
+                            throw Exception(
+                                'Failed to send verification code: ${response.body}');
                           }
-                        } on FirebaseAuthException catch (e) {
-                          scaffoldMessenger.showSnackBar(
-                            SnackBar(
-                                content:
-                                    Text(e.message ?? 'Registration failed')),
-                          );
                         } catch (e) {
-                          scaffoldMessenger.showSnackBar(
-                            SnackBar(content: Text('Unexpected error: $e')),
-                          );
+                          _catchError(e);
                         }
                       } else {
                         _completePhoneNumber =
@@ -409,77 +410,49 @@ class StaffRegistrationState extends State<StaffRegistration> {
                         }
 
                         try {
-                          String formattedPhoneNumber = _completePhoneNumber
-                                  .startsWith('+')
-                              ? _completePhoneNumber
-                              : '+$_countryCode${_phoneNumberController.text}';
-
-                          await FirebaseAuth.instance.verifyPhoneNumber(
-                            phoneNumber: formattedPhoneNumber,
-                            timeout: const Duration(minutes: 2),
-                            verificationCompleted:
-                                (PhoneAuthCredential credential) async {
-                              await FirebaseAuth.instance
-                                  .signInWithCredential(credential);
-                              _phoneNumberVerifiedAutomatically();
-                            },
-                            verificationFailed: (FirebaseAuthException e) {
-                              String errorMessage;
-                              if (e.code == 'invalid-phone-number') {
-                                errorMessage = 'Invalid phone number format.';
-                              } else if (e.code == 'too-many-requests') {
-                                errorMessage =
-                                    'Too many requests. Please try again later.';
-                              } else {
-                                errorMessage =
-                                    e.message ?? 'Verification failed.';
-                              }
-                              ScaffoldMessenger.of(context)
-                                  .showSnackBar(SnackBar(
-                                content: Text(errorMessage),
-                              ));
-                            },
-                            codeSent:
-                                (String verificationId, int? resendToken) {
-                              setState(() {
-                                _resendToken = resendToken;
-                              });
-
-                              MyApp.nav.navigateTo(
-                                '/phoneVerification',
-                                arguments: {
-                                  'phoneNumber': formattedPhoneNumber,
-                                  'verificationId': verificationId,
-                                  'isStaff': true,
-                                  'purpose': "registration",
-                                  'firstName': _firstNameController.text,
-                                  'lastNamePaternal':
-                                      _lastNamePaternalController.text,
-                                  'lastNameMaternal':
-                                      _lastNameMaternalController.text,
-                                  'password': _passwordController.text,
-                                  'userType': _selectedUserType!,
-                                  'idPersonal': idController.text,
-                                  'resendToken': resendToken,
-                                  'userData': {
-                                    'id_personal': idController.text,
-                                    'nombre': _firstNameController.text,
-                                    'apellido_paterno':
-                                        _lastNamePaternalController.text,
-                                    'apellido_materno':
-                                        _lastNameMaternalController.text,
-                                    'telefono': formattedPhoneNumber,
-                                    'contrasena': _passwordController.text,
-                                    'tipo': _selectedUserType!,
-                                    'estatus': 'activo',
-                                    'auth_provider': 'phone',
-                                  },
-                                },
-                              );
-                            },
-                            codeAutoRetrievalTimeout:
-                                (String verificationId) {},
+                          final url = Uri.parse('$baseUrl/auth/send-sms-code');
+                          final response = await http.post(
+                            url,
+                            headers: {'Content-Type': 'application/json'},
+                            body: jsonEncode({'phone': _completePhoneNumber}),
                           );
+
+                          if (response.statusCode == 200) {
+                            MyApp.nav.navigateTo(
+                              '/twoStepVerification',
+                              arguments: {
+                                'identifier': _completePhoneNumber,
+                                'isSmsVerification': true,
+                                'phoneNumber': _completePhoneNumber,
+                                'purpose': "registration",
+                                'firstName': _firstNameController.text,
+                                'lastNamePaternal':
+                                    _lastNamePaternalController.text,
+                                'lastNameMaternal':
+                                    _lastNameMaternalController.text,
+                                'password': _passwordController.text,
+                                'userType': _selectedUserType!,
+                                'idPersonal': idController.text,
+                                'isStaff': true,
+                                'userData': {
+                                  'id_personal': idController.text,
+                                  'nombre': _firstNameController.text,
+                                  'apellido_paterno':
+                                      _lastNamePaternalController.text,
+                                  'apellido_materno':
+                                      _lastNameMaternalController.text,
+                                  'telefono': _completePhoneNumber,
+                                  'contrasena': _passwordController.text,
+                                  'tipo': _selectedUserType!,
+                                  'estatus': 'activo',
+                                  'auth_provider': 'phone',
+                                },
+                              },
+                            );
+                          } else {
+                            throw Exception(
+                                'Failed to send verification code: ${response.body}');
+                          }
                         } catch (e) {
                           _catchError(e);
                         }
@@ -624,10 +597,6 @@ class StaffRegistrationState extends State<StaffRegistration> {
   void _focusScope() {
     FocusScope.of(context).requestFocus(FocusNode());
     FocusScope.of(context).requestFocus(FocusNode());
-  }
-
-  void _phoneNumberVerifiedAutomatically() {
-    showCustomSnackBar(context, 'Phone number verified automatically.');
   }
 
   void _catchError(e) {

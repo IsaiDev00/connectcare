@@ -1,8 +1,8 @@
 import 'package:connectcare/core/constants/constants.dart';
 import 'package:connectcare/presentation/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http; // Importa el paquete http
-import 'dart:convert'; // Para convertir JSON
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'package:connectcare/data/services/shared_preferences_service.dart';
 
 class EditProfileScreen extends StatefulWidget {
@@ -15,6 +15,10 @@ class EditProfileScreen extends StatefulWidget {
 class EditProfileScreenState extends State<EditProfileScreen> {
   final SharedPreferencesService _sharedPreferencesService =
       SharedPreferencesService();
+
+  bool _isLoading = true;
+  // ignore: unused_field
+  bool _isUpdating = false;
 
   String userName = '';
   String userEmail = '';
@@ -39,12 +43,14 @@ class EditProfileScreenState extends State<EditProfileScreen> {
       final userIdString = await _sharedPreferencesService.getUserId();
       if (userIdString != null) {
         userId = int.parse(userIdString);
-        // Realiza la solicitud GET al backend para obtener los datos del usuario
-        var url = Uri.parse('$baseUrl/personal/$userId');
-        var response = await http.get(url);
+
+        // Llamada al endpoint unificado
+        final url = Uri.parse('$baseUrl/auth/user_by_id/$userId');
+        final response = await http.get(url);
 
         if (response.statusCode == 200) {
-          var userData = jsonDecode(response.body);
+          final userData = jsonDecode(response.body);
+
           setState(() {
             userName = userData['nombre'] ?? 'Nombre no disponible';
             userEmail =
@@ -54,17 +60,25 @@ class EditProfileScreenState extends State<EditProfileScreen> {
             userApellidoPaterno = userData['apellido_paterno'] ?? '';
             userApellidoMaterno = userData['apellido_materno'] ?? '';
             userTipo = userData['tipo'] ?? '';
-            userEstatus = userData['estatus'] ?? '';
-            userAsignado = userData['asignado'] ?? '';
-            userClues = userData['clues'] ?? '';
+
+            // Si el usuario pertenece a "personal", carga campos adicionales
+            if (userData['clues'] != null) {
+              userClues = userData['clues'];
+              userEstatus = userData['estatus'] ?? '';
+              userAsignado = userData['asignado'] ?? '';
+            }
           });
         } else {
-          throw Exception('Failed to load user data');
+          throw Exception('No se pudo cargar la información del usuario.');
         }
       }
     } catch (e) {
       debugPrint('Error al cargar los datos del usuario: $e');
       _userErrorResponse(e);
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -80,66 +94,76 @@ class EditProfileScreenState extends State<EditProfileScreen> {
         ),
         title: const Text('Edit Profile'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildEditableField(context, 'Name',
-                "$userName $userApellidoPaterno $userApellidoMaterno", false),
-            const Divider(),
-            _buildEditableField(context, 'Phone', userPhone, true),
-            const Divider(),
-            _buildEditableField(context, 'Email', userEmail, true),
-            const Divider(),
-            _buildEditableField(context, 'Password', userPassword, true),
-          ],
-        ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildProfileHeader(),
+                  const SizedBox(height: 16.0),
+                  _buildEditableCard(
+                      'Name',
+                      "$userName $userApellidoPaterno $userApellidoMaterno",
+                      false),
+                  _buildEditableCard('Phone', userPhone, true),
+                  _buildEditableCard('Email', userEmail, true),
+                  _buildEditableCard('Password', userPassword, true),
+                ],
+              ),
+            ),
+    );
+  }
+
+  Widget _buildProfileHeader() {
+    return Center(
+      child: Column(
+        children: [
+          CircleAvatar(
+            radius: 50,
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            child: Text(
+              userName.isNotEmpty ? userName[0].toUpperCase() : '?',
+              style: const TextStyle(fontSize: 40, color: Colors.white),
+            ),
+          ),
+          const SizedBox(height: 16.0),
+          Text(
+            "$userName $userApellidoPaterno $userApellidoMaterno",
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          const SizedBox(height: 8.0),
+          Text(
+            userTipo.isNotEmpty ? userTipo : "Tipo no disponible",
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildEditableField(
-      BuildContext context, String label, String value, bool isEditable) {
-    return InkWell(
-      onTap: isEditable
-          ? () {
-              _showEditDialog(context, label, value);
-            }
-          : null,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: const TextStyle(
-                      fontSize: 16.0, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 4.0),
-                Text(
-                  value,
-                  style: TextStyle(fontSize: 16.0, color: Colors.grey[700]),
-                ),
-              ],
-            ),
-            if (isEditable)
-              IconButton(
-                icon: const Icon(
-                  Icons.arrow_forward_ios,
-                  size: 16.0,
-                  color: Colors.grey,
-                ),
+  Widget _buildEditableCard(String label, String value, bool isEditable) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 8.0),
+      elevation: 3,
+      child: ListTile(
+        title: Text(
+          label,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        subtitle: Text(
+          value,
+          style: const TextStyle(color: Colors.grey),
+        ),
+        trailing: isEditable
+            ? IconButton(
+                icon: const Icon(Icons.edit, color: Colors.grey),
                 onPressed: () {
                   _showEditDialog(context, label, value);
                 },
-              ),
-          ],
-        ),
+              )
+            : null,
       ),
     );
   }
@@ -164,59 +188,8 @@ class EditProfileScreenState extends State<EditProfileScreen> {
             ),
             TextButton(
               onPressed: () async {
-                if (controller.text.trim().isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Field cannot be left empty')),
-                  );
-                  return;
-                }
-                // Actualizar solo el campo editado en la base de datos
-                try {
-                  if (userId == null) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('User ID is not available')),
-                    );
-                    return;
-                  }
-
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Updating profile...')),
-                  );
-
-                  switch (label) {
-                    case 'Name':
-                      userName = controller.text.trim();
-                      break;
-                    case 'Phone':
-                      userPhone = controller.text.trim();
-                      break;
-                    case 'Email':
-                      userEmail = controller.text.trim();
-                      break;
-                    case 'Password':
-                      userPassword = controller.text.trim();
-                      break;
-                  }
-
-                  // Realiza la solicitud PUT al backend para actualizar el perfil
-                  var url = Uri.parse('$baseUrl/personal/$userId');
-                  Map<String, dynamic> requestBody = {
-                    'correo_electronico': userEmail,
-                    'contrasena': userPassword,
-                    'telefono': userPhone,
-                  };
-
-                  var response = await http.put(
-                    url,
-                    headers: {'Content-Type': 'application/json'},
-                    body: jsonEncode(requestBody),
-                  );
-
-                  _profileResponse(response);
-                } catch (e) {
-                  debugPrint('Error al actualizar los datos del usuario: $e');
-                  _updateProfileErrorResponse(e);
-                }
+                await _updateProfileField(label, controller.text.trim());
+                _navigator();
               },
               child: const Text('Save'),
             ),
@@ -226,23 +199,58 @@ class EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
+  Future<void> _updateProfileField(String label, String newValue) async {
+    if (newValue.isEmpty) {
+      showCustomSnackBar(context, '$label cannot be empty');
+      return;
+    }
+
+    try {
+      setState(() {
+        _isUpdating = true;
+      });
+
+      final Map<String, dynamic> updatedField = {
+        if (label == 'Phone') 'telefono': newValue,
+        if (label == 'Email') 'correo_electronico': newValue,
+        if (label == 'Password') 'contrasena': newValue,
+      };
+
+      final url = Uri.parse('$baseUrl/personal/$userId');
+      final response = await http.put(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(updatedField),
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          if (label == 'Phone') userPhone = newValue;
+          if (label == 'Email') userEmail = newValue;
+          if (label == 'Password') userPassword = newValue;
+        });
+        if (mounted) {
+          showCustomSnackBar(context, '$label updated successfully');
+        }
+      } else {
+        throw Exception('Failed to update $label');
+      }
+    } catch (e) {
+      if (mounted) {
+        showCustomSnackBar(context, 'Error updating $label: $e');
+      }
+    } finally {
+      setState(() {
+        _isUpdating = false;
+      });
+    }
+  }
+
   void _userErrorResponse(e) {
     showCustomSnackBar(context, 'Error al cargar los datos del usuario: $e');
   }
 
-  void _profileResponse(response) {
-    if (response.statusCode == 200) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Profile updated successfully')),
-      );
-      setState(() {});
-      Navigator.of(context).pop();
-    } else {
-      throw Exception('Failed to update profile');
-    }
-  }
-
-  void _updateProfileErrorResponse(e) {
-    showCustomSnackBar(context, 'Failed to update profile: $e');
+  void _navigator() {
+    Navigator.of(context).pop();
   }
 }

@@ -1,3 +1,4 @@
+import 'package:connectcare/data/services/user_service.dart';
 import 'package:flutter/material.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -8,6 +9,7 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class SettingsScreenState extends State<SettingsScreen> {
+  final userService = UserService();
   @override
   Widget build(BuildContext context) {
     var theme = Theme.of(context);
@@ -99,6 +101,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                   const SizedBox(height: 10),
                   OutlinedButton(
                     onPressed: () {
+                      userService.clearUserSession();
                       Navigator.pushNamed(context, '/');
                     },
                     style: OutlinedButton.styleFrom(

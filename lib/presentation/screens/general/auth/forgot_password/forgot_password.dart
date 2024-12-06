@@ -3,95 +3,79 @@ import 'package:connectcare/presentation/widgets/snack_bar.dart';
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:connectcare/core/constants/constants.dart';
-import 'package:connectcare/data/api/google_auth.dart';
-import 'package:connectcare/data/api/facebook_auth.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class ForgotPassword extends StatefulWidget {
+  const ForgotPassword({super.key});
 
   @override
-  LoginScreenState createState() => LoginScreenState();
+  ForgotPasswordState createState() => ForgotPasswordState();
 }
 
-class LoginScreenState extends State<LoginScreen> {
+class ForgotPasswordState extends State<ForgotPassword> {
   final _formKey = GlobalKey<FormState>();
   bool isEmailMode = false;
   String _completePhoneNumber = '';
   String _countryCode = "+52";
 
   final TextEditingController _emailOrPhoneController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
 
-  Future<void> _login() async {
+  Future<void> _recover() async {
     if (_formKey.currentState!.validate()) {
       String identifier = _emailOrPhoneController.text.trim();
-      String password = _passwordController.text.trim();
 
       if (isEmailMode) {
-        await _loginWithEmail(identifier, password);
+        await _recoverWithEmail(identifier);
       } else {
         _completePhoneNumber = '$_countryCode${_phoneNumberController.text}';
         String formattedPhoneNumber = _completePhoneNumber.startsWith('+')
             ? _completePhoneNumber
             : '+$_countryCode${_phoneNumberController.text}';
-        await _loginWithPhone(formattedPhoneNumber, password);
+        await _recoverWithPhone(formattedPhoneNumber);
       }
     }
   }
 
-  Future<void> _loginWithEmail(String email, String password) async {
+  Future<void> _recoverWithEmail(String email) async {
     try {
-      final url = Uri.parse('$baseUrl/auth/emailAndPassword/$email');
+      final url = Uri.parse('$baseUrl/auth/email/$email');
       final response = await http.get(
         url,
         headers: {'Content-Type': 'application/json'},
       );
 
       if (response.statusCode == 200) {
-        final userData = jsonDecode(response.body);
-
-        if (userData['contrasena'] != password) {
-          throw Exception('Contraseña inválida');
-        }
-
-        final sendCodeUrl = Uri.parse('$baseUrl/auth/send-code');
-        final sendCodeResponse = await http.post(
-          sendCodeUrl,
+        final url = Uri.parse('$baseUrl/auth/send-code');
+        final response = await http.post(
+          url,
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({'email': email}),
         );
 
-        if (mounted && sendCodeResponse.statusCode == 200) {
+        if (mounted && response.statusCode == 200) {
           Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => TwoStepVerificationScreen(
-                purpose: 'login',
+                purpose: 'recover',
                 identifier: email,
                 isSmsVerification: false,
               ),
             ),
-          ).then((_) {
-            Navigator.pushReplacementNamed(context, '/dynamicWrapper');
-          });
+          );
         } else {
-          throw Exception(
-              'Error al enviar el código de verificación por email');
+          _errorSendingCode();
         }
-      } else {
-        throw Exception('Email no encontrado o credenciales inválidas');
       }
     } catch (e) {
-      _loginFailed();
+      throw Exception('Recover failed with email: $e');
     }
   }
 
-  Future<void> _loginWithPhone(String phone, String password) async {
+  Future<void> _recoverWithPhone(String phone) async {
     try {
       final url = Uri.parse('$baseUrl/auth/phoneAndPassword/$phone');
       final response = await http.get(
@@ -100,12 +84,6 @@ class LoginScreenState extends State<LoginScreen> {
       );
 
       if (response.statusCode == 200) {
-        final userData = jsonDecode(response.body);
-
-        if (userData['contrasena'] != password) {
-          throw Exception('Contraseña inválida');
-        }
-
         final sendCodeUrl = Uri.parse('$baseUrl/auth/send-sms-code');
         final sendCodeResponse = await http.post(
           sendCodeUrl,
@@ -118,33 +96,28 @@ class LoginScreenState extends State<LoginScreen> {
             context,
             MaterialPageRoute(
               builder: (context) => TwoStepVerificationScreen(
-                purpose: 'login',
+                purpose: 'recover',
                 identifier: phone,
                 isSmsVerification: true,
               ),
             ),
-          ).then((_) {
-            Navigator.pushReplacementNamed(context, '/dynamicWrapper');
-          });
+          );
         } else {
-          throw Exception('Error al enviar el código de verificación por SMS.');
+          throw Exception('Error sending verification code via SMS.');
         }
       } else {
-        throw Exception(
-            'Número de teléfono no encontrado o credenciales inválidas');
+        throw Exception('Phone number not found');
       }
     } catch (e) {
-      _loginFailed();
+      _recoverFailed();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    var brightness = Theme.of(context).brightness;
-
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Login'),
+        title: const Text('Recover password'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -216,43 +189,12 @@ class LoginScreenState extends State<LoginScreen> {
                           ),
                         ],
                       ),
-                const SizedBox(height: 15),
-                TextFormField(
-                  controller: _passwordController,
-                  decoration: const InputDecoration(
-                    labelText: 'Password',
-                    border: OutlineInputBorder(),
-                  ),
-                  obscureText: true,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your password';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 30),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/forgotPassword');
-                    },
-                    child: Text(
-                      'Forgot password?',
-                      style: TextStyle(
-                        decoration: TextDecoration.underline,
-                        color: Theme.of(context).primaryColor,
-                      ),
-                    ),
-                  ),
-                ),
                 const SizedBox(height: 30),
                 ElevatedButton(
                   onPressed: () async {
-                    _login();
+                    _recover();
                   },
-                  child: const Text('Login'),
+                  child: const Text('Continue'),
                 ),
                 const SizedBox(height: 20),
                 Row(
@@ -293,52 +235,6 @@ class LoginScreenState extends State<LoginScreen> {
                     elevation: 0,
                   ),
                 ),
-                const SizedBox(height: 10),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    _loginWithFacebook();
-                  },
-                  icon: Icon(
-                    Icons.facebook,
-                    color: brightness == Brightness.dark
-                        ? Colors.white
-                        : Colors.blue,
-                  ),
-                  label: Text(
-                    'Continue with Facebook',
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          color: Theme.of(context).textTheme.bodyLarge?.color,
-                        ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.surface,
-                    side: BorderSide(color: Theme.of(context).dividerColor),
-                    padding: const EdgeInsets.symmetric(vertical: 16.0),
-                    elevation: 0,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    _loginWithGoogle();
-                  },
-                  icon: FaIcon(FontAwesomeIcons.google,
-                      color: brightness == Brightness.dark
-                          ? Colors.white
-                          : Colors.red),
-                  label: Text(
-                    'Continue with Google',
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          color: Theme.of(context).textTheme.bodyLarge?.color,
-                        ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.surface,
-                    side: BorderSide(color: Theme.of(context).dividerColor),
-                    padding: const EdgeInsets.symmetric(vertical: 16.0),
-                    elevation: 0,
-                  ),
-                ),
               ],
             ),
           ),
@@ -347,47 +243,16 @@ class LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  void _loginFailed() {
+  void _recoverFailed() {
     showCustomSnackBar(context, 'Please enter valid credentials');
+  }
+
+  void _errorSendingCode() {
+    showCustomSnackBar(context, 'Error sending code');
   }
 
   void _focusScope() {
     FocusScope.of(context).requestFocus(FocusNode());
     FocusScope.of(context).requestFocus(FocusNode());
-  }
-
-  Future<void> _loginWithGoogle() async {
-    try {
-      final GoogleAuthService googleAuthService = GoogleAuthService();
-      final userCredential = await googleAuthService.loginWithGoogle();
-
-      if (mounted && userCredential != null) {
-        Navigator.pushReplacementNamed(context, '/dynamicWrapper');
-      }
-    } catch (e) {
-      if (mounted) {
-        showCustomSnackBar(context, e.toString());
-      }
-    }
-  }
-
-  Future<void> _loginWithFacebook() async {
-    try {
-      final FacebookAuthService facebookAuthService = FacebookAuthService();
-      final String? error = await facebookAuthService.loginWithFacebook();
-
-      if (error == null) {
-        if (mounted) {
-          Navigator.pushReplacementNamed(context, '/dynamicWrapper');
-        }
-      } else if (mounted) {
-        showCustomSnackBar(context, error);
-      }
-    } catch (e) {
-      if (mounted) {
-        showCustomSnackBar(
-            context, 'Error de inicio de sesión con Facebook: $e');
-      }
-    }
   }
 }

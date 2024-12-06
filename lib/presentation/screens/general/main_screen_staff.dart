@@ -47,7 +47,7 @@ class MainScreenState extends State<MainScreenStaff> {
     });
 
     if (userId != null && userId!.isNotEmpty) {
-      final url = Uri.parse('$baseUrl/auth/firebase_uid/$userId');
+      final url = Uri.parse('$baseUrl/auth/user_by_id/$userId');
       final response = await http.get(url);
 
       if (response.statusCode == 200) {
