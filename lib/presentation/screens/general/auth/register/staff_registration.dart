@@ -1,5 +1,5 @@
-import 'dart:convert';
-import 'package:connectcare/main.dart';
+import 'package:connectcare/presentation/screens/general/auth/register/complete_staff_registration.dart';
+import 'package:connectcare/presentation/screens/general/auth/verification/two_step_verification_screen.dart';
 import 'package:connectcare/presentation/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:connectcare/core/constants/constants.dart';
@@ -53,7 +53,7 @@ class StaffRegistrationState extends State<StaffRegistration> {
   final FacebookAuthService _facebookAuthService = FacebookAuthService();
 
   Future<bool> checkEmailExists(String email) async {
-    var url = Uri.parse('$baseUrl/auth/email/$email');
+    var url = Uri.parse('$baseUrl/auth/emailAndId/$email');
     var response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -63,7 +63,7 @@ class StaffRegistrationState extends State<StaffRegistration> {
   }
 
   Future<bool> checkPhoneExists(String phone) async {
-    var url = Uri.parse('$baseUrl/auth/telefono/$phone');
+    var url = Uri.parse('$baseUrl/auth/phoneAndId/$phone');
     var response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -73,7 +73,7 @@ class StaffRegistrationState extends State<StaffRegistration> {
   }
 
   Future<bool> checkStaffIdExists(String staffId) async {
-    final url = Uri.parse('$baseUrl/auth/staff_id/$staffId');
+    final url = Uri.parse('$baseUrl/personal/id/$staffId');
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -336,55 +336,7 @@ class StaffRegistrationState extends State<StaffRegistration> {
                           );
                           return;
                         }
-
-                        try {
-                          final url = Uri.parse('$baseUrl/auth/send-code');
-                          final response = await http.post(
-                            url,
-                            headers: {'Content-Type': 'application/json'},
-                            body: jsonEncode(
-                                {'email': _emailOrPhoneController.text}),
-                          );
-
-                          if (response.statusCode == 200) {
-                            MyApp.nav.navigateTo(
-                              '/twoStepVerification',
-                              arguments: {
-                                'identifier': _emailOrPhoneController.text,
-                                'isSmsVerification': false,
-                                'firstName': _firstNameController.text,
-                                'lastNamePaternal':
-                                    _lastNamePaternalController.text,
-                                'lastNameMaternal':
-                                    _lastNameMaternalController.text,
-                                'email': _emailOrPhoneController.text,
-                                'userType': _selectedUserType!,
-                                'idPersonal': idController.text,
-                                'isStaff': true,
-                                'purpose': 'registration',
-                                'userData': {
-                                  'id_personal': idController.text,
-                                  'nombre': _firstNameController.text,
-                                  'apellido_paterno':
-                                      _lastNamePaternalController.text,
-                                  'apellido_materno':
-                                      _lastNameMaternalController.text,
-                                  'correo_electronico':
-                                      _emailOrPhoneController.text,
-                                  'contrasena': _passwordController.text,
-                                  'tipo': _selectedUserType!,
-                                  'estatus': 'activo',
-                                  'auth_provider': 'email',
-                                },
-                              },
-                            );
-                          } else {
-                            throw Exception(
-                                'Failed to send verification code: ${response.body}');
-                          }
-                        } catch (e) {
-                          _catchError(e);
-                        }
+                        _emailNavigate();
                       } else {
                         _completePhoneNumber =
                             '$_countryCode${_phoneNumberController.text}';
@@ -408,54 +360,7 @@ class StaffRegistrationState extends State<StaffRegistration> {
                           );
                           return;
                         }
-
-                        try {
-                          final url = Uri.parse('$baseUrl/auth/send-sms-code');
-                          final response = await http.post(
-                            url,
-                            headers: {'Content-Type': 'application/json'},
-                            body: jsonEncode({'phone': _completePhoneNumber}),
-                          );
-
-                          if (response.statusCode == 200) {
-                            MyApp.nav.navigateTo(
-                              '/twoStepVerification',
-                              arguments: {
-                                'identifier': _completePhoneNumber,
-                                'isSmsVerification': true,
-                                'phoneNumber': _completePhoneNumber,
-                                'purpose': "registration",
-                                'firstName': _firstNameController.text,
-                                'lastNamePaternal':
-                                    _lastNamePaternalController.text,
-                                'lastNameMaternal':
-                                    _lastNameMaternalController.text,
-                                'password': _passwordController.text,
-                                'userType': _selectedUserType!,
-                                'idPersonal': idController.text,
-                                'isStaff': true,
-                                'userData': {
-                                  'id_personal': idController.text,
-                                  'nombre': _firstNameController.text,
-                                  'apellido_paterno':
-                                      _lastNamePaternalController.text,
-                                  'apellido_materno':
-                                      _lastNameMaternalController.text,
-                                  'telefono': _completePhoneNumber,
-                                  'contrasena': _passwordController.text,
-                                  'tipo': _selectedUserType!,
-                                  'estatus': 'activo',
-                                  'auth_provider': 'phone',
-                                },
-                              },
-                            );
-                          } else {
-                            throw Exception(
-                                'Failed to send verification code: ${response.body}');
-                          }
-                        } catch (e) {
-                          _catchError(e);
-                        }
+                        _phoneNavigate();
                       }
                     }
                   },
@@ -562,10 +467,13 @@ class StaffRegistrationState extends State<StaffRegistration> {
   Future<void> _registerWithGoogle() async {
     try {
       final userCredential = await _googleAuthService.signInWithGoogle();
-      if (userCredential != null && userCredential.user != null) {
+      if (mounted && userCredential != null && userCredential.user != null) {
         final firebaseUser = userCredential.user!;
-        MyApp.nav
-            .navigateTo('/completeStaffRegistration', arguments: firebaseUser);
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    CompleteStaffRegistration(firebaseUser: firebaseUser)));
       } else {
         _showSnackBarMessage('Failed to retrieve Google user.');
       }
@@ -585,9 +493,12 @@ class StaffRegistrationState extends State<StaffRegistration> {
 
     if (errorMessage == null) {
       final firebaseUser = FirebaseAuth.instance.currentUser;
-      if (firebaseUser != null) {
-        MyApp.nav
-            .navigateTo('/completeStaffRegistration', arguments: firebaseUser);
+      if (mounted && firebaseUser != null) {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    CompleteStaffRegistration(firebaseUser: firebaseUser)));
       }
     } else {
       _showSnackBarMessage(errorMessage);
@@ -599,7 +510,41 @@ class StaffRegistrationState extends State<StaffRegistration> {
     FocusScope.of(context).requestFocus(FocusNode());
   }
 
-  void _catchError(e) {
-    showCustomSnackBar(context, 'Error: $e');
+  void _emailNavigate() {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => TwoStepVerificationScreen(
+                  identifier: _emailOrPhoneController.text.trim().toLowerCase(),
+                  isSmsVerification: false,
+                  firstName: _firstNameController.text.trim(),
+                  lastNamePaternal: _lastNamePaternalController.text.trim(),
+                  lastNameMaternal: _lastNameMaternalController.text.trim(),
+                  email: _emailOrPhoneController.text.trim().toLowerCase(),
+                  password: _passwordController.text,
+                  userType: _selectedUserType!.toLowerCase(),
+                  userId: idController.text,
+                  isStaff: true,
+                  purpose: 'registration',
+                )));
+  }
+
+  void _phoneNavigate() {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => TwoStepVerificationScreen(
+                  identifier: _completePhoneNumber,
+                  isSmsVerification: true,
+                  phoneNumber: _completePhoneNumber,
+                  purpose: "registration",
+                  firstName: _firstNameController.text.trim(),
+                  lastNamePaternal: _lastNamePaternalController.text.trim(),
+                  lastNameMaternal: _lastNameMaternalController.text.trim(),
+                  password: _passwordController.text,
+                  userType: _selectedUserType!.toLowerCase(),
+                  userId: idController.text,
+                  isStaff: true,
+                )));
   }
 }

@@ -1,6 +1,10 @@
 import 'package:connectcare/core/constants/constants.dart';
+import 'package:connectcare/presentation/screens/general/auth/forgot_password/change_password.dart';
+import 'package:connectcare/presentation/screens/general/auth/verification/two_step_verification_screen.dart';
 import 'package:connectcare/presentation/widgets/snack_bar.dart';
+import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:connectcare/data/services/shared_preferences_service.dart';
@@ -18,7 +22,6 @@ class EditProfileScreenState extends State<EditProfileScreen> {
 
   bool _isLoading = true;
   // ignore: unused_field
-  bool _isUpdating = false;
 
   String userName = '';
   String userEmail = '';
@@ -27,10 +30,7 @@ class EditProfileScreenState extends State<EditProfileScreen> {
   String userApellidoPaterno = '';
   String userApellidoMaterno = '';
   String userTipo = '';
-  String userEstatus = '';
-  String userAsignado = '';
-  String userClues = '';
-  int? userId;
+  String? userId;
 
   @override
   void initState() {
@@ -38,13 +38,30 @@ class EditProfileScreenState extends State<EditProfileScreen> {
     _loadUserData();
   }
 
+  Future<bool> checkEmailExists(String email) async {
+    var url = Uri.parse('$baseUrl/auth/email/$email');
+    var response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      return true;
+    }
+    return false;
+  }
+
+  Future<bool> checkPhoneExists(String phone) async {
+    var url = Uri.parse('$baseUrl/auth/telefono/$phone');
+    var response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      return true;
+    }
+    return false;
+  }
+
   Future<void> _loadUserData() async {
     try {
-      final userIdString = await _sharedPreferencesService.getUserId();
-      if (userIdString != null) {
-        userId = int.parse(userIdString);
-
-        // Llamada al endpoint unificado
+      userId = await _sharedPreferencesService.getUserId();
+      if (userId != null) {
         final url = Uri.parse('$baseUrl/auth/user_by_id/$userId');
         final response = await http.get(url);
 
@@ -52,21 +69,13 @@ class EditProfileScreenState extends State<EditProfileScreen> {
           final userData = jsonDecode(response.body);
 
           setState(() {
-            userName = userData['nombre'] ?? 'Nombre no disponible';
-            userEmail =
-                userData['correo_electronico'] ?? 'Correo no disponible';
-            userPhone = userData['telefono'] ?? 'Teléfono no disponible';
+            userName = userData['nombre'] ?? '';
+            userEmail = userData['correo_electronico'] ?? '';
+            userPhone = userData['telefono'] ?? '';
             userPassword = userData['contrasena'] ?? '';
             userApellidoPaterno = userData['apellido_paterno'] ?? '';
             userApellidoMaterno = userData['apellido_materno'] ?? '';
             userTipo = userData['tipo'] ?? '';
-
-            // Si el usuario pertenece a "personal", carga campos adicionales
-            if (userData['clues'] != null) {
-              userClues = userData['clues'];
-              userEstatus = userData['estatus'] ?? '';
-              userAsignado = userData['asignado'] ?? '';
-            }
           });
         } else {
           throw Exception('No se pudo cargar la información del usuario.');
@@ -92,7 +101,7 @@ class EditProfileScreenState extends State<EditProfileScreen> {
             Navigator.of(context).pop();
           },
         ),
-        title: const Text('Edit Profile'),
+        title: const Text('Edit profile'),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -104,12 +113,12 @@ class EditProfileScreenState extends State<EditProfileScreen> {
                   _buildProfileHeader(),
                   const SizedBox(height: 16.0),
                   _buildEditableCard(
-                      'Name',
+                      'name',
                       "$userName $userApellidoPaterno $userApellidoMaterno",
                       false),
-                  _buildEditableCard('Phone', userPhone, true),
-                  _buildEditableCard('Email', userEmail, true),
-                  _buildEditableCard('Password', userPassword, true),
+                  _buildEditableCard('phone', userPhone, true),
+                  _buildEditableCard('email', userEmail, true),
+                  _buildEditableCard('password', userPassword, true),
                 ],
               ),
             ),
@@ -153,14 +162,18 @@ class EditProfileScreenState extends State<EditProfileScreen> {
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         subtitle: Text(
-          value,
+          label == 'password' ? '********' : value,
           style: const TextStyle(color: Colors.grey),
         ),
         trailing: isEditable
             ? IconButton(
                 icon: const Icon(Icons.edit, color: Colors.grey),
                 onPressed: () {
-                  _showEditDialog(context, label, value);
+                  if (label == 'phone' || label == 'email') {
+                    _showEditFieldDialog(context, label, value);
+                  } else if (label == 'password') {
+                    _showPasswordVerificationDialog();
+                  }
                 },
               )
             : null,
@@ -168,30 +181,120 @@ class EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  void _showEditDialog(BuildContext context, String label, String value) {
-    TextEditingController controller = TextEditingController(text: value);
+  void _showEditFieldDialog(BuildContext context, String label, String value) {
+    final TextEditingController controller = TextEditingController(text: value);
+    String countryCode = '+52';
+
     showDialog(
       context: context,
-      builder: (BuildContext context) {
+      builder: (context) {
         return AlertDialog(
           title: Text('Edit $label'),
-          content: TextField(
-            controller: controller,
-            decoration: InputDecoration(hintText: 'Enter new $label'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (label == 'phone')
+                Row(
+                  children: [
+                    CountryCodePicker(
+                      initialSelection: 'MX',
+                      favorite: ['+52', 'US'],
+                      onChanged: (country) {
+                        countryCode = country.dialCode ?? '+52';
+                      },
+                      dialogBackgroundColor:
+                          Theme.of(context).scaffoldBackgroundColor,
+                      textStyle: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                    Expanded(
+                      child: TextField(
+                        controller: controller,
+                        keyboardType: TextInputType.phone,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                          LengthLimitingTextInputFormatter(10),
+                        ],
+                        decoration: const InputDecoration(
+                          hintText: 'Phone Number',
+                          hintStyle: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey,
+                          ),
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                    ),
+                  ],
+                )
+              else
+                TextField(
+                  controller: controller,
+                  keyboardType: label == 'email'
+                      ? TextInputType.emailAddress
+                      : TextInputType.text,
+                  decoration: InputDecoration(
+                    hintText: 'Enter new $label',
+                    hintStyle: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey,
+                    ),
+                    border: const OutlineInputBorder(),
+                  ),
+                ),
+            ],
           ),
           actions: [
             TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+              onPressed: () => Navigator.of(context).pop(),
               child: const Text('Cancel'),
             ),
             TextButton(
               onPressed: () async {
-                await _updateProfileField(label, controller.text.trim());
-                _navigator();
+                String input = controller.text.trim();
+
+                if (input.isEmpty) {
+                  Navigator.of(context).pop();
+                  showCustomSnackBar(context, '$label cannot be empty.');
+                  return;
+                }
+
+                if (label == 'phone') {
+                  if (!RegExp(r'^\d{10}$').hasMatch(input)) {
+                    Navigator.of(context).pop();
+                    showCustomSnackBar(
+                        context, 'Please enter a valid 10-digit phone number.');
+                    return;
+                  }
+
+                  String formattedPhone = '$countryCode$input';
+
+                  bool phoneExists = await checkPhoneExists(formattedPhone);
+                  if (phoneExists) {
+                    _phoneInUse();
+                    return;
+                  }
+                  _navigateWithPhone(formattedPhone);
+                } else if (label == 'email') {
+                  input = input.toLowerCase();
+
+                  if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(input)) {
+                    Navigator.of(context).pop();
+                    showCustomSnackBar(
+                        context, 'Please enter a valid email address.');
+                    return;
+                  }
+
+                  bool emailExists = await checkEmailExists(input);
+                  if (emailExists) {
+                    _emailInUse();
+
+                    return;
+                  }
+
+                  _navigateWithEmail(input);
+                }
               },
-              child: const Text('Save'),
+              child: const Text('Confirm'),
             ),
           ],
         );
@@ -199,58 +302,99 @@ class EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  Future<void> _updateProfileField(String label, String newValue) async {
-    if (newValue.isEmpty) {
-      showCustomSnackBar(context, '$label cannot be empty');
-      return;
-    }
+  void _showPasswordVerificationDialog() {
+    final TextEditingController controller = TextEditingController();
 
-    try {
-      setState(() {
-        _isUpdating = true;
-      });
-
-      final Map<String, dynamic> updatedField = {
-        if (label == 'Phone') 'telefono': newValue,
-        if (label == 'Email') 'correo_electronico': newValue,
-        if (label == 'Password') 'contrasena': newValue,
-      };
-
-      final url = Uri.parse('$baseUrl/personal/$userId');
-      final response = await http.put(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(updatedField),
-      );
-
-      if (response.statusCode == 200) {
-        setState(() {
-          if (label == 'Phone') userPhone = newValue;
-          if (label == 'Email') userEmail = newValue;
-          if (label == 'Password') userPassword = newValue;
-        });
-        if (mounted) {
-          showCustomSnackBar(context, '$label updated successfully');
-        }
-      } else {
-        throw Exception('Failed to update $label');
-      }
-    } catch (e) {
-      if (mounted) {
-        showCustomSnackBar(context, 'Error updating $label: $e');
-      }
-    } finally {
-      setState(() {
-        _isUpdating = false;
-      });
-    }
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('First verify your current password'),
+          content: TextField(
+            controller: controller,
+            obscureText: true,
+            decoration: const InputDecoration(
+              hintText: 'Enter current password',
+              hintStyle: TextStyle(
+                fontSize: 14,
+                color: Colors.grey,
+              ),
+              border: OutlineInputBorder(),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop();
+                if (controller.text.trim() == userPassword) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ChangePassword(
+                        purpose: 'change',
+                        userId: userId!,
+                        isStaff: userTipo != 'regular' || userTipo != 'main',
+                      ),
+                    ),
+                  );
+                } else {
+                  showCustomSnackBar(context, 'Incorrect password.');
+                }
+              },
+              child: const Text('Verify'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _userErrorResponse(e) {
     showCustomSnackBar(context, 'Error al cargar los datos del usuario: $e');
   }
 
-  void _navigator() {
+  void _emailInUse() {
     Navigator.of(context).pop();
+    showCustomSnackBar(context, 'This email address is already in use.');
+  }
+
+  void _navigateWithEmail(input) {
+    Navigator.of(context).pop();
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TwoStepVerificationScreen(
+          identifier: input,
+          purpose: 'editData',
+          isSmsVerification: false,
+          userType: userTipo,
+          userId: userId,
+        ),
+      ),
+    );
+  }
+
+  void _navigateWithPhone(String formattedPhone) {
+    Navigator.of(context).pop();
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TwoStepVerificationScreen(
+          identifier: formattedPhone,
+          purpose: 'editData',
+          isSmsVerification: true,
+          userType: userTipo,
+        ),
+      ),
+    );
+  }
+
+  void _phoneInUse() {
+    Navigator.of(context).pop();
+    showCustomSnackBar(context, 'This phone number is already in use.');
   }
 }

@@ -1,5 +1,5 @@
-import 'dart:convert';
-import 'package:connectcare/main.dart';
+import 'package:connectcare/presentation/screens/general/auth/register/complete_familiar_registration.dart';
+import 'package:connectcare/presentation/screens/general/auth/verification/two_step_verification_screen.dart';
 import 'package:connectcare/presentation/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:connectcare/core/constants/constants.dart';
@@ -252,44 +252,7 @@ class FamiliarRegistrationState extends State<FamiliarRegistration> {
                           );
                           return;
                         }
-
-                        try {
-                          final url = Uri.parse('$baseUrl/auth/send-code');
-                          final response = await http.post(
-                            url,
-                            headers: {'Content-Type': 'application/json'},
-                            body: jsonEncode(
-                                {'email': _emailOrPhoneController.text}),
-                          );
-
-                          if (response.statusCode == 200) {
-                            MyApp.nav.navigateTo(
-                              '/twoStepVerification',
-                              arguments: {
-                                'identifier': _emailOrPhoneController
-                                    .text, // Este es el email
-                                'isSmsVerification': false,
-                                'firstName': _firstNameController.text,
-                                'lastNamePaternal':
-                                    _lastNamePaternalController.text,
-                                'lastNameMaternal':
-                                    _lastNameMaternalController.text,
-                                'email': _emailOrPhoneController
-                                    .text, // Asegúrate de incluir este campo
-                                'password': _passwordController
-                                    .text, // También incluye el password
-                                'userType': 'regular',
-                                'isStaff': false,
-                                'purpose': 'registration',
-                              },
-                            );
-                          } else {
-                            throw Exception(
-                                'Failed to send verification code: ${response.body}');
-                          }
-                        } catch (e) {
-                          _catchError(e);
-                        }
+                        _emailNavigator();
                       } else {
                         _completePhoneNumber =
                             '$_countryCode${_phoneNumberController.text}';
@@ -304,51 +267,7 @@ class FamiliarRegistrationState extends State<FamiliarRegistration> {
                           );
                           return;
                         }
-
-                        try {
-                          final url = Uri.parse('$baseUrl/auth/send-sms-code');
-                          final response = await http.post(
-                            url,
-                            headers: {'Content-Type': 'application/json'},
-                            body: jsonEncode({'phone': _completePhoneNumber}),
-                          );
-
-                          if (response.statusCode == 200) {
-                            MyApp.nav.navigateTo(
-                              '/twoStepVerification',
-                              arguments: {
-                                'identifier': _completePhoneNumber,
-                                'isSmsVerification': true,
-                                'phoneNumber': _completePhoneNumber,
-                                'purpose': "registration",
-                                'firstName': _firstNameController.text,
-                                'lastNamePaternal':
-                                    _lastNamePaternalController.text,
-                                'lastNameMaternal':
-                                    _lastNameMaternalController.text,
-                                'password': _passwordController.text,
-                                'userType': 'regular',
-                                'isStaff': false,
-                                'userData': {
-                                  'nombre': _firstNameController.text,
-                                  'apellido_paterno':
-                                      _lastNamePaternalController.text,
-                                  'apellido_materno':
-                                      _lastNameMaternalController.text,
-                                  'telefono': _completePhoneNumber,
-                                  'contrasena': _passwordController.text,
-                                  'tipo': 'regular',
-                                  'auth_provider': 'phone',
-                                },
-                              },
-                            );
-                          } else {
-                            throw Exception(
-                                'Failed to send verification code: ${response.body}');
-                          }
-                        } catch (e) {
-                          _catchError(e);
-                        }
+                        _phoneNavigator();
                       }
                     }
                   },
@@ -455,10 +374,13 @@ class FamiliarRegistrationState extends State<FamiliarRegistration> {
   Future<void> _registerWithGoogle() async {
     try {
       final userCredential = await _googleAuthService.signInWithGoogle();
-      if (userCredential != null && userCredential.user != null) {
+      if (mounted && userCredential != null && userCredential.user != null) {
         final firebaseUser = userCredential.user!;
-        MyApp.nav.navigateTo('/completeFamiliarRegistration',
-            arguments: firebaseUser);
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    CompleteFamiliarRegistration(firebaseUser: firebaseUser)));
       } else {
         _showSnackBarMessage('Failed to retrieve Google user.');
       }
@@ -478,9 +400,12 @@ class FamiliarRegistrationState extends State<FamiliarRegistration> {
 
     if (errorMessage == null) {
       final firebaseUser = FirebaseAuth.instance.currentUser;
-      if (firebaseUser != null) {
-        MyApp.nav.navigateTo('/completeFamiliarRegistration',
-            arguments: firebaseUser);
+      if (mounted && firebaseUser != null) {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    CompleteFamiliarRegistration(firebaseUser: firebaseUser)));
       }
     } else {
       _showSnackBarMessage(errorMessage);
@@ -492,7 +417,39 @@ class FamiliarRegistrationState extends State<FamiliarRegistration> {
     FocusScope.of(context).requestFocus(FocusNode());
   }
 
-  void _catchError(e) {
-    showCustomSnackBar(context, 'Error: $e');
+  void _emailNavigator() {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => TwoStepVerificationScreen(
+                  identifier: _emailOrPhoneController.text.trim().toLowerCase(),
+                  isSmsVerification: false,
+                  firstName: _firstNameController.text.trim(),
+                  lastNamePaternal: _lastNamePaternalController.text.trim(),
+                  lastNameMaternal: _lastNameMaternalController.text.trim(),
+                  email: _emailOrPhoneController.text.trim().toLowerCase(),
+                  password: _passwordController.text,
+                  userType: 'regular',
+                  isStaff: false,
+                  purpose: 'registration',
+                )));
+  }
+
+  void _phoneNavigator() {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => TwoStepVerificationScreen(
+                  identifier: _completePhoneNumber,
+                  isSmsVerification: true,
+                  phoneNumber: _completePhoneNumber,
+                  purpose: "registration",
+                  firstName: _firstNameController.text.trim(),
+                  lastNamePaternal: _lastNamePaternalController.text.trim(),
+                  lastNameMaternal: _lastNameMaternalController.text.trim(),
+                  password: _passwordController.text,
+                  userType: 'regular',
+                  isStaff: false,
+                )));
   }
 }

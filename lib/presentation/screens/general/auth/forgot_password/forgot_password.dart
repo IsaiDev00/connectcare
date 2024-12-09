@@ -1,10 +1,11 @@
+import 'dart:convert';
+
 import 'package:connectcare/presentation/screens/general/auth/verification/two_step_verification_screen.dart';
 import 'package:connectcare/presentation/widgets/snack_bar.dart';
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'package:connectcare/core/constants/constants.dart';
 
 class ForgotPassword extends StatefulWidget {
@@ -19,6 +20,8 @@ class ForgotPasswordState extends State<ForgotPassword> {
   bool isEmailMode = false;
   String _completePhoneNumber = '';
   String _countryCode = "+52";
+  String userId = '';
+  bool isStaff = false;
 
   final TextEditingController _emailOrPhoneController = TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
@@ -41,34 +44,33 @@ class ForgotPasswordState extends State<ForgotPassword> {
 
   Future<void> _recoverWithEmail(String email) async {
     try {
-      final url = Uri.parse('$baseUrl/auth/email/$email');
+      final url = Uri.parse('$baseUrl/auth/emailAndId/$email');
       final response = await http.get(
         url,
         headers: {'Content-Type': 'application/json'},
       );
 
-      if (response.statusCode == 200) {
-        final url = Uri.parse('$baseUrl/auth/send-code');
-        final response = await http.post(
-          url,
-          headers: {'Content-Type': 'application/json'},
-          body: jsonEncode({'email': email}),
-        );
-
-        if (mounted && response.statusCode == 200) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => TwoStepVerificationScreen(
-                purpose: 'recover',
-                identifier: email,
-                isSmsVerification: false,
-              ),
-            ),
-          );
-        } else {
-          _errorSendingCode();
+      if (mounted && response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        userId = data['id'].toString();
+        if (data['source'] == 'personal') {
+          isStaff = true;
         }
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => TwoStepVerificationScreen(
+              purpose: 'recover',
+              identifier: email,
+              isSmsVerification: false,
+              isStaff: isStaff,
+              userId: userId,
+            ),
+          ),
+        );
+      } else {
+        throw Exception('Email not found');
       }
     } catch (e) {
       throw Exception('Recover failed with email: $e');
@@ -77,34 +79,31 @@ class ForgotPasswordState extends State<ForgotPassword> {
 
   Future<void> _recoverWithPhone(String phone) async {
     try {
-      final url = Uri.parse('$baseUrl/auth/phoneAndPassword/$phone');
+      final url = Uri.parse('$baseUrl/auth/phoneAndId/$phone');
       final response = await http.get(
         url,
         headers: {'Content-Type': 'application/json'},
       );
 
-      if (response.statusCode == 200) {
-        final sendCodeUrl = Uri.parse('$baseUrl/auth/send-sms-code');
-        final sendCodeResponse = await http.post(
-          sendCodeUrl,
-          headers: {'Content-Type': 'application/json'},
-          body: jsonEncode({'phone': phone}),
-        );
-
-        if (mounted && sendCodeResponse.statusCode == 200) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => TwoStepVerificationScreen(
-                purpose: 'recover',
-                identifier: phone,
-                isSmsVerification: true,
-              ),
-            ),
-          );
-        } else {
-          throw Exception('Error sending verification code via SMS.');
+      if (mounted && response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        userId = data['id'].toString();
+        if (data['source'] == 'personal') {
+          isStaff = true;
         }
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => TwoStepVerificationScreen(
+              purpose: 'recover',
+              identifier: phone,
+              isSmsVerification: true,
+              isStaff: isStaff,
+              userId: userId,
+            ),
+          ),
+        );
       } else {
         throw Exception('Phone number not found');
       }
@@ -245,10 +244,6 @@ class ForgotPasswordState extends State<ForgotPassword> {
 
   void _recoverFailed() {
     showCustomSnackBar(context, 'Please enter valid credentials');
-  }
-
-  void _errorSendingCode() {
-    showCustomSnackBar(context, 'Error sending code');
   }
 
   void _focusScope() {

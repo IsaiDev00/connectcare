@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:connectcare/core/constants/constants.dart';
 import 'package:connectcare/core/models/solicitud_a_hospital.dart';
 import 'package:connectcare/data/services/user_service.dart';
-import 'package:connectcare/main.dart';
+import 'package:connectcare/presentation/screens/general/auth/login/login_screen.dart';
 import 'package:connectcare/presentation/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -61,15 +61,12 @@ class MainScreenState extends State<MainScreenStaff> {
           await myHospitalsInit();
         } else {
           _personalError();
-          MyApp.nav.navigateTo('/loginScreen');
         }
       } else {
         _unauthenticatedUser();
-        MyApp.nav.navigateTo('/loginScreen');
       }
     } else {
       _unauthenticatedUser();
-      MyApp.nav.navigateTo('/loginScreen');
     }
   }
 
@@ -427,6 +424,8 @@ class MainScreenState extends State<MainScreenStaff> {
   void _unauthenticatedUser() {
     showCustomSnackBar(
         context, 'Error: Usuario no autenticado. Por favor, inicie sesión.');
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => LoginScreen()));
   }
 
   void _personalError() {
@@ -434,5 +433,7 @@ class MainScreenState extends State<MainScreenStaff> {
       context,
       'Error: No se pudo obtener el idPersonal. Por favor, inténtelo de nuevo.',
     );
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => LoginScreen()));
   }
 }

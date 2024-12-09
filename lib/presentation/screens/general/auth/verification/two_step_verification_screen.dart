@@ -1,5 +1,6 @@
 import 'dart:async';
-import 'package:connectcare/main.dart';
+import 'package:connectcare/presentation/screens/general/auth/forgot_password/change_password.dart';
+import 'package:connectcare/presentation/screens/general/dynamic_wrapper.dart';
 import 'package:connectcare/presentation/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -10,7 +11,7 @@ import 'package:connectcare/data/services/user_service.dart';
 class TwoStepVerificationScreen extends StatefulWidget {
   final String identifier;
   final String purpose;
-  final String? idPersonal;
+  final String? userId;
   final String? firstName;
   final String? lastNamePaternal;
   final String? lastNameMaternal;
@@ -18,19 +19,23 @@ class TwoStepVerificationScreen extends StatefulWidget {
   final String? phoneNumber;
   final String? password;
   final String? email;
+  final String? clues;
+  final String? patients;
   final bool isStaff;
   final bool isSmsVerification;
 
   const TwoStepVerificationScreen({
     required this.identifier,
     required this.purpose,
-    this.idPersonal,
+    this.userId,
     this.firstName,
     this.lastNamePaternal,
     this.lastNameMaternal,
     this.userType,
     this.phoneNumber,
     this.email,
+    this.patients,
+    this.clues,
     this.password,
     this.isStaff = false,
     this.isSmsVerification = false,
@@ -49,26 +54,25 @@ class _TwoStepVerificationScreenState extends State<TwoStepVerificationScreen> {
   bool _isResendAllowed = false;
   Timer? _resendTimer;
   int _resendWaitTime = 60;
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
     super.initState();
 
-    /*
-    print("Verificando datos recibidos en TwoStepVerificationScreen:");
-    print("Id personal: ${widget.idPersonal}");
+    /*print("Id personal: ${widget.userId}");
     print("Nombre: ${widget.firstName}");
-    print("Apellido Paterno: ${widget.lastNamePaternal}");
-    print("Apellido Materno: ${widget.lastNameMaternal}");
-    print("Correo Electrónico: ${widget.email}");
+    print("Apellido paterno: ${widget.lastNamePaternal}");
+    print("Apellido materno: ${widget.lastNameMaternal}");
+    print("Correo electrónico: ${widget.email}");
     print("Telefono: ${widget.phoneNumber}");
     print("Contraseña: ${widget.password}");
-    print("Tipo de Usuario: ${widget.userType}");
+    print("Tipo de usuario: ${widget.userType}");*/
 
-    if (widget.email == null || widget.password == null) {
-      throw Exception("Email o Password no están configurados correctamente.");
+    /*if (widget.email == null || widget.password == null) {
+      throw Exception("Email o password configurados correctamente");
     }*/
-
+    _sendCode();
     _startResendTimer();
   }
 
@@ -86,6 +90,50 @@ class _TwoStepVerificationScreenState extends State<TwoStepVerificationScreen> {
         });
       }
     });
+  }
+
+  Future<void> _sendCode() async {
+    try {
+      if (widget.isSmsVerification) {
+        final sendUrl = Uri.parse('$baseUrl/auth/send-sms-code');
+        final response = await http.post(
+          sendUrl,
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({'phone': widget.identifier}),
+        );
+
+        if (response.statusCode == 200) {
+          if (mounted) {
+            showCustomSnackBar(context, 'Código enviado exitosamente por SMS.');
+          }
+        } else {
+          throw Exception('Error al enviar el código por SMS.');
+        }
+      } else {
+        final sendEmailUrl = Uri.parse('$baseUrl/auth/send-email-code');
+        final response = await http.post(
+          sendEmailUrl,
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({'email': widget.identifier}),
+        );
+
+        if (response.statusCode == 200) {
+          if (mounted) {
+            showCustomSnackBar(
+                context, 'Código enviado exitosamente al correo.');
+          }
+        } else {
+          throw Exception('Error al enviar el código por correo.');
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        showCustomSnackBar(context, 'Error al enviar el código: $e');
+      }
+      setState(() {
+        _isResendAllowed = true;
+      });
+    }
   }
 
   Future<void> _resendCode() async {
@@ -116,7 +164,7 @@ class _TwoStepVerificationScreenState extends State<TwoStepVerificationScreen> {
           throw Exception('Error al reenviar el código por SMS.');
         }
       } else {
-        final resendEmailUrl = Uri.parse('$baseUrl/auth/resend-code');
+        final resendEmailUrl = Uri.parse('$baseUrl/auth/send-email-code');
         final response = await http.post(
           resendEmailUrl,
           headers: {'Content-Type': 'application/json'},
@@ -149,6 +197,9 @@ class _TwoStepVerificationScreenState extends State<TwoStepVerificationScreen> {
   }
 
   Future<void> _verifyCode() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
     setState(() {
       _isLoading = true;
     });
@@ -157,7 +208,7 @@ class _TwoStepVerificationScreenState extends State<TwoStepVerificationScreen> {
       final url = Uri.parse(
         widget.isSmsVerification
             ? '$baseUrl/auth/verify-sms-code'
-            : '$baseUrl/auth/verify-code',
+            : '$baseUrl/auth/verify-email-code',
       );
       final response = await http.post(
         url,
@@ -169,15 +220,33 @@ class _TwoStepVerificationScreenState extends State<TwoStepVerificationScreen> {
       );
 
       if (response.statusCode == 200) {
+        final urlDelete =
+            Uri.parse('$baseUrl/auth/delete-code/${widget.identifier}');
+        await http.delete(urlDelete);
+
         if (widget.purpose == 'recover') {
-          MyApp.nav.navigateTo(
-            '/changePassword',
-            arguments: widget.identifier,
-          );
+          if (mounted) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ChangePassword(
+                  purpose: 'recover',
+                  userId: widget.userId,
+                  isStaff: widget.isStaff,
+                ),
+              ),
+            );
+          } else {
+            if (mounted) {
+              showCustomSnackBar(context, 'Failed to retrieve user ID');
+            }
+          }
         } else if (widget.purpose == 'login') {
-          await _navigation();
+          await _login();
         } else if (widget.purpose == 'registration') {
           await _registerUser();
+        } else if (widget.purpose == 'editData') {
+          await _editData();
         }
       } else {
         _invalidCode();
@@ -193,18 +262,12 @@ class _TwoStepVerificationScreenState extends State<TwoStepVerificationScreen> {
 
   Future<void> _registerUser() async {
     try {
-      // Validar que email y password no sean nulos
-      if (widget.email == null || widget.password == null) {
-        throw Exception(
-            "Faltan datos esenciales para el registro (email o contraseña).");
-      }
-
       final requestBody = {
-        if (widget.isStaff) 'id_personal': widget.idPersonal,
+        if (widget.isStaff) 'id_personal': widget.userId,
         'nombre': widget.firstName,
         'apellido_paterno': widget.lastNamePaternal,
         'apellido_materno': widget.lastNameMaternal,
-        'tipo': widget.userType ?? 'regular',
+        'tipo': widget.userType,
         'contrasena': widget.password,
         'auth_provider': widget.isSmsVerification ? 'phone' : 'email',
         if (widget.isSmsVerification) 'telefono': widget.phoneNumber,
@@ -214,8 +277,8 @@ class _TwoStepVerificationScreenState extends State<TwoStepVerificationScreen> {
       final url =
           Uri.parse(widget.isStaff ? '$baseUrl/personal' : '$baseUrl/familiar');
 
-      print("Cuerpo de la solicitud enviado al servidor:");
-      print(requestBody);
+      /*print("Cuerpo de la solicitud enviado al servidor:");
+      print(requestBody);*/
 
       final response = await http.post(
         url,
@@ -223,59 +286,136 @@ class _TwoStepVerificationScreenState extends State<TwoStepVerificationScreen> {
         body: jsonEncode(requestBody),
       );
 
-      print("Respuesta del servidor:");
+      /*print("Respuesta del servidor:");
       print("Estado: ${response.statusCode}");
-      print("Cuerpo: ${response.body}");
+      print("Cuerpo: ${response.body}");*/
 
       if (response.statusCode == 201) {
         final responseData = jsonDecode(response.body);
 
         final userId = widget.isStaff
-            ? responseData['id_personal']?.toString()
-            : responseData['id']?.toString();
-        final userType = responseData['tipo'] ?? 'regular';
+            ? responseData['id_personal'].toString()
+            : responseData['id_familiar'].toString();
+        final userType = responseData['tipo'];
 
-        if (userId == null) {
-          throw Exception("El servidor no devolvió un ID de usuario.");
+        await userService.saveUserSession(userId, userType);
+
+        if (mounted) {
+          Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => DynamicWrapper()),
+              (route) => false);
         }
-
-        final clues = widget.isStaff ? responseData['clues'] : null;
-        await userService.saveUserSession(userId, userType, clues: clues);
-
-        Navigator.pushReplacementNamed(context, '/dynamicWrapper');
       } else {
         throw Exception('Error en el registro: ${response.body}');
       }
     } catch (e) {
-      print("Error en _registerUser: $e");
+      //print("Error en _registerUser: $e");
       _errorRegisteringUser(e);
     }
   }
 
-  Future<void> _navigation() async {
+  Future<void> _login() async {
     try {
-      final url = Uri.parse(
-          '$baseUrl/auth/user_by_email_or_phone/${widget.identifier}');
-      final response = await http.get(url);
-
-      if (response.statusCode == 200) {
-        final userData = jsonDecode(response.body);
-        final userType = userData['tipo']?.toLowerCase() ?? 'unknown';
-        final clues = userData['clues'];
-        final userId = userData['id']?.toString();
-
-        if (userId == null) {
-          throw Exception("User ID is missing in the server response");
-        }
-
-        await userService.saveUserSession(userId, userType, clues: clues);
-
-        Navigator.pushReplacementNamed(context, '/dynamicWrapper');
-      } else {
-        throw Exception('Error fetching user data: ${response.body}');
+      if (widget.userId == null || widget.userType == null) {
+        throw Exception('userId y userType no pueden ser nulos.');
+      }
+      await userService.saveUserSession(
+        widget.userId!,
+        widget.userType!,
+        clues: widget.clues,
+        patients: widget.patients,
+      );
+      if (mounted) {
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => DynamicWrapper()),
+            (route) => false);
       }
     } catch (e) {
       _errorDeterminigUserType(e);
+    }
+  }
+
+  Future<void> _editData() async {
+    try {
+      final userData = await userService.loadUserData();
+      String? userId = userData['userId'];
+      bool isStaff = false;
+
+      if (widget.userType == 'administrator' ||
+          widget.userType == 'nurse' ||
+          widget.userType == 'stretcher bearer' ||
+          widget.userType == 'doctor' ||
+          widget.userType == 'human resources' ||
+          widget.userType == 'social worker') {
+        isStaff = true;
+      }
+
+      final String url;
+      final Map<String, String> updateData;
+
+      if (isStaff) {
+        if (widget.isSmsVerification) {
+          url = '$baseUrl/personal/update-phone/$userId';
+          updateData = {'telefono': widget.identifier};
+        } else {
+          url = '$baseUrl/personal/update-email/$userId';
+          updateData = {
+            'correo_electronico': widget.identifier.trim().toLowerCase()
+          };
+        }
+      } else {
+        if (widget.isSmsVerification) {
+          url = '$baseUrl/familiar/update-phone/$userId';
+          updateData = {'telefono': widget.identifier};
+        } else {
+          url = '$baseUrl/familiar/update-email/$userId';
+          updateData = {
+            'correo_electronico': widget.identifier.trim().toLowerCase()
+          };
+        }
+      }
+
+      if (updateData.containsKey('telefono') &&
+          updateData['telefono']!.isEmpty) {
+        throw Exception('El número de teléfono no puede estar vacío.');
+      }
+      if (updateData.containsKey('correo_electronico') &&
+          updateData['correo_electronico']!.isEmpty) {
+        throw Exception('El correo electrónico no puede estar vacío.');
+      }
+      /*print(isStaff);
+      print(widget.userType);
+      print(widget.isSmsVerification);
+      print(widget.identifier);
+      print('URL: $url');
+      print('Update Data: $updateData');*/
+
+      final response = await http.put(
+        Uri.parse(url),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(updateData),
+      );
+
+      if (response.statusCode == 200) {
+        if (mounted) {
+          showCustomSnackBar(
+              context, 'Your information has been successfully updated.');
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => DynamicWrapper()),
+            (route) => false,
+          );
+        }
+      } else {
+        throw Exception(
+            'Failed to update data: ${response.statusCode} - ${response.body}');
+      }
+    } catch (e) {
+      if (mounted) {
+        showCustomSnackBar(context, 'Error updating data: $e');
+      }
     }
   }
 
@@ -285,42 +425,59 @@ class _TwoStepVerificationScreenState extends State<TwoStepVerificationScreen> {
       appBar: AppBar(title: const Text('Verificación de Código')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              widget.isSmsVerification
-                  ? 'Hemos enviado un código a tu número: ${widget.identifier}'
-                  : 'Hemos enviado un código a tu correo: ${widget.identifier}',
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 16),
-            ),
-            const SizedBox(height: 20),
-            TextField(
-              controller: _codeController,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: 'Código de Verificación',
-                border: OutlineInputBorder(),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                widget.isSmsVerification
+                    ? 'Hemos enviado un código a tu número: ${widget.identifier}'
+                    : 'Hemos enviado un código a tu correo: ${widget.identifier}',
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 16),
               ),
-            ),
-            const SizedBox(height: 20),
-            _isLoading
-                ? const CircularProgressIndicator()
-                : ElevatedButton(
-                    onPressed: _verifyCode,
-                    child: const Text('Verificar Código'),
-                  ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _isResendAllowed ? _resendCode : null,
-              child: Text(
-                _isResendAllowed
-                    ? 'Reenviar Código'
-                    : 'Reenviar Código ($_resendWaitTime)',
+              const SizedBox(height: 20),
+              TextFormField(
+                controller: _codeController,
+                keyboardType: TextInputType.number,
+                maxLength: 6,
+                decoration: InputDecoration(
+                  labelText: 'Código de Verificación',
+                  border: const OutlineInputBorder(),
+                  counterText: "",
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'El código no puede estar vacío';
+                  }
+                  if (value.length != 6) {
+                    return 'El código debe tener exactamente 6 dígitos';
+                  }
+                  if (!RegExp(r'^\d{6}$').hasMatch(value)) {
+                    return 'El código solo debe contener números';
+                  }
+                  return null;
+                },
               ),
-            ),
-          ],
+              const SizedBox(height: 20),
+              _isLoading
+                  ? const CircularProgressIndicator()
+                  : ElevatedButton(
+                      onPressed: _verifyCode,
+                      child: const Text('Verificar Código'),
+                    ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: _isResendAllowed ? _resendCode : null,
+                child: Text(
+                  _isResendAllowed
+                      ? 'Reenviar Código'
+                      : 'Reenviar Código ($_resendWaitTime)',
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

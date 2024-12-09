@@ -1,8 +1,13 @@
 import 'package:connectcare/data/services/user_service.dart';
+import 'package:connectcare/presentation/screens/admin/admin_home_screen.dart';
+import 'package:connectcare/presentation/screens/admin/daily_reports.dart';
+import 'package:connectcare/presentation/screens/admin/manage_staff_users.dart';
+import 'package:connectcare/presentation/screens/admin/principal/management.dart';
 import 'package:connectcare/presentation/screens/doctor/doctor_home_screen.dart';
 import 'package:connectcare/presentation/screens/family/main_family/main_family_member_home_screen.dart';
 import 'package:connectcare/presentation/screens/family/patient_link_screen.dart';
 import 'package:connectcare/presentation/screens/family/regular_family/regular_family_member_home_screen.dart';
+import 'package:connectcare/presentation/screens/general/auth/register/choose_role_screen.dart';
 import 'package:connectcare/presentation/screens/general/main_screen_staff.dart';
 import 'package:connectcare/presentation/screens/human_resources/human_resources_home_screen.dart';
 import 'package:connectcare/presentation/screens/nurse/nurse_home_screen.dart';
@@ -26,6 +31,7 @@ class _DynamicWrapperState extends State<DynamicWrapper> {
   late String userType;
   late bool hasClues;
   late bool hasPatients;
+  late bool isStaff = false;
 
   final List<Widget> _pages = [];
   final List<TabItem> _navItems = [];
@@ -40,15 +46,26 @@ class _DynamicWrapperState extends State<DynamicWrapper> {
   Future<void> _loadUserData() async {
     final userData = await UserService().loadUserData();
     setState(() {
-      userType = userData['userType']?.trim().toLowerCase() ?? '';
+      userType = userData['userType']?.trim() ?? '';
       hasClues = (userData['clues'] ?? '').isNotEmpty;
       hasPatients = (userData['patients'] ?? '').isNotEmpty;
     });
 
+    if (userType == 'stretcher bearer' ||
+        userType == 'doctor' ||
+        userType == 'nurse' ||
+        userType == 'social worker' ||
+        userType == 'human resources' ||
+        userType == 'administrator') {
+      isStaff = true;
+    }
     _configurePages();
-    /*print('User Type: $userType');
+    print("PRUEBAAS");
+    print('User type: $userType');
+    print('Has clues: $hasClues');
+    print('Has patients: $hasPatients');
     print('Pages: $_pages');
-    print('Nav Items: $_navItems');*/
+    print('Nav items: $_navItems');
   }
 
   void _configurePages() {
@@ -58,7 +75,18 @@ class _DynamicWrapperState extends State<DynamicWrapper> {
     _pages.add(const SettingsScreen());
     _navItems.add(TabItem(icon: Icons.settings, title: 'Settings'));
 
-    if (userType == 'main') {
+    if (userType == '') {
+      Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => ChooseRoleScreen()),
+          (route) => false);
+    } else if (isStaff && !hasClues) {
+      _pages.insert(0, const MainScreenStaff());
+      _navItems.insert(0, TabItem(icon: Icons.send, title: 'Request'));
+    } else if (!isStaff && !hasPatients) {
+      _pages.insert(0, const PatientLinkScreen());
+      _navItems.insert(0, TabItem(icon: Icons.add_link, title: 'Link'));
+    } else if (userType == 'main') {
       _pages.insert(0, const MainFamilyMemberHomeScreen());
       _pages.insert(1, const PatientLinkScreen());
       _navItems.insert(0, TabItem(icon: Icons.home, title: 'Home'));
@@ -85,9 +113,18 @@ class _DynamicWrapperState extends State<DynamicWrapper> {
     } else if (userType == 'human resources') {
       _pages.insert(0, const HumanResourcesHomeScreen());
       _navItems.insert(0, TabItem(icon: Icons.people_alt, title: 'HR'));
-    } else {
-      _pages.insert(0, const MainScreenStaff());
-      _navItems.insert(0, TabItem(icon: Icons.dashboard, title: 'Dashboard'));
+    } else if (userType == 'administrator') {
+      _pages.insert(0, const AdminHomeScreen());
+      _pages.insert(1, const Management());
+      _pages.insert(2, const ManageStaffUsers());
+      _pages.insert(3, const DailyReports());
+      _navItems.insert(0, TabItem(icon: Icons.home, title: 'Home'));
+      _navItems.insert(
+          1, TabItem(icon: Icons.business_center, title: 'Control'));
+      _navItems.insert(
+          2, TabItem(icon: Icons.business_center, title: 'Reports'));
+      _navItems.insert(
+          3, TabItem(icon: Icons.stacked_bar_chart_rounded, title: 'Staff'));
     }
   }
 

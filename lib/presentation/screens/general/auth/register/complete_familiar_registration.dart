@@ -1,4 +1,5 @@
 import 'package:connectcare/data/services/user_service.dart';
+import 'package:connectcare/presentation/screens/general/dynamic_wrapper.dart';
 import 'package:connectcare/presentation/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -156,8 +157,12 @@ class CompleteFamiliarRegistrationState
         }
 
         await userService.saveUserSession(userId, userType, clues: clues);
-
-        Navigator.pushReplacementNamed(context, '/dynamicWrapper');
+        if (mounted) {
+          Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => DynamicWrapper()),
+              (route) => false);
+        }
       } else {
         throw Exception('Error fetching user data: ${response.body}');
       }

@@ -1,4 +1,6 @@
+import 'package:connectcare/presentation/screens/general/auth/forgot_password/forgot_password.dart';
 import 'package:connectcare/presentation/screens/general/auth/verification/two_step_verification_screen.dart';
+import 'package:connectcare/presentation/screens/general/dynamic_wrapper.dart';
 import 'package:connectcare/presentation/widgets/snack_bar.dart';
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
@@ -22,6 +24,11 @@ class LoginScreenState extends State<LoginScreen> {
   bool isEmailMode = false;
   String _completePhoneNumber = '';
   String _countryCode = "+52";
+  String? userId;
+  String? clues;
+  String? patients;
+  String? userType;
+  bool isStaff = false;
 
   final TextEditingController _emailOrPhoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -46,7 +53,7 @@ class LoginScreenState extends State<LoginScreen> {
 
   Future<void> _loginWithEmail(String email, String password) async {
     try {
-      final url = Uri.parse('$baseUrl/auth/emailAndPassword/$email');
+      final url = Uri.parse('$baseUrl/auth/loginWithEmail/$email');
       final response = await http.get(
         url,
         headers: {'Content-Type': 'application/json'},
@@ -58,30 +65,30 @@ class LoginScreenState extends State<LoginScreen> {
         if (userData['contrasena'] != password) {
           throw Exception('Contraseña inválida');
         }
+        userId = userData['id'].toString();
+        userType = userData['tipo'];
+        clues = userData['clues'];
+        patients = userData['patients'];
+        if (userData['source'] == 'familiar') {
+          isStaff = true;
+        }
 
-        final sendCodeUrl = Uri.parse('$baseUrl/auth/send-code');
-        final sendCodeResponse = await http.post(
-          sendCodeUrl,
-          headers: {'Content-Type': 'application/json'},
-          body: jsonEncode({'email': email}),
-        );
-
-        if (mounted && sendCodeResponse.statusCode == 200) {
+        if (mounted) {
           Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => TwoStepVerificationScreen(
+                userId: userId,
+                userType: userType,
+                clues: clues,
+                patients: patients,
+                isStaff: isStaff,
                 purpose: 'login',
                 identifier: email,
                 isSmsVerification: false,
               ),
             ),
-          ).then((_) {
-            Navigator.pushReplacementNamed(context, '/dynamicWrapper');
-          });
-        } else {
-          throw Exception(
-              'Error al enviar el código de verificación por email');
+          );
         }
       } else {
         throw Exception('Email no encontrado o credenciales inválidas');
@@ -93,7 +100,7 @@ class LoginScreenState extends State<LoginScreen> {
 
   Future<void> _loginWithPhone(String phone, String password) async {
     try {
-      final url = Uri.parse('$baseUrl/auth/phoneAndPassword/$phone');
+      final url = Uri.parse('$baseUrl/auth/loginWithPhone/$phone');
       final response = await http.get(
         url,
         headers: {'Content-Type': 'application/json'},
@@ -105,29 +112,29 @@ class LoginScreenState extends State<LoginScreen> {
         if (userData['contrasena'] != password) {
           throw Exception('Contraseña inválida');
         }
-
-        final sendCodeUrl = Uri.parse('$baseUrl/auth/send-sms-code');
-        final sendCodeResponse = await http.post(
-          sendCodeUrl,
-          headers: {'Content-Type': 'application/json'},
-          body: jsonEncode({'phone': phone}),
-        );
-
-        if (mounted && sendCodeResponse.statusCode == 200) {
+        userId = userData['id'].toString();
+        userType = userData['tipo'];
+        clues = userData['clues'];
+        patients = userData['patients'];
+        if (userData['source'] == 'familiar') {
+          isStaff = true;
+        }
+        if (mounted) {
           Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => TwoStepVerificationScreen(
+                userId: userId,
+                userType: userType,
+                clues: clues,
+                patients: patients,
                 purpose: 'login',
+                isStaff: isStaff,
                 identifier: phone,
                 isSmsVerification: true,
               ),
             ),
-          ).then((_) {
-            Navigator.pushReplacementNamed(context, '/dynamicWrapper');
-          });
-        } else {
-          throw Exception('Error al enviar el código de verificación por SMS.');
+          );
         }
       } else {
         throw Exception(
@@ -236,7 +243,10 @@ class LoginScreenState extends State<LoginScreen> {
                   alignment: Alignment.centerRight,
                   child: TextButton(
                     onPressed: () {
-                      Navigator.pushNamed(context, '/forgotPassword');
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => ForgotPassword()));
                     },
                     child: Text(
                       'Forgot password?',
@@ -362,7 +372,10 @@ class LoginScreenState extends State<LoginScreen> {
       final userCredential = await googleAuthService.loginWithGoogle();
 
       if (mounted && userCredential != null) {
-        Navigator.pushReplacementNamed(context, '/dynamicWrapper');
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => DynamicWrapper()),
+            (route) => false);
       }
     } catch (e) {
       if (mounted) {
@@ -378,7 +391,10 @@ class LoginScreenState extends State<LoginScreen> {
 
       if (error == null) {
         if (mounted) {
-          Navigator.pushReplacementNamed(context, '/dynamicWrapper');
+          Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => DynamicWrapper()),
+              (route) => false);
         }
       } else if (mounted) {
         showCustomSnackBar(context, error);

@@ -1,4 +1,5 @@
 import 'package:connectcare/data/services/user_service.dart';
+import 'package:connectcare/presentation/screens/general/dynamic_wrapper.dart';
 import 'package:connectcare/presentation/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -225,8 +226,12 @@ class CompleteStaffRegistrationState extends State<CompleteStaffRegistration> {
 
         final clues = responseData['clues'];
         await userService.saveUserSession(userId, userType, clues: clues);
-
-        Navigator.pushReplacementNamed(context, '/dynamicWrapper');
+        if (mounted) {
+          Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => DynamicWrapper()),
+              (route) => false);
+        }
       } else {
         throw Exception('Error fetching user data: ${response.body}');
       }
@@ -244,7 +249,7 @@ class CompleteStaffRegistrationState extends State<CompleteStaffRegistration> {
   }
 
   Future<bool> checkStaffIdExists(String staffId) async {
-    final url = Uri.parse('$baseUrl/auth/staff_id/$staffId');
+    final url = Uri.parse('$baseUrl/personal/id/$staffId');
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
