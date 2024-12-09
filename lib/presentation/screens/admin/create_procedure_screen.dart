@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:connectcare/presentation/widgets/snack_bar.dart';
 import 'package:connectcare/core/constants/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:connectcare/data/services/shared_preferences_service.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 
@@ -13,21 +14,25 @@ class CreateProcedureScreen extends StatefulWidget {
 }
 
 class _CreateProcedureScreenState extends State<CreateProcedureScreen> {
+
+  final SharedPreferencesService _sharedPreferencesService =
+      SharedPreferencesService();
   final _formKey = GlobalKey<FormState>();
 
   List<Map<String, dynamic>> salas = [];
   List<String> formattedSalas = [];
 
   Future<void> fetchSalas() async {
-    final response = await http.get(Uri.parse('$baseUrl/sala/'));
+    final clues = await _sharedPreferencesService.getClues();
+    final response = await http.get(Uri.parse('$baseUrl/sala/$clues'));
 
     if (response.statusCode == 200) {
       List<dynamic> data = json.decode(response.body);
       setState(() {
         salas = data
             .map((sala) => {
-                  'nombre': sala['nombre'],
-                  'numero': sala['numero'],
+                  'nombre': sala['nombre_sala'],
+                  'numero': sala['numero_sala'],
                 })
             .toList();
         // Generar formattedSalas a partir de salas ya llenado
@@ -216,7 +221,7 @@ class _CreateProcedureScreenState extends State<CreateProcedureScreen> {
                   DropdownButtonFormField<String>(
                     value: salaController,
                     decoration: const InputDecoration(
-                      labelText: 'Sala',
+                      labelText: 'Room',
                       border: OutlineInputBorder(),
                     ),
                     items: formattedSalas.map((String sala) {

@@ -121,7 +121,7 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.lightTheme(),
       darkTheme: AppTheme.darkTheme(),
       themeMode: ThemeMode.system,
-      initialRoute: '/adminHomeScreen',
+      initialRoute: '/pacientReg',
       routes: {
         '/': (context) => ChooseRoleScreen(),
         '/staffRegistration': (context) => StaffRegistration(),

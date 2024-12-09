@@ -20,7 +20,7 @@ class RegisterHospitalScreenState extends State<RegisterHospitalScreen> {
             // Importante
             Center(
               child: const Text(
-                'IMPORTANTE',
+                'IMPORTANT',
                 style: TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
@@ -49,7 +49,7 @@ class RegisterHospitalScreenState extends State<RegisterHospitalScreen> {
               onPressed: () {
                 Navigator.pushNamed(context, '/submitCluesScreen');
               },
-              child: const Text('Entendido'),
+              child: const Text('Got it'),
             ),
           ],
         ),

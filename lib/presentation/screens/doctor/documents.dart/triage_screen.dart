@@ -2,6 +2,7 @@ import 'package:connectcare/core/constants/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'dart:convert';
+import 'package:connectcare/data/services/shared_preferences_service.dart';
 import 'package:http/http.dart' as http;
 
 class TriageScreen extends StatefulWidget {
@@ -31,6 +32,29 @@ class TriageScreen extends StatefulWidget {
 }
 
 class _TriageScreen extends State<TriageScreen> {
+
+   String cluesdoc = "ASIST000115";
+  String id = "21100286";
+  final SharedPreferencesService _sharedPreferencesService =
+      SharedPreferencesService();
+
+
+  Future<void> _initializeData() async {
+    await _saveData(cluesdoc, id); // Guarda los valores iniciales
+    setState(() {}); // Fuerza la reconstrucción para sincronizar UI
+  }
+
+  // Guarda los datos en SharedPreferences
+  Future<void> _saveData(String newClues, String newId) async {
+    await _sharedPreferencesService.saveClues(newClues);
+    await _sharedPreferencesService.saveUserId(newId);
+    print("Datos guardados: CLUES $newClues, ID $newId");
+
+    // Verifica que los datos se hayan guardado correctamente
+    final savedClues = await _sharedPreferencesService.getClues();
+    final savedId = await _sharedPreferencesService.getUserId();
+    print("Datos verificados: CLUES $savedClues, ID $savedId");
+  }
   final _formKey = GlobalKey<FormState>();
 
   // Controladores para los campos de texto
@@ -82,6 +106,7 @@ class _TriageScreen extends State<TriageScreen> {
   @override
   void initState() {
     super.initState();
+    _initializeData(); 
     // Imprimir los datos recibidos para verificar
     print('First Name: ${widget.firstName}');
     print('Paternal Last Name: ${widget.paternalLastName}');
@@ -156,7 +181,8 @@ class _TriageScreen extends State<TriageScreen> {
 
   Future<void> _fetchServices() async {
     try {
-      final response = await http.get(Uri.parse('$baseUrl/servicio/'));
+      final clues = await _sharedPreferencesService.getClues();
+      final response = await http.get(Uri.parse('$baseUrl/servicio/$clues'));
       if (response.statusCode == 200) {
         List<dynamic> data = json.decode(response.body);
         setState(() {
@@ -606,7 +632,10 @@ class _TriageScreen extends State<TriageScreen> {
                 items: _severityLevels
                     .map((level) => DropdownMenuItem(
                           value: level,
-                          child: Text(level),
+                          child: Text(level,
+                          style: TextStyle(
+                            fontSize: 13,
+                          ),),
                         ))
                     .toList(),
                 onChanged: (value) {
@@ -671,7 +700,10 @@ class _TriageScreen extends State<TriageScreen> {
                 items: _diagnosticAuxOptions
                     .map((option) => DropdownMenuItem(
                           value: option,
-                          child: Text(option),
+                          child: Text(option,
+                          style: TextStyle(
+                            fontSize: 13,
+                          ),),
                         ))
                     .toList(),
                 onChanged: (value) {
@@ -731,7 +763,10 @@ class _TriageScreen extends State<TriageScreen> {
                 items: _yesNoOptions
                     .map((option) => DropdownMenuItem(
                           value: option,
-                          child: Text(option),
+                          child: Text(option,
+                          style: TextStyle(
+                            fontSize: 13,
+                          ),),
                         ))
                     .toList(),
                 onChanged: (value) {
@@ -777,7 +812,7 @@ class _TriageScreen extends State<TriageScreen> {
                 items: services
                     .map((service) => DropdownMenuItem(
                           value: service['id'].toString(),
-                          child: Text(service['name']),
+                          child: Text(service['nombre_servicio']),
                         ))
                     .toList(),
                 onChanged: (value) {

@@ -12,7 +12,7 @@ class AdminHomeScreen extends StatefulWidget {
 }
 
 class AdminHomeScreenState extends State<AdminHomeScreen> {
-  String cluesdoc = "CSSSA009635";
+  String cluesdoc = "ASIST000115";
   String id = "21100286";
   final SharedPreferencesService _sharedPreferencesService =
       SharedPreferencesService();

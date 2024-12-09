@@ -238,7 +238,10 @@ class PatientRegState extends State<PatientRegScreen> {
                   items: _sexOptions
                       .map((sex) => DropdownMenuItem(
                             value: sex,
-                            child: Text(sex),
+                            child: Text(sex, 
+                            style: TextStyle(
+                              fontSize: 13,
+                            ),),
                           ))
                       .toList(),
                   onChanged: (value) {
@@ -260,7 +263,10 @@ class PatientRegState extends State<PatientRegScreen> {
                   items: _bloodGroupOptions
                       .map((bg) => DropdownMenuItem(
                             value: bg,
-                            child: Text(bg),
+                            child: Text(bg,
+                            style: TextStyle(
+                              fontSize: 13,
+                            ),),
                           ))
                       .toList(),
                   onChanged: (value) {
