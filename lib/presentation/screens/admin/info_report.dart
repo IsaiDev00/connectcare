@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:http/http.dart' as http;
 
 class ViewDailyReport extends StatefulWidget {
   final DateTime date;
@@ -16,17 +18,38 @@ class _ViewDailyReportState extends State<ViewDailyReport> {
   bool _isLoading = true;
   String loadingText = 'Loading';
   Timer? _timer;
-
+  List<String> graphs = [];
   @override
   void initState() {
     super.initState();
     date = DateFormat('dd/MM/yy').format(widget.date);
     _startLoadingAnimation();
-    // Timer.periodic(Duration(seconds: 8), (timerName) {
-    //   setState(() {
-    //     _isLoading = false;
-    //   });
-    // });
+
+    _fetchGraphs();
+  }
+
+  _fetchGraphs() async {
+    bool mov = await fetchGraphs();
+    if (mov) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<bool> fetchGraphs() async {
+    // var url = Uri.parse('$baseUrl/auth/email/$email');
+    var url = Uri.parse(
+        'http://localhost:8080/generate_image/12/04/enfermeros,medicos,camilleros,trabajo_social,familiares,Hhoja_enfermeria,Hsolicitudes_traslado,Hindicaciones_medicas,Htriage,Hnotas_evolucion,Haltas_paciente,Htraslado_pacientes_completados,Htraslado_pacientes_no_completados,Hvinculaciones_cuentas_familiares,Hpeticiones_visita,Hpeticiones_visita_aceptadas,Hpeticiones_visita_no_aceptadas1');
+    var response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      var responseBody = jsonDecode(response.body);
+      graphs = responseBody.images;
+      return true;
+    } else {
+      return false;
+    }
   }
 
   void _startLoadingAnimation() {
@@ -86,21 +109,26 @@ class _ViewDailyReportState extends State<ViewDailyReport> {
                           color: theme.colorScheme.onSurface,
                         )),
                   ),
-                  ElevatedButton(
-                      onPressed: () => setState(() {
-                            _isLoading = false;
-                          }),
-                      child: Text("end loading"))
                 ],
               )
             : Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Center(
-                    child: Text('done loading ill show data graphics here',
-                        style: theme.textTheme.headlineLarge!.copyWith(
-                          color: theme.colorScheme.onSurface,
-                        )),
+                    child: graphs.isNotEmpty
+                        ? ListView.builder(
+                            itemCount: graphs.length,
+                            itemBuilder: (context, index) {
+                              final item = graphs[index];
+                              return ListTile(
+                                  title: Image.network(
+                                      'data:image/png;base64,$item'));
+                            },
+                          )
+                        : Text('There was an error fetching graphs',
+                            style: theme.textTheme.headlineLarge!.copyWith(
+                              color: theme.colorScheme.onSurface,
+                            )),
                   ),
                 ],
               ),
