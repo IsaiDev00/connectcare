@@ -46,7 +46,6 @@ class LoginScreenState extends State<LoginScreen> {
         String formattedPhoneNumber = _completePhoneNumber.startsWith('+')
             ? _completePhoneNumber
             : '+$_countryCode${_phoneNumberController.text}';
-        print(formattedPhoneNumber + " " + password);
         await _loginWithPhone(formattedPhoneNumber, password);
       }
     }
@@ -106,16 +105,11 @@ class LoginScreenState extends State<LoginScreen> {
         url,
         headers: {'Content-Type': 'application/json'},
       );
-      print(
-          'Respuesta del servidor: ${response.statusCode} - ${response.body}');
 
       if (response.statusCode == 200) {
-        print('Número encontrado, verificando contraseña...');
         final userData = jsonDecode(response.body);
-        print('Datos recibidos: $userData');
 
         if (userData['contrasena'] != password) {
-          print('Error: Contraseña inválida');
           throw Exception('Contraseña inválida');
         }
         userId = userData['id'].toString();
@@ -143,12 +137,10 @@ class LoginScreenState extends State<LoginScreen> {
           );
         }
       } else {
-        print('Error: Teléfono no encontrado o credenciales inválidas.');
         throw Exception(
             'Número de teléfono no encontrado o credenciales inválidas');
       }
     } catch (e) {
-      print('Error atrapado en el catch: $e');
       _loginFailed();
     }
   }
