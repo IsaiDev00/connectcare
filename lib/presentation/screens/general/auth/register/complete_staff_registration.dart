@@ -1,5 +1,5 @@
 import 'package:connectcare/data/services/user_service.dart';
-import 'package:connectcare/main.dart';
+import 'package:connectcare/presentation/screens/general/dynamic_wrapper.dart';
 import 'package:connectcare/presentation/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -200,8 +200,7 @@ class CompleteStaffRegistrationState extends State<CompleteStaffRegistration> {
       );
 
       if (response.statusCode == 201) {
-        await userService.saveUserSession(firebaseUser.uid, selectedUserType!);
-        await _navigateToCorrectScreen(firebaseUser.uid);
+        await _navigateToCorrectScreen(idController.text);
       } else {
         throw Exception('Registration failed: ${response.body}');
       }
@@ -210,48 +209,28 @@ class CompleteStaffRegistrationState extends State<CompleteStaffRegistration> {
     }
   }
 
-  Future<void> _navigateToCorrectScreen(String firebaseUid) async {
+  Future<void> _navigateToCorrectScreen(String id) async {
     try {
-      final url = Uri.parse('$baseUrl/auth/firebase_uid/$firebaseUid');
+      final url = Uri.parse('$baseUrl/auth/user_by_id/$id');
       final response = await http.get(url);
 
       if (response.statusCode == 200) {
-        final userData = jsonDecode(response.body);
-        final userType = userData['tipo'].toLowerCase();
-        final assignedHospital = userData['clues'] != null;
+        final responseData = jsonDecode(response.body);
 
-        if (!assignedHospital) {
-          MyApp.nav.navigateTo('/mainScreenStaff');
-          return;
+        final userId = responseData['id_personal']?.toString();
+        final userType = responseData['tipo'];
+
+        if (userId == null) {
+          throw Exception("El servidor no devolvió un ID de usuario.");
         }
 
-        switch (userType) {
-          case 'medico':
-          case 'doctor':
-            MyApp.nav.navigateTo('/doctorHomeScreen');
-            break;
-          case 'enfermero':
-          case 'nurse':
-            MyApp.nav.navigateTo('/nurseHomeScreen');
-            break;
-          case 'camillero':
-          case 'stretcher bearer':
-            MyApp.nav.navigateTo('/stretcherBearerHomeScreen');
-            break;
-          case 'trabajo social':
-          case 'social worker':
-            MyApp.nav.navigateTo('/socialWorkerHomeScreen');
-            break;
-          case 'recursos humanos':
-          case 'human resources':
-            MyApp.nav.navigateTo('/humanResourcesHomeScreen');
-            break;
-          case 'administrador':
-          case 'administrator':
-            MyApp.nav.navigateTo('/mainScreen');
-            break;
-          default:
-            throw Exception('Unknown user type');
+        final clues = responseData['clues'];
+        await userService.saveUserSession(userId, userType, clues: clues);
+        if (mounted) {
+          Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => DynamicWrapper()),
+              (route) => false);
         }
       } else {
         throw Exception('Error fetching user data: ${response.body}');
@@ -270,7 +249,7 @@ class CompleteStaffRegistrationState extends State<CompleteStaffRegistration> {
   }
 
   Future<bool> checkStaffIdExists(String staffId) async {
-    final url = Uri.parse('$baseUrl/auth/staff_id/$staffId');
+    final url = Uri.parse('$baseUrl/personal/id/$staffId');
     final response = await http.get(url);
 
     if (response.statusCode == 200) {

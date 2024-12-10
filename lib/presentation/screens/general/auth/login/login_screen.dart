@@ -1,8 +1,8 @@
-import 'package:connectcare/main.dart';
+import 'package:connectcare/presentation/screens/general/auth/forgot_password/forgot_password.dart';
 import 'package:connectcare/presentation/screens/general/auth/verification/two_step_verification_screen.dart';
+import 'package:connectcare/presentation/screens/general/dynamic_wrapper.dart';
 import 'package:connectcare/presentation/widgets/snack_bar.dart';
 import 'package:country_code_picker/country_code_picker.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -24,6 +24,11 @@ class LoginScreenState extends State<LoginScreen> {
   bool isEmailMode = false;
   String _completePhoneNumber = '';
   String _countryCode = "+52";
+  String? userId;
+  String? clues;
+  String? patients;
+  String? userType;
+  bool isStaff = false;
 
   final TextEditingController _emailOrPhoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -49,50 +54,54 @@ class LoginScreenState extends State<LoginScreen> {
 
   Future<void> _loginWithEmail(String email, String password) async {
     try {
-      UserCredential userCredential = await FirebaseAuth.instance
-          .signInWithEmailAndPassword(email: email, password: password);
+      final url = Uri.parse('$baseUrl/auth/loginWithEmail/$email');
+      final response = await http.get(
+        url,
+        headers: {'Content-Type': 'application/json'},
+      );
 
-      final user = userCredential.user;
+      if (response.statusCode == 200) {
+        final userData = jsonDecode(response.body);
 
-      if (user != null) {
-        final url = Uri.parse('$baseUrl/auth/send-code');
-        final response = await http.post(
-          url,
-          headers: {'Content-Type': 'application/json'},
-          body: jsonEncode({'email': email}),
-        );
+        if (userData['contrasena'] != password) {
+          throw Exception('Contraseña inválida');
+        }
+        userId = userData['id'].toString();
+        userType = userData['tipo'];
+        clues = userData['clues'];
+        patients = userData['patients'];
+        if (userData['source'] == 'familiar') {
+          isStaff = true;
+        }
 
-        if (mounted && response.statusCode == 200) {
+        if (mounted) {
           Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => TwoStepVerificationScreen(
+                userId: userId,
+                userType: userType,
+                clues: clues,
+                patients: patients,
+                isStaff: isStaff,
+                purpose: 'login',
                 identifier: email,
                 isSmsVerification: false,
               ),
             ),
           );
-        } else {
-          _errorSendingCode();
         }
+      } else {
+        throw Exception('Email no encontrado o credenciales inválidas');
       }
     } catch (e) {
-      throw Exception('Login failed with email: $e');
+      _loginFailed();
     }
   }
 
   Future<void> _loginWithPhone(String phone, String password) async {
     try {
-      print('Iniciando el login con el número: $phone');
-
-      if (!phone.startsWith('+')) {
-        print('Error: El número no incluye el código internacional.');
-        throw Exception('El número debe incluir el código internacional.');
-      }
-
-      final url = Uri.parse('$baseUrl/auth/phoneAndPassword/$phone');
-      print('Haciendo GET request a: $url');
-
+      final url = Uri.parse('$baseUrl/auth/loginWithPhone/$phone');
       final response = await http.get(
         url,
         headers: {'Content-Type': 'application/json'},
@@ -109,33 +118,29 @@ class LoginScreenState extends State<LoginScreen> {
           print('Error: Contraseña inválida');
           throw Exception('Contraseña inválida');
         }
-
-        final sendCodeUrl = Uri.parse('$baseUrl/auth/send-sms-code');
-        print('Haciendo POST request a: $sendCodeUrl');
-
-        final sendCodeResponse = await http.post(
-          sendCodeUrl,
-          headers: {'Content-Type': 'application/json'},
-          body: jsonEncode({'phone': phone}),
-        );
-        print(
-            'Respuesta al enviar código de verificación: ${sendCodeResponse.statusCode} - ${sendCodeResponse.body}');
-
-        if (mounted && sendCodeResponse.statusCode == 200) {
-          print(
-              'Código de verificación enviado correctamente. Navegando a TwoStepVerificationScreen.');
+        userId = userData['id'].toString();
+        userType = userData['tipo'];
+        clues = userData['clues'];
+        patients = userData['patients'];
+        if (userData['source'] == 'familiar') {
+          isStaff = true;
+        }
+        if (mounted) {
           Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => TwoStepVerificationScreen(
+                userId: userId,
+                userType: userType,
+                clues: clues,
+                patients: patients,
+                purpose: 'login',
+                isStaff: isStaff,
                 identifier: phone,
                 isSmsVerification: true,
               ),
             ),
           );
-        } else {
-          print('Error al enviar el código de verificación por SMS.');
-          throw Exception('Error al enviar el código de verificación por SMS.');
         }
       } else {
         print('Error: Teléfono no encontrado o credenciales inválidas.');
@@ -246,7 +251,10 @@ class LoginScreenState extends State<LoginScreen> {
                   alignment: Alignment.centerRight,
                   child: TextButton(
                     onPressed: () {
-                      Navigator.pushNamed(context, '/forgotPassword');
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => ForgotPassword()));
                     },
                     child: Text(
                       'Forgot password?',
@@ -361,10 +369,6 @@ class LoginScreenState extends State<LoginScreen> {
     showCustomSnackBar(context, 'Please enter valid credentials');
   }
 
-  void _errorSendingCode() {
-    showCustomSnackBar(context, 'Error sending code');
-  }
-
   void _focusScope() {
     FocusScope.of(context).requestFocus(FocusNode());
     FocusScope.of(context).requestFocus(FocusNode());
@@ -375,8 +379,11 @@ class LoginScreenState extends State<LoginScreen> {
       final GoogleAuthService googleAuthService = GoogleAuthService();
       final userCredential = await googleAuthService.loginWithGoogle();
 
-      if (userCredential != null) {
-        MyApp.nav.navigateTo('/mainScreen');
+      if (mounted && userCredential != null) {
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => DynamicWrapper()),
+            (route) => false);
       }
     } catch (e) {
       if (mounted) {
@@ -391,7 +398,12 @@ class LoginScreenState extends State<LoginScreen> {
       final String? error = await facebookAuthService.loginWithFacebook();
 
       if (error == null) {
-        MyApp.nav.navigateTo('/mainScreen');
+        if (mounted) {
+          Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => DynamicWrapper()),
+              (route) => false);
+        }
       } else if (mounted) {
         showCustomSnackBar(context, error);
       }

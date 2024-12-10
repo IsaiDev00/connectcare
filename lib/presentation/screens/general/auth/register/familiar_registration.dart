@@ -1,4 +1,5 @@
-import 'package:connectcare/main.dart';
+import 'package:connectcare/presentation/screens/general/auth/register/complete_familiar_registration.dart';
+import 'package:connectcare/presentation/screens/general/auth/verification/two_step_verification_screen.dart';
 import 'package:connectcare/presentation/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:connectcare/core/constants/constants.dart';
@@ -251,49 +252,11 @@ class FamiliarRegistrationState extends State<FamiliarRegistration> {
                           );
                           return;
                         }
-                        try {
-                          UserCredential userCredential = await FirebaseAuth
-                              .instance
-                              .createUserWithEmailAndPassword(
-                            email: _emailOrPhoneController.text,
-                            password: _passwordController.text,
-                          );
-                          if (userCredential.user != null) {
-                            MyApp.nav.navigateTo(
-                              '/emailVerification',
-                              arguments: {
-                                'firstName': _firstNameController.text,
-                                'lastNamePaternal':
-                                    _lastNamePaternalController.text,
-                                'lastNameMaternal':
-                                    _lastNameMaternalController.text,
-                                'email': _emailOrPhoneController.text,
-                                'userType': 'regular',
-                                'isStaff': false,
-                                'purpose': 'registration',
-                                'userData': {
-                                  'nombre': _firstNameController.text,
-                                  'apellido_paterno':
-                                      _lastNamePaternalController.text,
-                                  'apellido_materno':
-                                      _lastNameMaternalController.text,
-                                  'correo_electronico':
-                                      _emailOrPhoneController.text,
-                                  'contrasena': _passwordController.text,
-                                  'tipo': 'regular',
-                                  'auth_provider': 'email',
-                                },
-                              },
-                            );
-                          }
-                        } catch (e) {
-                          scaffoldMessenger.showSnackBar(
-                            SnackBar(content: Text('Unexpected error: $e')),
-                          );
-                        }
+                        _emailNavigator();
                       } else {
                         _completePhoneNumber =
                             '$_countryCode${_phoneNumberController.text}';
+
                         bool phoneExists =
                             await checkPhoneExists(_completePhoneNumber);
                         if (phoneExists) {
@@ -304,78 +267,7 @@ class FamiliarRegistrationState extends State<FamiliarRegistration> {
                           );
                           return;
                         }
-                        try {
-                          String formattedPhoneNumber = _completePhoneNumber
-                                  .startsWith('+')
-                              ? _completePhoneNumber
-                              : '+$_countryCode${_phoneNumberController.text}';
-
-                          await FirebaseAuth.instance.verifyPhoneNumber(
-                            phoneNumber: formattedPhoneNumber,
-                            timeout: const Duration(minutes: 2),
-                            verificationCompleted:
-                                (PhoneAuthCredential credential) async {
-                              await FirebaseAuth.instance
-                                  .signInWithCredential(credential);
-                              _phoneNumberVerifiedAutomatically();
-                            },
-                            verificationFailed: (FirebaseAuthException e) {
-                              String errorMessage;
-                              if (e.code == 'invalid-phone-number') {
-                                errorMessage = 'Invalid phone number format.';
-                              } else if (e.code == 'too-many-requests') {
-                                errorMessage =
-                                    'Too many requests. Please try again later.';
-                              } else {
-                                errorMessage =
-                                    e.message ?? 'Verification failed.';
-                              }
-                              ScaffoldMessenger.of(context)
-                                  .showSnackBar(SnackBar(
-                                content: Text(errorMessage),
-                              ));
-                            },
-                            codeSent:
-                                (String verificationId, int? resendToken) {
-                              setState(() {
-                                _resendToken = resendToken;
-                              });
-
-                              MyApp.nav.navigateTo(
-                                '/phoneVerification',
-                                arguments: {
-                                  'phoneNumber': formattedPhoneNumber,
-                                  'verificationId': verificationId,
-                                  'isStaff': false,
-                                  'purpose': "registration",
-                                  'firstName': _firstNameController.text,
-                                  'lastNamePaternal':
-                                      _lastNamePaternalController.text,
-                                  'lastNameMaternal':
-                                      _lastNameMaternalController.text,
-                                  'password': _passwordController.text,
-                                  'userType': "regular",
-                                  'resendToken': resendToken,
-                                  'userData': {
-                                    'nombre': _firstNameController.text,
-                                    'apellido_paterno':
-                                        _lastNamePaternalController.text,
-                                    'apellido_materno':
-                                        _lastNameMaternalController.text,
-                                    'telefono': formattedPhoneNumber,
-                                    'contrasena': _passwordController.text,
-                                    'tipo': "regular",
-                                    'auth_provider': 'phone',
-                                  },
-                                },
-                              );
-                            },
-                            codeAutoRetrievalTimeout:
-                                (String verificationId) {},
-                          );
-                        } catch (e) {
-                          _catchError(e);
-                        }
+                        _phoneNavigator();
                       }
                     }
                   },
@@ -482,10 +374,13 @@ class FamiliarRegistrationState extends State<FamiliarRegistration> {
   Future<void> _registerWithGoogle() async {
     try {
       final userCredential = await _googleAuthService.signInWithGoogle();
-      if (userCredential != null && userCredential.user != null) {
+      if (mounted && userCredential != null && userCredential.user != null) {
         final firebaseUser = userCredential.user!;
-        MyApp.nav.navigateTo('/completeFamiliarRegistration',
-            arguments: firebaseUser);
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    CompleteFamiliarRegistration(firebaseUser: firebaseUser)));
       } else {
         _showSnackBarMessage('Failed to retrieve Google user.');
       }
@@ -505,9 +400,12 @@ class FamiliarRegistrationState extends State<FamiliarRegistration> {
 
     if (errorMessage == null) {
       final firebaseUser = FirebaseAuth.instance.currentUser;
-      if (firebaseUser != null) {
-        MyApp.nav.navigateTo('/completeFamiliarRegistration',
-            arguments: firebaseUser);
+      if (mounted && firebaseUser != null) {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    CompleteFamiliarRegistration(firebaseUser: firebaseUser)));
       }
     } else {
       _showSnackBarMessage(errorMessage);
@@ -519,11 +417,39 @@ class FamiliarRegistrationState extends State<FamiliarRegistration> {
     FocusScope.of(context).requestFocus(FocusNode());
   }
 
-  void _phoneNumberVerifiedAutomatically() {
-    showCustomSnackBar(context, 'Phone number verified automatically.');
+  void _emailNavigator() {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => TwoStepVerificationScreen(
+                  identifier: _emailOrPhoneController.text.trim().toLowerCase(),
+                  isSmsVerification: false,
+                  firstName: _firstNameController.text.trim(),
+                  lastNamePaternal: _lastNamePaternalController.text.trim(),
+                  lastNameMaternal: _lastNameMaternalController.text.trim(),
+                  email: _emailOrPhoneController.text.trim().toLowerCase(),
+                  password: _passwordController.text,
+                  userType: 'regular',
+                  isStaff: false,
+                  purpose: 'registration',
+                )));
   }
 
-  void _catchError(e) {
-    showCustomSnackBar(context, 'Error: $e');
+  void _phoneNavigator() {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => TwoStepVerificationScreen(
+                  identifier: _completePhoneNumber,
+                  isSmsVerification: true,
+                  phoneNumber: _completePhoneNumber,
+                  purpose: "registration",
+                  firstName: _firstNameController.text.trim(),
+                  lastNamePaternal: _lastNamePaternalController.text.trim(),
+                  lastNameMaternal: _lastNameMaternalController.text.trim(),
+                  password: _passwordController.text,
+                  userType: 'regular',
+                  isStaff: false,
+                )));
   }
 }

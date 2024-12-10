@@ -1,5 +1,5 @@
 import 'package:connectcare/data/services/user_service.dart';
-import 'package:connectcare/main.dart';
+import 'package:connectcare/presentation/screens/general/dynamic_wrapper.dart';
 import 'package:connectcare/presentation/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -131,8 +131,7 @@ class CompleteFamiliarRegistrationState
       );
 
       if (response.statusCode == 201) {
-        await userService.saveUserSession(firebaseUser.uid, "regular");
-        await _navigateToCorrectScreen(firebaseUser.uid);
+        await _navigateToCorrectScreen();
       } else {
         throw Exception('Registration failed: ${response.body}');
       }
@@ -141,21 +140,28 @@ class CompleteFamiliarRegistrationState
     }
   }
 
-  Future<void> _navigateToCorrectScreen(String firebaseUid) async {
+  Future<void> _navigateToCorrectScreen() async {
     try {
-      final url = Uri.parse('$baseUrl/auth/firebase_uid/$firebaseUid');
+      final url = Uri.parse(
+          '$baseUrl/auth/user_by_email_or_phone/${widget.firebaseUser}');
       final response = await http.get(url);
 
       if (response.statusCode == 200) {
         final userData = jsonDecode(response.body);
-        final userType = userData['tipo'].toLowerCase();
+        final userType = userData['tipo']?.toLowerCase() ?? 'unknown';
+        final clues = userData['clues'];
+        final userId = userData['id']?.toString();
 
-        switch (userType) {
-          case 'regular':
-            MyApp.nav.navigateTo('/regularFamilyMemberHomeScreen');
-            break;
-          default:
-            throw Exception('Unknown user type');
+        if (userId == null) {
+          throw Exception("User ID is missing in the server response");
+        }
+
+        await userService.saveUserSession(userId, userType, clues: clues);
+        if (mounted) {
+          Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => DynamicWrapper()),
+              (route) => false);
         }
       } else {
         throw Exception('Error fetching user data: ${response.body}');

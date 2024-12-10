@@ -1,4 +1,5 @@
-import 'package:connectcare/main.dart';
+import 'package:connectcare/presentation/screens/general/auth/register/complete_staff_registration.dart';
+import 'package:connectcare/presentation/screens/general/auth/verification/two_step_verification_screen.dart';
 import 'package:connectcare/presentation/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:connectcare/core/constants/constants.dart';
@@ -52,7 +53,7 @@ class StaffRegistrationState extends State<StaffRegistration> {
   final FacebookAuthService _facebookAuthService = FacebookAuthService();
 
   Future<bool> checkEmailExists(String email) async {
-    var url = Uri.parse('$baseUrl/auth/email/$email');
+    var url = Uri.parse('$baseUrl/auth/emailAndId/$email');
     var response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -62,7 +63,7 @@ class StaffRegistrationState extends State<StaffRegistration> {
   }
 
   Future<bool> checkPhoneExists(String phone) async {
-    var url = Uri.parse('$baseUrl/auth/telefono/$phone');
+    var url = Uri.parse('$baseUrl/auth/phoneAndId/$phone');
     var response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -72,7 +73,7 @@ class StaffRegistrationState extends State<StaffRegistration> {
   }
 
   Future<bool> checkStaffIdExists(String staffId) async {
-    final url = Uri.parse('$baseUrl/auth/staff_id/$staffId');
+    final url = Uri.parse('$baseUrl/personal/id/$staffId');
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -335,55 +336,7 @@ class StaffRegistrationState extends State<StaffRegistration> {
                           );
                           return;
                         }
-                        try {
-                          UserCredential userCredential = await FirebaseAuth
-                              .instance
-                              .createUserWithEmailAndPassword(
-                            email: _emailOrPhoneController.text,
-                            password: _passwordController.text,
-                          );
-                          if (userCredential.user != null) {
-                            MyApp.nav.navigateTo(
-                              '/emailVerification',
-                              arguments: {
-                                'firstName': _firstNameController.text,
-                                'lastNamePaternal':
-                                    _lastNamePaternalController.text,
-                                'lastNameMaternal':
-                                    _lastNameMaternalController.text,
-                                'email': _emailOrPhoneController.text,
-                                'userType': _selectedUserType!,
-                                'id': idController.text,
-                                'isStaff': true,
-                                'purpose': 'registration',
-                                'userData': {
-                                  'id_personal': idController.text,
-                                  'nombre': _firstNameController.text,
-                                  'apellido_paterno':
-                                      _lastNamePaternalController.text,
-                                  'apellido_materno':
-                                      _lastNameMaternalController.text,
-                                  'correo_electronico':
-                                      _emailOrPhoneController.text,
-                                  'contrasena': _passwordController.text,
-                                  'tipo': _selectedUserType!,
-                                  'estatus': 'activo',
-                                  'auth_provider': 'email',
-                                },
-                              },
-                            );
-                          }
-                        } on FirebaseAuthException catch (e) {
-                          scaffoldMessenger.showSnackBar(
-                            SnackBar(
-                                content:
-                                    Text(e.message ?? 'Registration failed')),
-                          );
-                        } catch (e) {
-                          scaffoldMessenger.showSnackBar(
-                            SnackBar(content: Text('Unexpected error: $e')),
-                          );
-                        }
+                        _emailNavigate();
                       } else {
                         _completePhoneNumber =
                             '$_countryCode${_phoneNumberController.text}';
@@ -407,82 +360,7 @@ class StaffRegistrationState extends State<StaffRegistration> {
                           );
                           return;
                         }
-
-                        try {
-                          String formattedPhoneNumber = _completePhoneNumber
-                                  .startsWith('+')
-                              ? _completePhoneNumber
-                              : '+$_countryCode${_phoneNumberController.text}';
-
-                          await FirebaseAuth.instance.verifyPhoneNumber(
-                            phoneNumber: formattedPhoneNumber,
-                            timeout: const Duration(minutes: 2),
-                            verificationCompleted:
-                                (PhoneAuthCredential credential) async {
-                              await FirebaseAuth.instance
-                                  .signInWithCredential(credential);
-                              _phoneNumberVerifiedAutomatically();
-                            },
-                            verificationFailed: (FirebaseAuthException e) {
-                              String errorMessage;
-                              if (e.code == 'invalid-phone-number') {
-                                errorMessage = 'Invalid phone number format.';
-                              } else if (e.code == 'too-many-requests') {
-                                errorMessage =
-                                    'Too many requests. Please try again later.';
-                              } else {
-                                errorMessage =
-                                    e.message ?? 'Verification failed.';
-                              }
-                              ScaffoldMessenger.of(context)
-                                  .showSnackBar(SnackBar(
-                                content: Text(errorMessage),
-                              ));
-                            },
-                            codeSent:
-                                (String verificationId, int? resendToken) {
-                              setState(() {
-                                _resendToken = resendToken;
-                              });
-
-                              MyApp.nav.navigateTo(
-                                '/phoneVerification',
-                                arguments: {
-                                  'phoneNumber': formattedPhoneNumber,
-                                  'verificationId': verificationId,
-                                  'isStaff': true,
-                                  'purpose': "registration",
-                                  'firstName': _firstNameController.text,
-                                  'lastNamePaternal':
-                                      _lastNamePaternalController.text,
-                                  'lastNameMaternal':
-                                      _lastNameMaternalController.text,
-                                  'password': _passwordController.text,
-                                  'userType': _selectedUserType!,
-                                  'idPersonal': idController.text,
-                                  'resendToken': resendToken,
-                                  'userData': {
-                                    'id_personal': idController.text,
-                                    'nombre': _firstNameController.text,
-                                    'apellido_paterno':
-                                        _lastNamePaternalController.text,
-                                    'apellido_materno':
-                                        _lastNameMaternalController.text,
-                                    'telefono': formattedPhoneNumber,
-                                    'contrasena': _passwordController.text,
-                                    'tipo': _selectedUserType!,
-                                    'estatus': 'activo',
-                                    'auth_provider': 'phone',
-                                  },
-                                },
-                              );
-                            },
-                            codeAutoRetrievalTimeout:
-                                (String verificationId) {},
-                          );
-                        } catch (e) {
-                          _catchError(e);
-                        }
+                        _phoneNavigate();
                       }
                     }
                   },
@@ -589,10 +467,13 @@ class StaffRegistrationState extends State<StaffRegistration> {
   Future<void> _registerWithGoogle() async {
     try {
       final userCredential = await _googleAuthService.signInWithGoogle();
-      if (userCredential != null && userCredential.user != null) {
+      if (mounted && userCredential != null && userCredential.user != null) {
         final firebaseUser = userCredential.user!;
-        MyApp.nav
-            .navigateTo('/completeStaffRegistration', arguments: firebaseUser);
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    CompleteStaffRegistration(firebaseUser: firebaseUser)));
       } else {
         _showSnackBarMessage('Failed to retrieve Google user.');
       }
@@ -612,9 +493,12 @@ class StaffRegistrationState extends State<StaffRegistration> {
 
     if (errorMessage == null) {
       final firebaseUser = FirebaseAuth.instance.currentUser;
-      if (firebaseUser != null) {
-        MyApp.nav
-            .navigateTo('/completeStaffRegistration', arguments: firebaseUser);
+      if (mounted && firebaseUser != null) {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    CompleteStaffRegistration(firebaseUser: firebaseUser)));
       }
     } else {
       _showSnackBarMessage(errorMessage);
@@ -626,11 +510,41 @@ class StaffRegistrationState extends State<StaffRegistration> {
     FocusScope.of(context).requestFocus(FocusNode());
   }
 
-  void _phoneNumberVerifiedAutomatically() {
-    showCustomSnackBar(context, 'Phone number verified automatically.');
+  void _emailNavigate() {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => TwoStepVerificationScreen(
+                  identifier: _emailOrPhoneController.text.trim().toLowerCase(),
+                  isSmsVerification: false,
+                  firstName: _firstNameController.text.trim(),
+                  lastNamePaternal: _lastNamePaternalController.text.trim(),
+                  lastNameMaternal: _lastNameMaternalController.text.trim(),
+                  email: _emailOrPhoneController.text.trim().toLowerCase(),
+                  password: _passwordController.text,
+                  userType: _selectedUserType!.toLowerCase(),
+                  userId: idController.text,
+                  isStaff: true,
+                  purpose: 'registration',
+                )));
   }
 
-  void _catchError(e) {
-    showCustomSnackBar(context, 'Error: $e');
+  void _phoneNavigate() {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => TwoStepVerificationScreen(
+                  identifier: _completePhoneNumber,
+                  isSmsVerification: true,
+                  phoneNumber: _completePhoneNumber,
+                  purpose: "registration",
+                  firstName: _firstNameController.text.trim(),
+                  lastNamePaternal: _lastNamePaternalController.text.trim(),
+                  lastNameMaternal: _lastNameMaternalController.text.trim(),
+                  password: _passwordController.text,
+                  userType: _selectedUserType!.toLowerCase(),
+                  userId: idController.text,
+                  isStaff: true,
+                )));
   }
 }

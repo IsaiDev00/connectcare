@@ -1,3 +1,8 @@
+import 'package:connectcare/presentation/screens/general/auth/login/login_screen.dart';
+import 'package:connectcare/presentation/screens/general/auth/register/familiar_registration.dart';
+import 'package:connectcare/presentation/screens/general/auth/register/staff_registration.dart';
+import 'package:connectcare/presentation/screens/general/settings/privacy_policy_screen.dart';
+import 'package:connectcare/presentation/screens/general/settings/terms_and_conditions_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/gestures.dart';
@@ -47,14 +52,20 @@ class ChooseRoleScreen extends StatelessWidget {
             SizedBox(height: 30),
             ElevatedButton(
               onPressed: () {
-                Navigator.pushNamed(context, '/staffRegistration');
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => StaffRegistration()));
               },
               child: Text('Hospital staff'),
             ),
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                Navigator.pushNamed(context, '/familiarRegistration');
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => FamiliarRegistration()));
               },
               child: Text('Familiar'),
             ),
@@ -63,7 +74,8 @@ class ChooseRoleScreen extends StatelessWidget {
               children: [
                 TextButton(
                   onPressed: () {
-                    Navigator.pushNamed(context, '/loginScreen');
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => LoginScreen()));
                   },
                   child: Text(
                     'Already have an account? Log in',
@@ -88,7 +100,11 @@ class ChooseRoleScreen extends StatelessWidget {
                         ),
                         recognizer: TapGestureRecognizer()
                           ..onTap = () {
-                            Navigator.pushNamed(context, '/termsAndConditions');
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        TermsAndConditionsScreen()));
                           },
                       ),
                       TextSpan(text: ' and '),
@@ -100,7 +116,11 @@ class ChooseRoleScreen extends StatelessWidget {
                         ),
                         recognizer: TapGestureRecognizer()
                           ..onTap = () {
-                            Navigator.pushNamed(context, '/privacyPolicy');
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        PrivacyPolicyScreen()));
                           },
                       ),
                       TextSpan(text: '.'),

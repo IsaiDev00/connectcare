@@ -40,6 +40,21 @@ class SharedPreferencesService {
     await prefs.remove('userType');
   }
 
+  Future<void> savePatients(String userType) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('patients', userType);
+  }
+
+  Future<String?> getPatients() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('patients');
+  }
+
+  Future<void> clearPatients() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('patients');
+  }
+
   // Guardar el código CLUES del usuario
   Future<void> saveCluesCode(String cluesCode) async {
     final prefs = await SharedPreferences.getInstance();
@@ -82,5 +97,10 @@ class SharedPreferencesService {
   Future<String?> getClues() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('clues');
+  }
+
+  Future<void> clearClues() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('clues');
   }
 }
