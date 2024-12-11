@@ -19,7 +19,6 @@ class EditProfileScreen extends StatefulWidget {
 class EditProfileScreenState extends State<EditProfileScreen> {
   final SharedPreferencesService _sharedPreferencesService =
       SharedPreferencesService();
-
   bool _isLoading = true;
   // ignore: unused_field
 
@@ -182,8 +181,17 @@ class EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   void _showEditFieldDialog(BuildContext context, String label, String value) {
-    final TextEditingController controller = TextEditingController(text: value);
     String countryCode = '+52';
+    String phoneNumber = value;
+
+    if (label == 'phone' && value.startsWith('+')) {
+      value = value.substring(1);
+      countryCode = '+${value.substring(0, 2)}';
+      phoneNumber = value.substring(value.length - 10);
+    }
+
+    final TextEditingController controller =
+        TextEditingController(text: phoneNumber);
 
     showDialog(
       context: context,
@@ -198,7 +206,7 @@ class EditProfileScreenState extends State<EditProfileScreen> {
                   children: [
                     CountryCodePicker(
                       initialSelection: 'MX',
-                      favorite: ['+52', 'US'],
+                      favorite: ['52', 'MX'],
                       onChanged: (country) {
                         countryCode = country.dialCode ?? '+52';
                       },
@@ -234,7 +242,7 @@ class EditProfileScreenState extends State<EditProfileScreen> {
                       : TextInputType.text,
                   decoration: InputDecoration(
                     hintText: 'Enter new $label',
-                    hintStyle: TextStyle(
+                    hintStyle: const TextStyle(
                       fontSize: 14,
                       color: Colors.grey,
                     ),
@@ -307,7 +315,7 @@ class EditProfileScreenState extends State<EditProfileScreen> {
 
     showDialog(
       context: context,
-      builder: (context) {
+      builder: (BuildContext dialogContext) {
         return AlertDialog(
           title: const Text('First verify your current password'),
           content: TextField(
@@ -324,20 +332,36 @@ class EditProfileScreenState extends State<EditProfileScreen> {
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => Navigator.of(dialogContext).pop(),
               child: const Text('Cancel'),
             ),
             TextButton(
               onPressed: () async {
-                Navigator.of(context).pop();
-                if (controller.text.trim() == userPassword) {
+                String passwordInput = controller.text.trim();
+
+                if (passwordInput.isEmpty) {
+                  Navigator.of(dialogContext).pop();
+                  showCustomSnackBar(
+                      dialogContext, 'Please enter your password');
+                  return;
+                }
+
+                Navigator.of(dialogContext).pop();
+
+                bool isPasswordCorrect = await _verifyPassword(passwordInput);
+
+                if (!mounted) {
+                  return;
+                }
+
+                if (isPasswordCorrect) {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => ChangePassword(
                         purpose: 'change',
                         userId: userId!,
-                        isStaff: userTipo != 'regular' || userTipo != 'main',
+                        isStaff: userTipo != 'regular' && userTipo != 'main',
                       ),
                     ),
                   );
@@ -396,5 +420,46 @@ class EditProfileScreenState extends State<EditProfileScreen> {
   void _phoneInUse() {
     Navigator.of(context).pop();
     showCustomSnackBar(context, 'This phone number is already in use.');
+  }
+
+  Future<bool> _verifyPassword(String passwordInput) async {
+    try {
+      String tipo;
+      if (userTipo == 'doctor' ||
+          userTipo == 'nurse' ||
+          userTipo == 'stretcher bearer' ||
+          userTipo == 'human resources' ||
+          userTipo == 'social worker' ||
+          userTipo == 'administrator') {
+        tipo = 'personal';
+      } else {
+        tipo = 'familiar';
+      }
+      final url = Uri.parse('$baseUrl/auth/verify-password');
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'userId': userId,
+          'password': passwordInput,
+          'userType': tipo,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final result = jsonDecode(response.body);
+        return result['isValid'];
+      } else {
+        if (mounted) {
+          showCustomSnackBar(context, 'Error verifying password.');
+        }
+        return false;
+      }
+    } catch (e) {
+      if (mounted) {
+        showCustomSnackBar(context, 'Error verifying password.');
+      }
+      return false;
+    }
   }
 }

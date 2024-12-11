@@ -1,6 +1,7 @@
 import 'package:connectcare/data/services/user_service.dart';
 import 'package:connectcare/presentation/screens/admin/admin_home_screen.dart';
 import 'package:connectcare/presentation/screens/admin/daily_reports.dart';
+import 'package:connectcare/presentation/screens/admin/hospital_reg/register_hospital_screen.dart';
 import 'package:connectcare/presentation/screens/admin/manage_staff_users.dart';
 import 'package:connectcare/presentation/screens/admin/principal/management.dart';
 import 'package:connectcare/presentation/screens/doctor/doctor_home_screen.dart';
@@ -80,6 +81,9 @@ class _DynamicWrapperState extends State<DynamicWrapper> {
           context,
           MaterialPageRoute(builder: (context) => ChooseRoleScreen()),
           (route) => false);
+    } else if (userType == 'administrator' && isStaff && !hasClues) {
+      _pages.insert(0, const RegisterHospitalScreen());
+      _navItems.insert(0, TabItem(icon: Icons.dashboard, title: 'Register'));
     } else if (isStaff && !hasClues) {
       _pages.insert(0, const MainScreenStaff());
       _navItems.insert(0, TabItem(icon: Icons.send, title: 'Request'));

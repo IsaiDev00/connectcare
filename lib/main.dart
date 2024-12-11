@@ -59,7 +59,7 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.lightTheme(),
       darkTheme: AppTheme.darkTheme(),
       themeMode: ThemeMode.system,
-      initialRoute: '/pacientReg',
+      initialRoute: '/',
       routes: {
         '/': (context) => const DynamicWrapper(),
         '/mainScreen': (context) => MainScreen(),

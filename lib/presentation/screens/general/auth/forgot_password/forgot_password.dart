@@ -73,7 +73,7 @@ class ForgotPasswordState extends State<ForgotPassword> {
         throw Exception('Email not found');
       }
     } catch (e) {
-      throw Exception('Recover failed with email: $e');
+      showCustomSnackBar(context, 'Please enter valid credentials');
     }
   }
 

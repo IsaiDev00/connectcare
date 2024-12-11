@@ -1,10 +1,16 @@
+import 'dart:convert';
+
+import 'package:connectcare/data/services/user_service.dart';
+import 'package:connectcare/presentation/screens/general/dynamic_wrapper.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:http/http.dart' as http;
 import 'package:connectcare/core/constants/constants.dart';
 
 class FacebookAuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final userService = UserService();
 
   Future<String?> signInWithFacebook() async {
     await FacebookAuth.instance.logOut();
@@ -51,7 +57,7 @@ class FacebookAuthService {
     }
   }
 
-  Future<String?> loginWithFacebook() async {
+  Future<String?> loginWithFacebook(context) async {
     await FacebookAuth.instance.logOut();
     try {
       final LoginResult result = await FacebookAuth.instance.login(
@@ -65,23 +71,64 @@ class FacebookAuthService {
         final userData = await FacebookAuth.instance.getUserData();
         final String? email = userData['email'];
 
-        if (email == null) {
-          return 'No se pudo obtener el correo electrónico de Facebook';
+        if (email == null || email.isEmpty) {
+          return 'No se pudo obtener el correo electrónico de Facebook. Asegúrate de que tu cuenta tiene un correo asociado y otorga los permisos necesarios.';
         }
 
-        bool emailExists = await checkEmailExists(email);
+        bool emailExists = false;
+        try {
+          emailExists = await checkEmailExists(email.trim());
+        } catch (e) {
+          return 'Error al verificar el correo: $e';
+        }
+
         if (!emailExists) {
           return 'Este correo no está registrado. Por favor, regístrate primero.';
         }
 
         try {
           await _auth.signInWithCredential(facebookAuthCredential);
-          return null;
+
+          final String cleanEmail = email.trim();
+          final url2 = Uri.parse('$baseUrl/auth/loginWithEmail/$cleanEmail');
+          final response2 = await http.get(
+            url2,
+            headers: {'Content-Type': 'application/json'},
+          );
+
+          if (response2.statusCode == 200) {
+            try {
+              final userDataQuery = jsonDecode(response2.body);
+              String userId = userDataQuery['id'].toString();
+              String userType = userDataQuery['tipo'];
+              String? clues = userDataQuery['clues'];
+              String? patients = userDataQuery['patients'];
+
+              await userService.saveUserSession(
+                userId,
+                userType,
+                clues: clues,
+                patients: patients,
+              );
+
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => DynamicWrapper()),
+                (route) => false,
+              );
+              return 'Usuario logueado con exito';
+            } catch (e) {
+              throw Exception('Error al procesar la respuesta del servidor.');
+            }
+          } else {
+            throw Exception('Email no encontrado o credenciales inválidas');
+          }
         } on FirebaseAuthException catch (e) {
           if (e.code == 'account-exists-with-different-credential') {
             return 'Este correo ya está registrado con otro proveedor. Por favor, inicia sesión usando el proveedor correcto.';
+          } else {
+            return 'Error al iniciar sesión con Facebook: ${e.message}';
           }
-          return 'Error al iniciar sesión con Facebook: ${e.message}';
         }
       } else if (result.status == LoginStatus.cancelled) {
         return 'Inicio de sesión con Facebook cancelado';
@@ -89,13 +136,13 @@ class FacebookAuthService {
         return 'Error al iniciar sesión con Facebook';
       }
     } catch (e) {
-      return 'Error de autenticación con Facebook: $e';
+      return 'Error al iniciar sesión con Facebook';
     }
   }
 }
 
 Future<bool> checkEmailExists(String email) async {
-  final url = Uri.parse('$baseUrl/auth/email/$email');
+  final url = Uri.parse('$baseUrl/auth/emailAndId/$email');
   final response = await http.get(url);
 
   if (response.statusCode == 200) {

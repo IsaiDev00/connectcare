@@ -114,11 +114,11 @@ class CompleteFamiliarRegistrationState
       final firebaseUser = widget.firebaseUser;
 
       final requestBody = {
-        'nombre': firstNameController.text,
-        'apellido_paterno': lastNamePaternalController.text,
-        'apellido_materno': lastNameMaternalController.text,
+        'nombre': firstNameController.text.trim(),
+        'apellido_paterno': lastNamePaternalController.text.trim(),
+        'apellido_materno': lastNameMaternalController.text.trim(),
         'tipo': "regular",
-        'correo_electronico': firebaseUser.email ?? '',
+        'correo_electronico': firebaseUser.email!.trim().toLowerCase(),
         'firebase_uid': firebaseUser.uid,
         'auth_provider': firebaseUser.providerData[0].providerId,
       };
@@ -131,32 +131,13 @@ class CompleteFamiliarRegistrationState
       );
 
       if (response.statusCode == 201) {
-        await _navigateToCorrectScreen();
-      } else {
-        throw Exception('Registration failed: ${response.body}');
-      }
-    } catch (e) {
-      _registrationFailed(e);
-    }
-  }
+        final responseData = jsonDecode(response.body);
 
-  Future<void> _navigateToCorrectScreen() async {
-    try {
-      final url = Uri.parse(
-          '$baseUrl/auth/user_by_email_or_phone/${widget.firebaseUser}');
-      final response = await http.get(url);
+        final userId = responseData['id_familiar'].toString();
+        final userType = responseData['tipo'];
 
-      if (response.statusCode == 200) {
-        final userData = jsonDecode(response.body);
-        final userType = userData['tipo']?.toLowerCase() ?? 'unknown';
-        final clues = userData['clues'];
-        final userId = userData['id']?.toString();
+        await userService.saveUserSession(userId, userType);
 
-        if (userId == null) {
-          throw Exception("User ID is missing in the server response");
-        }
-
-        await userService.saveUserSession(userId, userType, clues: clues);
         if (mounted) {
           Navigator.pushAndRemoveUntil(
               context,
@@ -164,15 +145,11 @@ class CompleteFamiliarRegistrationState
               (route) => false);
         }
       } else {
-        throw Exception('Error fetching user data: ${response.body}');
+        throw Exception('Registration failed: ${response.body}');
       }
     } catch (e) {
-      _errorDeterminigUserType(e);
+      _registrationFailed(e);
     }
-  }
-
-  void _errorDeterminigUserType(Object e) {
-    showCustomSnackBar(context, 'Error determining user type: $e');
   }
 
   void _registrationFailed(Object e) {

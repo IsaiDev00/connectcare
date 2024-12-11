@@ -1,6 +1,5 @@
 import 'package:connectcare/presentation/screens/general/auth/forgot_password/forgot_password.dart';
 import 'package:connectcare/presentation/screens/general/auth/verification/two_step_verification_screen.dart';
-import 'package:connectcare/presentation/screens/general/dynamic_wrapper.dart';
 import 'package:connectcare/presentation/widgets/snack_bar.dart';
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
@@ -54,17 +53,15 @@ class LoginScreenState extends State<LoginScreen> {
   Future<void> _loginWithEmail(String email, String password) async {
     try {
       final url = Uri.parse('$baseUrl/auth/loginWithEmail/$email');
-      final response = await http.get(
+      final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'contrasena': password}),
       );
 
       if (response.statusCode == 200) {
         final userData = jsonDecode(response.body);
 
-        if (userData['contrasena'] != password) {
-          throw Exception('Contraseña inválida');
-        }
         userId = userData['id'].toString();
         userType = userData['tipo'];
         clues = userData['clues'];
@@ -101,17 +98,15 @@ class LoginScreenState extends State<LoginScreen> {
   Future<void> _loginWithPhone(String phone, String password) async {
     try {
       final url = Uri.parse('$baseUrl/auth/loginWithPhone/$phone');
-      final response = await http.get(
+      final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'contrasena': password}),
       );
 
       if (response.statusCode == 200) {
         final userData = jsonDecode(response.body);
 
-        if (userData['contrasena'] != password) {
-          throw Exception('Contraseña inválida');
-        }
         userId = userData['id'].toString();
         userType = userData['tipo'];
         clues = userData['clues'];
@@ -367,15 +362,12 @@ class LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _loginWithGoogle() async {
-    try {
-      final GoogleAuthService googleAuthService = GoogleAuthService();
-      final userCredential = await googleAuthService.loginWithGoogle();
+    final GoogleAuthService googleAuthService = GoogleAuthService();
 
-      if (mounted && userCredential != null) {
-        Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (context) => DynamicWrapper()),
-            (route) => false);
+    try {
+      await googleAuthService.loginWithGoogle(context);
+      if (mounted) {
+        showCustomSnackBar(context, 'Inicio de sesión exitoso');
       }
     } catch (e) {
       if (mounted) {
@@ -385,24 +377,15 @@ class LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _loginWithFacebook() async {
+    final FacebookAuthService facebookAuthService = FacebookAuthService();
     try {
-      final FacebookAuthService facebookAuthService = FacebookAuthService();
-      final String? error = await facebookAuthService.loginWithFacebook();
-
-      if (error == null) {
-        if (mounted) {
-          Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (context) => DynamicWrapper()),
-              (route) => false);
-        }
-      } else if (mounted) {
-        showCustomSnackBar(context, error);
+      await facebookAuthService.loginWithFacebook(context);
+      if (mounted) {
+        showCustomSnackBar(context, 'Inicio de sesión exitoso');
       }
     } catch (e) {
       if (mounted) {
-        showCustomSnackBar(
-            context, 'Error de inicio de sesión con Facebook: $e');
+        showCustomSnackBar(context, e.toString());
       }
     }
   }

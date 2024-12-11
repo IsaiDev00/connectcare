@@ -182,11 +182,11 @@ class CompleteStaffRegistrationState extends State<CompleteStaffRegistration> {
 
       final requestBody = {
         'id_personal': idController.text,
-        'nombre': firstNameController.text,
-        'apellido_paterno': lastNamePaternalController.text,
-        'apellido_materno': lastNameMaternalController.text,
-        'tipo': selectedUserType,
-        'correo_electronico': firebaseUser.email ?? '',
+        'nombre': firstNameController.text.trim(),
+        'apellido_paterno': lastNamePaternalController.text.trim(),
+        'apellido_materno': lastNameMaternalController.text.trim(),
+        'tipo': selectedUserType!.toLowerCase(),
+        'correo_electronico': firebaseUser.email!.trim().toLowerCase(),
         'firebase_uid': firebaseUser.uid,
         'auth_provider': firebaseUser.providerData[0].providerId,
         'estatus': 'activo',
@@ -200,32 +200,13 @@ class CompleteStaffRegistrationState extends State<CompleteStaffRegistration> {
       );
 
       if (response.statusCode == 201) {
-        await _navigateToCorrectScreen(idController.text);
-      } else {
-        throw Exception('Registration failed: ${response.body}');
-      }
-    } catch (e) {
-      _registrationFailed(e);
-    }
-  }
-
-  Future<void> _navigateToCorrectScreen(String id) async {
-    try {
-      final url = Uri.parse('$baseUrl/auth/user_by_id/$id');
-      final response = await http.get(url);
-
-      if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
 
-        final userId = responseData['id_personal']?.toString();
+        final userId = responseData['id_personal'].toString();
         final userType = responseData['tipo'];
 
-        if (userId == null) {
-          throw Exception("El servidor no devolvió un ID de usuario.");
-        }
+        await userService.saveUserSession(userId, userType);
 
-        final clues = responseData['clues'];
-        await userService.saveUserSession(userId, userType, clues: clues);
         if (mounted) {
           Navigator.pushAndRemoveUntil(
               context,
@@ -233,15 +214,11 @@ class CompleteStaffRegistrationState extends State<CompleteStaffRegistration> {
               (route) => false);
         }
       } else {
-        throw Exception('Error fetching user data: ${response.body}');
+        throw Exception('Registration failed: ${response.body}');
       }
     } catch (e) {
-      _errorDeterminigUserType(e);
+      _registrationFailed(e);
     }
-  }
-
-  void _errorDeterminigUserType(Object e) {
-    showCustomSnackBar(context, 'Error determining user type: $e');
   }
 
   void _registrationFailed(Object e) {

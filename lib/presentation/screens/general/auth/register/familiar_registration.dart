@@ -42,7 +42,7 @@ class FamiliarRegistrationState extends State<FamiliarRegistration> {
   final FacebookAuthService _facebookAuthService = FacebookAuthService();
 
   Future<bool> checkEmailExists(String email) async {
-    var url = Uri.parse('$baseUrl/auth/email/$email');
+    var url = Uri.parse('$baseUrl/auth/emailAndId/$email');
     var response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -52,7 +52,7 @@ class FamiliarRegistrationState extends State<FamiliarRegistration> {
   }
 
   Future<bool> checkPhoneExists(String phone) async {
-    var url = Uri.parse('$baseUrl/auth/telefono/$phone');
+    var url = Uri.parse('$baseUrl/auth/phoneAndId/$phone');
     var response = await http.get(url);
 
     if (response.statusCode == 200) {

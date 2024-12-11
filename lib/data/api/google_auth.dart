@@ -1,3 +1,8 @@
+import 'dart:convert';
+
+import 'package:connectcare/data/services/user_service.dart';
+import 'package:connectcare/presentation/screens/general/dynamic_wrapper.dart';
+import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
@@ -5,6 +10,7 @@ import 'package:connectcare/core/constants/constants.dart';
 
 class GoogleAuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final userService = UserService();
 
   Future<UserCredential?> signInWithGoogle() async {
     final GoogleSignIn googleSignIn = GoogleSignIn();
@@ -44,7 +50,7 @@ class GoogleAuthService {
     }
   }
 
-  Future<UserCredential?> loginWithGoogle() async {
+  Future<String?> loginWithGoogle(context) async {
     final GoogleSignIn googleSignIn = GoogleSignIn();
     await googleSignIn.signOut();
     final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
@@ -68,9 +74,42 @@ class GoogleAuthService {
         idToken: googleAuth.idToken,
       );
 
-      UserCredential userCredential =
-          await _auth.signInWithCredential(credential);
-      return userCredential;
+      await _auth.signInWithCredential(credential);
+
+      final String cleanEmail = googleUser.email.trim();
+      final url2 = Uri.parse('$baseUrl/auth/loginWithEmail/$cleanEmail');
+      final response2 = await http.get(
+        url2,
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response2.statusCode == 200) {
+        try {
+          final userDataQuery = jsonDecode(response2.body);
+          String userId = userDataQuery['id'].toString();
+          String userType = userDataQuery['tipo'];
+          String? clues = userDataQuery['clues'];
+          String? patients = userDataQuery['patients'];
+
+          await userService.saveUserSession(
+            userId,
+            userType,
+            clues: clues,
+            patients: patients,
+          );
+
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => DynamicWrapper()),
+            (route) => false,
+          );
+          return 'Usuario logueado con exito';
+        } catch (e) {
+          throw Exception('Error al procesar la respuesta del servidor.');
+        }
+      } else {
+        throw Exception('Email no encontrado o credenciales inválidas');
+      }
     } on FirebaseAuthException catch (e) {
       if (e.code == 'account-exists-with-different-credential') {
         return Future.error(
@@ -84,7 +123,7 @@ class GoogleAuthService {
 }
 
 Future<bool> checkEmailExists(String email) async {
-  var url = Uri.parse('$baseUrl/auth/email/$email');
+  var url = Uri.parse('$baseUrl/auth/emailAndId/$email');
   var response = await http.get(url);
 
   if (response.statusCode == 200) {
