@@ -14,7 +14,6 @@ import 'package:connectcare/presentation/screens/admin/short_tutorial_screen.dar
 import 'package:connectcare/presentation/screens/admin/wrapper_admin.dart';
 import 'package:connectcare/presentation/screens/doctor/documents.dart/patient_reg_screen.dart';
 import 'package:connectcare/presentation/screens/admin/hospital_reg/clues_err_screen.dart';
-import 'package:connectcare/presentation/screens/admin/hospital_reg/enter_hospital_screen.dart';
 import 'package:connectcare/presentation/screens/admin/hospital_reg/hospital_name_screen.dart';
 import 'package:connectcare/presentation/screens/admin/hospital_reg/register_hospital_screen.dart';
 import 'package:connectcare/presentation/screens/admin/hospital_reg/submit_clues_screen.dart';
@@ -29,9 +28,11 @@ import 'package:connectcare/presentation/screens/doctor/documents.dart/hoja_enfe
 import 'firebase_options.dart';
 import 'package:connectcare/data/services/navigation_service.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await EasyLocalization.ensureInitialized();
 
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
@@ -42,7 +43,14 @@ void main() async {
     appleProvider: AppleProvider.debug,
   );
 
-  runApp(MyApp(initialRoute: '/'));
+  runApp(
+    EasyLocalization(
+      supportedLocales: const [Locale('en'), Locale('es')],
+      path: 'assets/translations',
+      fallbackLocale: const Locale('en'),
+      child: const MyApp(initialRoute: '/'),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -55,6 +63,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'ConnectCare',
+      localizationsDelegates: context.localizationDelegates,
+      supportedLocales: context.supportedLocales,
+      locale: context.locale,
       navigatorKey: nav.navigatorKey,
       theme: AppTheme.lightTheme(),
       darkTheme: AppTheme.darkTheme(),
@@ -66,7 +77,6 @@ class MyApp extends StatelessWidget {
         '/profile': (context) => ProfileScreen(),
         '/settings': (context) => SettingsScreen(),
         '/registerHospital': (context) => RegisterHospitalScreen(),
-        '/enterHospital': (context) => EnterHospitalScreen(),
         '/submitCluesScreen': (context) => SubmitCluesScreen(),
         '/cluesErrScreen': (context) => CluesErrScreen(),
         '/verificationCodeScreen': (context) => VerificationCodeScreen(),

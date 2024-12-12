@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:connectcare/core/constants/constants.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class ForgotPassword extends StatefulWidget {
   const ForgotPassword({super.key});
@@ -70,10 +71,10 @@ class ForgotPasswordState extends State<ForgotPassword> {
           ),
         );
       } else {
-        throw Exception('Email not found');
+        throw Exception('Email not found'.tr());
       }
     } catch (e) {
-      showCustomSnackBar(context, 'Please enter valid credentials');
+      showCustomSnackBar(context, 'Please enter valid credentials'.tr());
     }
   }
 
@@ -105,7 +106,7 @@ class ForgotPasswordState extends State<ForgotPassword> {
           ),
         );
       } else {
-        throw Exception('Phone number not found');
+        throw Exception('Phone number not found'.tr());
       }
     } catch (e) {
       _recoverFailed();
@@ -116,7 +117,7 @@ class ForgotPasswordState extends State<ForgotPassword> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Recover password'),
+        title: Text('Recover password'.tr()),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -130,18 +131,19 @@ class ForgotPasswordState extends State<ForgotPassword> {
                 isEmailMode
                     ? TextFormField(
                         controller: _emailOrPhoneController,
-                        decoration: const InputDecoration(
-                          labelText: 'Email Address',
+                        decoration: InputDecoration(
+                          labelText: 'Email Address'.tr(),
                           border: OutlineInputBorder(),
                         ),
                         keyboardType: TextInputType.emailAddress,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter your email address';
+                            return 'Please enter your email address'.tr();
                           }
                           final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
                           if (!emailRegex.hasMatch(value)) {
-                            return 'Please enter a valid email address (example@example.com)';
+                            return 'Please enter a valid email address (example@example.com)'
+                                .tr();
                           }
                           return null;
                         },
@@ -166,8 +168,8 @@ class ForgotPasswordState extends State<ForgotPassword> {
                           Expanded(
                             child: TextFormField(
                               controller: _phoneNumberController,
-                              decoration: const InputDecoration(
-                                labelText: 'Phone Number',
+                              decoration: InputDecoration(
+                                labelText: 'Phone Number'.tr(),
                                 border: OutlineInputBorder(),
                               ),
                               keyboardType: TextInputType.phone,
@@ -177,10 +179,11 @@ class ForgotPasswordState extends State<ForgotPassword> {
                               ],
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return 'Please enter your phone number';
+                                  return 'Please enter your phone number'.tr();
                                 }
                                 if (value.length != 10) {
-                                  return 'Phone number must be exactly 10 digits';
+                                  return 'Phone number must be exactly 10 digits'
+                                      .tr();
                                 }
                                 return null;
                               },
@@ -193,7 +196,7 @@ class ForgotPasswordState extends State<ForgotPassword> {
                   onPressed: () async {
                     _recover();
                   },
-                  child: const Text('Continue'),
+                  child: Text('Continue'.tr()),
                 ),
                 const SizedBox(height: 20),
                 Row(
@@ -201,7 +204,7 @@ class ForgotPasswordState extends State<ForgotPassword> {
                     const Expanded(child: Divider()),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Text("or"),
+                      child: Text("or".tr()),
                     ),
                     const Expanded(child: Divider()),
                   ],
@@ -223,7 +226,9 @@ class ForgotPasswordState extends State<ForgotPassword> {
                     color: Theme.of(context).iconTheme.color,
                   ),
                   label: Text(
-                    isEmailMode ? 'Continue with Phone' : 'Continue with Email',
+                    isEmailMode
+                        ? 'Continue with Phone'.tr()
+                        : 'Continue with Email'.tr(),
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                         color: Theme.of(context).textTheme.bodyLarge?.color),
                   ),
@@ -243,7 +248,7 @@ class ForgotPasswordState extends State<ForgotPassword> {
   }
 
   void _recoverFailed() {
-    showCustomSnackBar(context, 'Please enter valid credentials');
+    showCustomSnackBar(context, 'Please enter valid credentials'.tr());
   }
 
   void _focusScope() {

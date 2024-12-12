@@ -50,7 +50,7 @@ class GoogleAuthService {
     }
   }
 
-  Future<String?> loginWithGoogle(context) async {
+  Future<String?> loginWithGoogle(BuildContext context) async {
     final GoogleSignIn googleSignIn = GoogleSignIn();
     await googleSignIn.signOut();
     final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
@@ -59,63 +59,47 @@ class GoogleAuthService {
       return Future.error('Inicio de sesión cancelado por el usuario');
     }
 
-    final GoogleSignInAuthentication googleAuth =
-        await googleUser.authentication;
+    await googleUser.authentication;
 
     try {
-      bool emailExists = await checkEmailExists(googleUser.email);
-      if (!emailExists) {
+      final String cleanEmail = googleUser.email.trim();
+
+      final url = Uri.parse('$baseUrl/auth/loginWithProvider/$cleanEmail');
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 404) {
         return Future.error(
             'Este correo no está registrado. Por favor, regístrate primero.');
       }
 
-      final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-
-      await _auth.signInWithCredential(credential);
-
-      final String cleanEmail = googleUser.email.trim();
-      final url2 = Uri.parse('$baseUrl/auth/loginWithEmail/$cleanEmail');
-      final response2 = await http.get(
-        url2,
-        headers: {'Content-Type': 'application/json'},
-      );
-
-      if (response2.statusCode == 200) {
-        try {
-          final userDataQuery = jsonDecode(response2.body);
-          String userId = userDataQuery['id'].toString();
-          String userType = userDataQuery['tipo'];
-          String? clues = userDataQuery['clues'];
-          String? patients = userDataQuery['patients'];
-
-          await userService.saveUserSession(
-            userId,
-            userType,
-            clues: clues,
-            patients: patients,
-          );
-
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (context) => DynamicWrapper()),
-            (route) => false,
-          );
-          return 'Usuario logueado con exito';
-        } catch (e) {
-          throw Exception('Error al procesar la respuesta del servidor.');
-        }
-      } else {
-        throw Exception('Email no encontrado o credenciales inválidas');
+      if (response.statusCode != 200) {
+        throw Exception('Error al verificar el correo');
       }
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'account-exists-with-different-credential') {
-        return Future.error(
-            'Este correo ya está registrado con otro proveedor. Por favor, inicia sesión usando el proveedor correcto.');
+
+      final userData = jsonDecode(response.body);
+      String userId = userData['id'].toString();
+      String userType = userData['tipo'];
+      String? clues = userData['clues'];
+      String? patients = userData['patients'];
+
+      await userService.saveUserSession(
+        userId,
+        userType,
+        clues: clues,
+        patients: patients,
+      );
+      if (context.mounted) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => DynamicWrapper()),
+          (route) => false,
+        );
       }
-      return Future.error('Error al iniciar sesión con Google: ${e.message}');
+
+      return 'Usuario logueado con éxito';
     } catch (e) {
       return Future.error('Error en el inicio de sesión con Google: $e');
     }

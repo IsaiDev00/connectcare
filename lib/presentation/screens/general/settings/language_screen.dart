@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class LanguageScreen extends StatelessWidget {
   const LanguageScreen({super.key});
@@ -9,29 +10,33 @@ class LanguageScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Idioma'),
+        title: Text('Language'.tr()),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
           ListTile(
             leading: Icon(Icons.language, color: theme.colorScheme.primary),
-            title: const Text('Español'),
+            title: Text('Español'),
             onTap: () {
-              // Lógica para cambiar el idioma a Español
+              context.setLocale(Locale('es'));
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Idioma cambiado a Español')),
+                const SnackBar(
+                    content: Text('Idioma cambiado a Español'),
+                    duration: Duration(seconds: 1)),
               );
             },
           ),
           const Divider(),
           ListTile(
             leading: Icon(Icons.language, color: theme.colorScheme.primary),
-            title: const Text('English'),
+            title: Text('English'),
             onTap: () {
-              // Lógica para cambiar el idioma a Inglés
+              context.setLocale(Locale('en'));
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Language changed to English')),
+                const SnackBar(
+                    content: Text('Language changed to English'),
+                    duration: Duration(seconds: 1)),
               );
             },
           ),

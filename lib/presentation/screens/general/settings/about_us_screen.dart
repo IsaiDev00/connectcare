@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 class AboutUsScreen extends StatelessWidget {
@@ -9,7 +10,7 @@ class AboutUsScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Sobre Nosotros'),
+        title: Text('About us'.tr()),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -31,18 +32,18 @@ class AboutUsScreen extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             Text(
-              'Nuestra misión es conectar y facilitar la gestión de hospitales, pacientes y familiares con la tecnología más avanzada.',
+              'Mission'.tr(),
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyMedium,
             ),
             const SizedBox(height: 20),
             Text(
-              '¿Tienes preguntas? Contáctanos en:',
+              'Do you have questions? Contact us at:'.tr(),
               style: theme.textTheme.bodyLarge,
             ),
             const SizedBox(height: 10),
             Text(
-              'Email1: guillermoisailh@gmail.com\nEmail2: carlosivanb@gmail.com\nTeléfono1: +52 33 2354 8237\nTeléfono2: +52 33 3328 6272',
+              'Info'.tr(),
               style: theme.textTheme.bodyMedium,
             ),
           ],

@@ -10,6 +10,7 @@ import 'dart:convert';
 import 'package:connectcare/core/constants/constants.dart';
 import 'package:connectcare/data/api/google_auth.dart';
 import 'package:connectcare/data/api/facebook_auth.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -88,7 +89,7 @@ class LoginScreenState extends State<LoginScreen> {
           );
         }
       } else {
-        throw Exception('Email no encontrado o credenciales inválidas');
+        throw Exception('Email not found or invalid credentials'.tr());
       }
     } catch (e) {
       _loginFailed();
@@ -132,8 +133,7 @@ class LoginScreenState extends State<LoginScreen> {
           );
         }
       } else {
-        throw Exception(
-            'Número de teléfono no encontrado o credenciales inválidas');
+        throw Exception('Phone number not found or invalid credentials'.tr());
       }
     } catch (e) {
       _loginFailed();
@@ -146,7 +146,7 @@ class LoginScreenState extends State<LoginScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Login'),
+        title: Text('Login'.tr()),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -160,18 +160,19 @@ class LoginScreenState extends State<LoginScreen> {
                 isEmailMode
                     ? TextFormField(
                         controller: _emailOrPhoneController,
-                        decoration: const InputDecoration(
-                          labelText: 'Email Address',
+                        decoration: InputDecoration(
+                          labelText: 'Email Address'.tr(),
                           border: OutlineInputBorder(),
                         ),
                         keyboardType: TextInputType.emailAddress,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter your email address';
+                            return 'Please enter your email address'.tr();
                           }
                           final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
                           if (!emailRegex.hasMatch(value)) {
-                            return 'Please enter a valid email address (example@example.com)';
+                            return 'Please enter a valid email address (example@example.com)'
+                                .tr();
                           }
                           return null;
                         },
@@ -196,8 +197,8 @@ class LoginScreenState extends State<LoginScreen> {
                           Expanded(
                             child: TextFormField(
                               controller: _phoneNumberController,
-                              decoration: const InputDecoration(
-                                labelText: 'Phone Number',
+                              decoration: InputDecoration(
+                                labelText: 'Phone Number'.tr(),
                                 border: OutlineInputBorder(),
                               ),
                               keyboardType: TextInputType.phone,
@@ -207,10 +208,11 @@ class LoginScreenState extends State<LoginScreen> {
                               ],
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return 'Please enter your phone number';
+                                  return 'Please enter your phone number'.tr();
                                 }
                                 if (value.length != 10) {
-                                  return 'Phone number must be exactly 10 digits';
+                                  return 'Phone number must be exactly 10 digits'
+                                      .tr();
                                 }
                                 return null;
                               },
@@ -221,14 +223,14 @@ class LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 15),
                 TextFormField(
                   controller: _passwordController,
-                  decoration: const InputDecoration(
-                    labelText: 'Password',
+                  decoration: InputDecoration(
+                    labelText: 'Password'.tr(),
                     border: OutlineInputBorder(),
                   ),
                   obscureText: true,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your password';
+                      return 'Please enter your password'.tr();
                     }
                     return null;
                   },
@@ -244,7 +246,7 @@ class LoginScreenState extends State<LoginScreen> {
                               builder: (context) => ForgotPassword()));
                     },
                     child: Text(
-                      'Forgot password?',
+                      'Forgot password?'.tr(),
                       style: TextStyle(
                         decoration: TextDecoration.underline,
                         color: Theme.of(context).primaryColor,
@@ -257,7 +259,7 @@ class LoginScreenState extends State<LoginScreen> {
                   onPressed: () async {
                     _login();
                   },
-                  child: const Text('Login'),
+                  child: Text('Login'.tr()),
                 ),
                 const SizedBox(height: 20),
                 Row(
@@ -265,7 +267,7 @@ class LoginScreenState extends State<LoginScreen> {
                     const Expanded(child: Divider()),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Text("or"),
+                      child: Text("or".tr()),
                     ),
                     const Expanded(child: Divider()),
                   ],
@@ -287,7 +289,9 @@ class LoginScreenState extends State<LoginScreen> {
                     color: Theme.of(context).iconTheme.color,
                   ),
                   label: Text(
-                    isEmailMode ? 'Continue with Phone' : 'Continue with Email',
+                    isEmailMode
+                        ? 'Continue with Phone'.tr()
+                        : 'Continue with Email'.tr(),
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                         color: Theme.of(context).textTheme.bodyLarge?.color),
                   ),
@@ -310,7 +314,7 @@ class LoginScreenState extends State<LoginScreen> {
                         : Colors.blue,
                   ),
                   label: Text(
-                    'Continue with Facebook',
+                    'Continue with Facebook'.tr(),
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                           color: Theme.of(context).textTheme.bodyLarge?.color,
                         ),
@@ -332,7 +336,7 @@ class LoginScreenState extends State<LoginScreen> {
                           ? Colors.white
                           : Colors.red),
                   label: Text(
-                    'Continue with Google',
+                    'Continue with Google'.tr(),
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                           color: Theme.of(context).textTheme.bodyLarge?.color,
                         ),
@@ -353,7 +357,7 @@ class LoginScreenState extends State<LoginScreen> {
   }
 
   void _loginFailed() {
-    showCustomSnackBar(context, 'Please enter valid credentials');
+    showCustomSnackBar(context, 'Please enter valid credentials'.tr());
   }
 
   void _focusScope() {
@@ -366,9 +370,6 @@ class LoginScreenState extends State<LoginScreen> {
 
     try {
       await googleAuthService.loginWithGoogle(context);
-      if (mounted) {
-        showCustomSnackBar(context, 'Inicio de sesión exitoso');
-      }
     } catch (e) {
       if (mounted) {
         showCustomSnackBar(context, e.toString());
@@ -380,9 +381,6 @@ class LoginScreenState extends State<LoginScreen> {
     final FacebookAuthService facebookAuthService = FacebookAuthService();
     try {
       await facebookAuthService.loginWithFacebook(context);
-      if (mounted) {
-        showCustomSnackBar(context, 'Inicio de sesión exitoso');
-      }
     } catch (e) {
       if (mounted) {
         showCustomSnackBar(context, e.toString());

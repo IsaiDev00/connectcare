@@ -10,6 +10,7 @@ import 'package:connectcare/data/api/google_auth.dart';
 import 'package:connectcare/data/api/facebook_auth.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:country_code_picker/country_code_picker.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class FamiliarRegistration extends StatefulWidget {
   const FamiliarRegistration({super.key});
@@ -67,7 +68,7 @@ class FamiliarRegistrationState extends State<FamiliarRegistration> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Register with ConnectCare'),
+        title: Text('Register with ConnectCare'.tr()),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () {
@@ -98,13 +99,13 @@ class FamiliarRegistrationState extends State<FamiliarRegistration> {
                 const SizedBox(height: 30),
                 TextFormField(
                   controller: _firstNameController,
-                  decoration: const InputDecoration(
-                    labelText: 'First Name',
+                  decoration: InputDecoration(
+                    labelText: 'First Name'.tr(),
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your first name';
+                      return 'Please enter your first name'.tr();
                     }
                     return null;
                   },
@@ -112,13 +113,13 @@ class FamiliarRegistrationState extends State<FamiliarRegistration> {
                 const SizedBox(height: 15),
                 TextFormField(
                   controller: _lastNamePaternalController,
-                  decoration: const InputDecoration(
-                    labelText: 'Last Name (Paternal)',
+                  decoration: InputDecoration(
+                    labelText: 'Last Name (Paternal)'.tr(),
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your paternal last name';
+                      return 'Please enter your paternal last name'.tr();
                     }
                     return null;
                   },
@@ -126,13 +127,13 @@ class FamiliarRegistrationState extends State<FamiliarRegistration> {
                 const SizedBox(height: 15),
                 TextFormField(
                   controller: _lastNameMaternalController,
-                  decoration: const InputDecoration(
-                    labelText: 'Last Name (Maternal)',
+                  decoration: InputDecoration(
+                    labelText: 'Last Name (Maternal)'.tr(),
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your maternal last name';
+                      return 'Please enter your maternal last name'.tr();
                     }
                     return null;
                   },
@@ -141,18 +142,19 @@ class FamiliarRegistrationState extends State<FamiliarRegistration> {
                 isEmailMode
                     ? TextFormField(
                         controller: _emailOrPhoneController,
-                        decoration: const InputDecoration(
-                          labelText: 'Email Address',
+                        decoration: InputDecoration(
+                          labelText: 'Email Address'.tr(),
                           border: OutlineInputBorder(),
                         ),
                         keyboardType: TextInputType.emailAddress,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter your email address';
+                            return 'Please enter your email address'.tr();
                           }
                           final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
                           if (!emailRegex.hasMatch(value)) {
-                            return 'Please enter a valid email address (example@example.com)';
+                            return 'Please enter a valid email address (example@example.com)'
+                                .tr();
                           }
                           return null;
                         },
@@ -177,8 +179,8 @@ class FamiliarRegistrationState extends State<FamiliarRegistration> {
                           Expanded(
                             child: TextFormField(
                               controller: _phoneNumberController,
-                              decoration: const InputDecoration(
-                                labelText: 'Phone Number',
+                              decoration: InputDecoration(
+                                labelText: 'Phone Number'.tr(),
                                 border: OutlineInputBorder(),
                               ),
                               keyboardType: TextInputType.phone,
@@ -188,10 +190,11 @@ class FamiliarRegistrationState extends State<FamiliarRegistration> {
                               ],
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return 'Please enter your phone number';
+                                  return 'Please enter your phone number'.tr();
                                 }
                                 if (value.length != 10) {
-                                  return 'Phone number must be exactly 10 digits';
+                                  return 'Phone number must be exactly 10 digits'
+                                      .tr();
                                 }
                                 return null;
                               },
@@ -202,20 +205,21 @@ class FamiliarRegistrationState extends State<FamiliarRegistration> {
                 const SizedBox(height: 15),
                 TextFormField(
                   controller: _passwordController,
-                  decoration: const InputDecoration(
-                    labelText: 'Password',
+                  decoration: InputDecoration(
+                    labelText: 'Password'.tr(),
                     border: OutlineInputBorder(),
                     errorMaxLines: 3,
                   ),
                   obscureText: true,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your password';
+                      return 'Please enter your password'.tr();
                     }
                     final passwordRegex = RegExp(
                         r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#%^&*~`+\-/<>,.]).{8,}$');
                     if (!passwordRegex.hasMatch(value)) {
-                      return 'Password must be at least 8 characters and include uppercase, lowercase, numbers, and symbols ¡@#%^&*~`+-/<>,.';
+                      return 'Password must be at least 8 characters and include uppercase, lowercase, numbers, and symbols ¡@#%^&*~`+-/<>,.'
+                          .tr();
                     }
                     return null;
                   },
@@ -223,8 +227,8 @@ class FamiliarRegistrationState extends State<FamiliarRegistration> {
                 const SizedBox(height: 15),
                 TextFormField(
                   controller: _confirmPasswordController,
-                  decoration: const InputDecoration(
-                    labelText: 'Confirm Password',
+                  decoration: InputDecoration(
+                    labelText: 'Confirm Password'.tr(),
                     border: OutlineInputBorder(),
                   ),
                   obscureText: true,
@@ -232,7 +236,7 @@ class FamiliarRegistrationState extends State<FamiliarRegistration> {
                     if (value != _passwordController.text ||
                         value == null ||
                         value.isEmpty) {
-                      return 'Passwords do not match';
+                      return 'Passwords do not match'.tr();
                     }
                     return null;
                   },
@@ -248,7 +252,8 @@ class FamiliarRegistrationState extends State<FamiliarRegistration> {
                             _emailOrPhoneController.text);
                         if (emailExists) {
                           scaffoldMessenger.showSnackBar(
-                            SnackBar(content: Text('Email is already in use')),
+                            SnackBar(
+                                content: Text('Email is already in use'.tr())),
                           );
                           return;
                         }
@@ -262,8 +267,8 @@ class FamiliarRegistrationState extends State<FamiliarRegistration> {
                         if (phoneExists) {
                           scaffoldMessenger.showSnackBar(
                             SnackBar(
-                                content:
-                                    Text('Phone number is already in use')),
+                                content: Text(
+                                    'Phone number is already in use'.tr())),
                           );
                           return;
                         }
@@ -271,7 +276,7 @@ class FamiliarRegistrationState extends State<FamiliarRegistration> {
                       }
                     }
                   },
-                  child: const Text('Continue'),
+                  child: Text('Continue'.tr()),
                 ),
                 const SizedBox(height: 20),
                 Row(
@@ -279,7 +284,7 @@ class FamiliarRegistrationState extends State<FamiliarRegistration> {
                     const Expanded(child: Divider()),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Text("or"),
+                      child: Text("or".tr()),
                     ),
                     const Expanded(child: Divider()),
                   ],
@@ -301,7 +306,9 @@ class FamiliarRegistrationState extends State<FamiliarRegistration> {
                     color: Theme.of(context).iconTheme.color,
                   ),
                   label: Text(
-                    isEmailMode ? 'Continue with Phone' : 'Continue with Email',
+                    isEmailMode
+                        ? 'Continue with Phone'.tr()
+                        : 'Continue with Email'.tr(),
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                         color: Theme.of(context).textTheme.bodyLarge?.color),
                   ),
@@ -324,7 +331,7 @@ class FamiliarRegistrationState extends State<FamiliarRegistration> {
                         : Colors.blue,
                   ),
                   label: Text(
-                    'Continue with Facebook',
+                    'Continue with Facebook'.tr(),
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                         color: Theme.of(context).textTheme.bodyLarge?.color),
                   ),
@@ -347,7 +354,7 @@ class FamiliarRegistrationState extends State<FamiliarRegistration> {
                         : Colors.red,
                   ),
                   label: Text(
-                    'Continue with Google',
+                    'Continue with Google'.tr(),
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                         color: Theme.of(context).textTheme.bodyLarge?.color),
                   ),
@@ -382,7 +389,7 @@ class FamiliarRegistrationState extends State<FamiliarRegistration> {
                 builder: (context) =>
                     CompleteFamiliarRegistration(firebaseUser: firebaseUser)));
       } else {
-        _showSnackBarMessage('Failed to retrieve Google user.');
+        _showSnackBarMessage('Failed to retrieve Google user.'.tr());
       }
     } catch (e) {
       _showSnackBarMessage(e.toString());
@@ -394,7 +401,7 @@ class FamiliarRegistrationState extends State<FamiliarRegistration> {
     try {
       errorMessage = await _facebookAuthService.signInWithFacebook();
     } catch (e) {
-      _showSnackBarMessage('Error inesperado: $e');
+      _showSnackBarMessage('Unexpected error'.tr());
       return;
     }
 

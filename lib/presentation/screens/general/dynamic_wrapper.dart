@@ -14,6 +14,7 @@ import 'package:connectcare/presentation/screens/human_resources/human_resources
 import 'package:connectcare/presentation/screens/nurse/nurse_home_screen.dart';
 import 'package:connectcare/presentation/screens/social_worker/social_worker_home_screen.dart';
 import 'package:connectcare/presentation/screens/stretcher_bearer/stretcher_bearer_home_screen.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:connectcare/presentation/screens/general/settings/settings_screen.dart';
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
@@ -61,12 +62,12 @@ class _DynamicWrapperState extends State<DynamicWrapper> {
       isStaff = true;
     }
     _configurePages();
-    print("PRUEBAAS");
+    /*print("PRUEBAAS");
     print('User type: $userType');
     print('Has clues: $hasClues');
     print('Has patients: $hasPatients');
     print('Pages: $_pages');
-    print('Nav items: $_navItems');
+    print('Nav items: $_navItems');*/
   }
 
   void _configurePages() {
@@ -74,7 +75,7 @@ class _DynamicWrapperState extends State<DynamicWrapper> {
     _navItems.clear();
 
     _pages.add(const SettingsScreen());
-    _navItems.add(TabItem(icon: Icons.settings, title: 'Settings'));
+    _navItems.add(TabItem(icon: Icons.settings, title: 'Settings'.tr()));
 
     if (userType == '') {
       Navigator.pushAndRemoveUntil(
@@ -83,52 +84,69 @@ class _DynamicWrapperState extends State<DynamicWrapper> {
           (route) => false);
     } else if (userType == 'administrator' && isStaff && !hasClues) {
       _pages.insert(0, const RegisterHospitalScreen());
-      _navItems.insert(0, TabItem(icon: Icons.dashboard, title: 'Register'));
+      _navItems.insert(
+          0, TabItem(icon: Icons.dashboard, title: 'Register'.tr()));
     } else if (isStaff && !hasClues) {
       _pages.insert(0, const MainScreenStaff());
-      _navItems.insert(0, TabItem(icon: Icons.send, title: 'Request'));
+      _navItems.insert(0, TabItem(icon: Icons.send, title: 'Request'.tr()));
     } else if (!isStaff && !hasPatients) {
       _pages.insert(0, const PatientLinkScreen());
-      _navItems.insert(0, TabItem(icon: Icons.add_link, title: 'Link'));
+      _navItems.insert(0, TabItem(icon: Icons.add_link, title: 'Link'.tr()));
     } else if (userType == 'main') {
       _pages.insert(0, const MainFamilyMemberHomeScreen());
       _pages.insert(1, const PatientLinkScreen());
-      _navItems.insert(0, TabItem(icon: Icons.home, title: 'Home'));
-      _navItems.insert(1, TabItem(icon: Icons.link, title: 'Link'));
+      _navItems.insert(0, TabItem(icon: Icons.home, title: 'Home'.tr()));
+      _navItems.insert(1, TabItem(icon: Icons.link, title: 'Link'.tr()));
     } else if (userType == 'regular') {
       _pages.insert(0, const RegularFamilyMemberHomeScreen());
       _pages.insert(1, const PatientLinkScreen());
-      _navItems.insert(0, TabItem(icon: Icons.home, title: 'Home'));
-      _navItems.insert(1, TabItem(icon: Icons.link, title: 'Link'));
+      _navItems.insert(0, TabItem(icon: Icons.home, title: 'Home'.tr()));
+      _navItems.insert(1, TabItem(icon: Icons.link, title: 'Link'.tr()));
     } else if (userType == 'stretcher bearer') {
       _pages.insert(0, const StretcherBearerHomeScreen());
-      _navItems.insert(0,
-          TabItem(icon: Icons.transfer_within_a_station, title: 'Stretcher'));
+      _pages.insert(1, const MainScreenStaff());
+      _navItems.insert(
+          0,
+          TabItem(
+              icon: Icons.transfer_within_a_station, title: 'Stretcher'.tr()));
+      _navItems.insert(1, TabItem(icon: Icons.send, title: 'Request'.tr()));
     } else if (userType == 'doctor') {
       _pages.insert(0, const DoctorHomeScreen());
+      _pages.insert(1, const MainScreenStaff());
       _navItems.insert(
-          0, TabItem(icon: Icons.medical_services, title: 'Doctor'));
+          0, TabItem(icon: Icons.medical_services, title: 'Doctor'.tr()));
+      _navItems.insert(1, TabItem(icon: Icons.send, title: 'Request'.tr()));
     } else if (userType == 'nurse') {
       _pages.insert(0, const NurseHomeScreen());
-      _navItems.insert(0, TabItem(icon: Icons.local_hospital, title: 'Nurse'));
+      _pages.insert(1, const MainScreenStaff());
+      _navItems.insert(
+          0, TabItem(icon: Icons.local_hospital, title: 'Nurse'.tr()));
+      _navItems.insert(1, TabItem(icon: Icons.send, title: 'Request'.tr()));
     } else if (userType == 'social worker') {
       _pages.insert(0, const SocialWorkerHomeScreen());
-      _navItems.insert(0, TabItem(icon: Icons.people, title: 'Social Worker'));
+      _pages.insert(1, const MainScreenStaff());
+      _navItems.insert(
+          0, TabItem(icon: Icons.people, title: 'Social Worker'.tr()));
+      _navItems.insert(1, TabItem(icon: Icons.send, title: 'Request'.tr()));
     } else if (userType == 'human resources') {
       _pages.insert(0, const HumanResourcesHomeScreen());
-      _navItems.insert(0, TabItem(icon: Icons.people_alt, title: 'HR'));
+      _pages.insert(1, const MainScreenStaff());
+      _navItems.insert(0, TabItem(icon: Icons.people_alt, title: 'HR'.tr()));
+      _navItems.insert(1, TabItem(icon: Icons.send, title: 'Request'.tr()));
     } else if (userType == 'administrator') {
       _pages.insert(0, const AdminHomeScreen());
       _pages.insert(1, const Management());
       _pages.insert(2, const ManageStaffUsers());
       _pages.insert(3, const DailyReports());
-      _navItems.insert(0, TabItem(icon: Icons.home, title: 'Home'));
+      _navItems.insert(0, TabItem(icon: Icons.home, title: 'Home'.tr()));
       _navItems.insert(
-          1, TabItem(icon: Icons.business_center, title: 'Control'));
+          1, TabItem(icon: Icons.business_center, title: 'Control'.tr()));
       _navItems.insert(
-          2, TabItem(icon: Icons.business_center, title: 'Reports'));
+          2, TabItem(icon: Icons.business_center, title: 'Staff'.tr()));
       _navItems.insert(
-          3, TabItem(icon: Icons.stacked_bar_chart_rounded, title: 'Staff'));
+          3,
+          TabItem(
+              icon: Icons.stacked_bar_chart_rounded, title: 'Reports'.tr()));
     }
   }
 

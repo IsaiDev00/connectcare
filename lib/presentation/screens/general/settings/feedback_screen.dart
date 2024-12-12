@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 class FeedbackScreen extends StatelessWidget {
@@ -9,7 +10,7 @@ class FeedbackScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Quejas y Sugerencias'),
+        title: Text('Complaints and Suggestions'.tr()),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -17,14 +18,15 @@ class FeedbackScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'Por favor, comparte tus quejas o sugerencias para mejorar nuestro servicio.',
+              'Please share your complaints or suggestions to improve our service.'
+                  .tr(),
               style: theme.textTheme.bodyMedium,
             ),
             const SizedBox(height: 20),
             TextField(
               maxLines: 8,
               decoration: InputDecoration(
-                hintText: 'Escribe aquí tus comentarios...',
+                hintText: 'Write your comments here...'.tr(),
                 hintStyle: theme.textTheme.headlineSmall,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),
@@ -35,10 +37,10 @@ class FeedbackScreen extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Gracias por tu comentario')),
+                  SnackBar(content: Text('Thanks for your comment'.tr())),
                 );
               },
-              child: const Text('Enviar'),
+              child: Text('Send'.tr()),
             ),
           ],
         ),

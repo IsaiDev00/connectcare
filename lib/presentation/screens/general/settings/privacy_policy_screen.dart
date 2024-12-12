@@ -1,7 +1,8 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:connectcare/core/constants/constants.dart'; // Asegúrate de que esta importación es correcta
+import 'package:connectcare/core/constants/constants.dart';
 
 class PrivacyPolicyScreen extends StatefulWidget {
   const PrivacyPolicyScreen({super.key});
@@ -21,8 +22,7 @@ class PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
   }
 
   Future<void> _fetchPrivacyPolicy() async {
-    final url =
-        '$baseUrl/documents/privacy'; // Usa la constante baseUrl para construir la URL
+    final url = '$baseUrl/documents/privacy';
     try {
       final response = await http.get(Uri.parse(url));
 
@@ -34,13 +34,13 @@ class PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
         });
       } else {
         setState(() {
-          _privacyPolicy = 'Error al cargar la Política de Privacidad';
+          _privacyPolicy = 'Error loading Privacy Policy'.tr();
           _loading = false;
         });
       }
     } catch (error) {
       setState(() {
-        _privacyPolicy = 'Error de conexión: No se pudo cargar el contenido.';
+        _privacyPolicy = 'Connection error: Could not load content.'.tr();
         _loading = false;
       });
     }
@@ -50,7 +50,7 @@ class PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Política de Privacidad'),
+        title: Text('Privacy Policy'.tr()),
       ),
       body: _loading
           ? Center(child: CircularProgressIndicator())

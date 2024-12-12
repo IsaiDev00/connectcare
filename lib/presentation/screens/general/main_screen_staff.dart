@@ -4,9 +4,9 @@ import 'package:connectcare/core/models/solicitud_a_hospital.dart';
 import 'package:connectcare/data/services/user_service.dart';
 import 'package:connectcare/presentation/screens/general/auth/login/login_screen.dart';
 import 'package:connectcare/presentation/widgets/snack_bar.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart';
 
 class MainScreenStaff extends StatefulWidget {
   const MainScreenStaff({super.key});
@@ -87,8 +87,7 @@ class MainScreenState extends State<MainScreenStaff> {
 
   Future<void> myHospitalsInit() async {
     if (idPersonal == null) {
-      showCustomSnackBar(
-          context, 'Error: No se encontró un idPersonal válido.');
+      showCustomSnackBar(context, 'Error: No valid Personalid found.'.tr());
       return;
     }
 
@@ -151,59 +150,101 @@ class MainScreenState extends State<MainScreenStaff> {
     required DateTime date,
   }) {
     if (idPersonal == null) {
-      showCustomSnackBar(context, 'Error: Usuario no autenticado.');
+      showCustomSnackBar(context, 'Error: User not authenticated.'.tr());
       return;
     }
 
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       builder: (context) {
         TextEditingController descriptionController = TextEditingController();
         var theme = Theme.of(context);
 
-        return Container(
-          decoration: BoxDecoration(
-            color: theme.colorScheme.surface,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(16.0)),
-          ),
-          child: Column(
-            children: [
-              Text(name),
-              TextField(
-                controller: descriptionController,
-                maxLines: 6,
-                keyboardType: TextInputType.text,
-                decoration: const InputDecoration(
-                  labelText: "Carta de solicitud...",
-                  border: OutlineInputBorder(),
-                ),
-                autofocus: true,
+        return GestureDetector(
+          onTap: () => FocusScope.of(context).unfocus(),
+          child: Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+            ),
+            child: Container(
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surface,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(16.0)),
               ),
-              Column(
-                children: [
-                  IconButton(
-                    icon: Icon(
-                      Icons.send_rounded,
-                      color: theme.colorScheme.onSurface,
-                    ),
-                    onPressed: () {
-                      crearSolicitudAHospital(
-                        clues,
-                        descriptionController.text,
-                        date,
-                        idPersonal!,
-                      );
-                    },
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            name,
+                            style: theme.textTheme.headlineSmall,
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.close),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      TextField(
+                        controller: descriptionController,
+                        maxLines: 6,
+                        keyboardType: TextInputType.text,
+                        decoration: InputDecoration(
+                          labelText: "Request letter...".tr(),
+                          border: OutlineInputBorder(),
+                        ),
+                        autofocus: true,
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          IconButton(
+                            icon: Icon(
+                              Icons.send_rounded,
+                              color: theme.colorScheme.onSurface,
+                            ),
+                            onPressed: () {
+                              if (descriptionController.text.isEmpty) {
+                                Navigator.of(context).pop();
+                                showCustomSnackBar(
+                                  context,
+                                  'Please provide a reason for your request.'
+                                      .tr(),
+                                );
+                              } else {
+                                Navigator.of(context).pop();
+                                crearSolicitudAHospital(
+                                  clues,
+                                  descriptionController.text,
+                                  date,
+                                  idPersonal!,
+                                );
+                              }
+                            },
+                          ),
+                          Text(
+                            'Send'.tr(),
+                            style: theme.textTheme.bodyLarge!.copyWith(
+                              color: theme.colorScheme.onSurface,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                  Text(
-                    'Enviar',
-                    style: theme.textTheme.bodyLarge!.copyWith(
-                      color: theme.colorScheme.onSurface,
-                    ),
-                  )
-                ],
+                ),
               ),
-            ],
+            ),
           ),
         );
       },
@@ -235,10 +276,17 @@ class MainScreenState extends State<MainScreenStaff> {
   }
 
   _responseHandlerPost(response) {
-    Navigator.of(context).pop();
-
-    responseHandlerPost(response, context, 'Solicitud creada con exito',
-        'Error al crear solicitud');
+    if (response.statusCode == 201) {
+      showCustomSnackBar(
+        context,
+        'Request created successfully'.tr(),
+      );
+    } else {
+      showCustomSnackBar(
+        context,
+        'Error creating request'.tr(),
+      );
+    }
   }
 
   @override
@@ -255,8 +303,8 @@ class MainScreenState extends State<MainScreenStaff> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  _buildMenuItem('Solicitar', 0),
-                  _buildMenuItem('Registrados', 1),
+                  _buildMenuItem('Request'.tr(), 0),
+                  _buildMenuItem('Registered'.tr(), 1),
                 ],
               ),
             ),
@@ -277,7 +325,7 @@ class MainScreenState extends State<MainScreenStaff> {
                       children: [
                         Center(
                           child: Text(
-                            'Solicitar ingreso a hospital',
+                            'Request admission to hospital'.tr(),
                             style: theme.textTheme.headlineLarge,
                           ),
                         ),
@@ -288,14 +336,15 @@ class MainScreenState extends State<MainScreenStaff> {
                             child: TextFormField(
                               controller: searchController,
                               onChanged: updateFilter,
-                              decoration: const InputDecoration(
-                                labelText: "Search...",
+                              decoration: InputDecoration(
+                                labelText: "Search...".tr(),
                                 border: OutlineInputBorder(),
                               ),
                               autofocus: true,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return 'Por favor ingrese el nombre del hospital';
+                                  return 'Please enter the name of the hospital'
+                                      .tr();
                                 }
                                 return null;
                               },
@@ -305,9 +354,9 @@ class MainScreenState extends State<MainScreenStaff> {
                         const SizedBox(height: 20),
                         Expanded(
                           child: filterHospitals.isEmpty
-                              ? const Center(
+                              ? Center(
                                   child: Text(
-                                    'No se encontraron hospitales',
+                                    'No hospitals found'.tr(),
                                     style: TextStyle(fontSize: 18),
                                   ),
                                 )
@@ -336,8 +385,10 @@ class MainScreenState extends State<MainScreenStaff> {
                                                   date: now,
                                                 );
                                               } else {
-                                                showCustomSnackBar(context,
-                                                    'Error: Usuario no autenticado.');
+                                                showCustomSnackBar(
+                                                    context,
+                                                    'Error: User not authenticated.'
+                                                        .tr());
                                               }
                                             },
                                           ),
@@ -357,16 +408,16 @@ class MainScreenState extends State<MainScreenStaff> {
                       children: [
                         Center(
                           child: Text(
-                            'Tus hospitales registrados',
+                            'Your registered hospitals'.tr(),
                             style: theme.textTheme.headlineLarge,
                           ),
                         ),
                         const SizedBox(height: 20),
                         Expanded(
                           child: myHospitals.isEmpty
-                              ? const Center(
+                              ? Center(
                                   child: Text(
-                                    'No se encontraron hospitales',
+                                    'No hospitals found'.tr(),
                                     style: TextStyle(fontSize: 18),
                                   ),
                                 )
@@ -392,12 +443,10 @@ class MainScreenState extends State<MainScreenStaff> {
                                                 onPressed: () {
                                                   showCustomSnackBar(
                                                       context, item['clues']);
-                                                  Navigator.pushNamed(context,
-                                                      '/enterHospital');
                                                 },
                                               ),
                                               Text(
-                                                'Ingresar',
+                                                'Get into'.tr(),
                                                 style:
                                                     theme.textTheme.bodyLarge,
                                               )
@@ -423,7 +472,7 @@ class MainScreenState extends State<MainScreenStaff> {
 
   void _unauthenticatedUser() {
     showCustomSnackBar(
-        context, 'Error: Usuario no autenticado. Por favor, inicie sesión.');
+        context, 'Error: User not authenticated. Please login.'.tr());
     Navigator.push(
         context, MaterialPageRoute(builder: (context) => LoginScreen()));
   }
@@ -431,7 +480,7 @@ class MainScreenState extends State<MainScreenStaff> {
   void _personalError() {
     showCustomSnackBar(
       context,
-      'Error: No se pudo obtener el idPersonal. Por favor, inténtelo de nuevo.',
+      'Error: Could not get personalid. Please try again.'.tr(),
     );
     Navigator.push(
         context, MaterialPageRoute(builder: (context) => LoginScreen()));

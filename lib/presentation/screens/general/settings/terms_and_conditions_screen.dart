@@ -1,7 +1,8 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:connectcare/core/constants/constants.dart'; // Importa la constante baseUrl
+import 'package:connectcare/core/constants/constants.dart';
 
 class TermsAndConditionsScreen extends StatefulWidget {
   const TermsAndConditionsScreen({super.key});
@@ -22,8 +23,7 @@ class TermsAndConditionsScreenState extends State<TermsAndConditionsScreen> {
   }
 
   Future<void> _fetchTermsAndConditions() async {
-    final url =
-        '$baseUrl/documents/terms'; // Usa la constante baseUrl para construir la URL
+    final url = '$baseUrl/documents/terms';
     try {
       final response = await http.get(Uri.parse(url));
 
@@ -35,14 +35,13 @@ class TermsAndConditionsScreenState extends State<TermsAndConditionsScreen> {
         });
       } else {
         setState(() {
-          _termsAndConditions = 'Error al cargar los Términos y Condiciones';
+          _termsAndConditions = 'Error loading Terms and Conditions'.tr();
           _loading = false;
         });
       }
     } catch (error) {
       setState(() {
-        _termsAndConditions =
-            'Error de conexión: No se pudo cargar el contenido.';
+        _termsAndConditions = 'Connection error: Could not load content.'.tr();
         _loading = false;
       });
     }
@@ -52,7 +51,7 @@ class TermsAndConditionsScreenState extends State<TermsAndConditionsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Términos y Condiciones'),
+        title: Text('Terms and Conditions'.tr()),
       ),
       body: _loading
           ? Center(child: CircularProgressIndicator())

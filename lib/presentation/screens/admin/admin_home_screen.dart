@@ -12,8 +12,8 @@ class AdminHomeScreen extends StatefulWidget {
 }
 
 class AdminHomeScreenState extends State<AdminHomeScreen> {
-  String cluesdoc = "ASIST000115";
-  String id = "21100286";
+  //String cluesdoc = "ASIST000115";
+  //String id = "21100286";
   final SharedPreferencesService _sharedPreferencesService =
       SharedPreferencesService();
 
@@ -24,12 +24,12 @@ class AdminHomeScreenState extends State<AdminHomeScreen> {
   }
 
   Future<void> _initializeData() async {
-    await _saveData(cluesdoc, id); // Guarda los valores iniciales
+    // await _saveData(cluesdoc, id); // Guarda los valores iniciales
     setState(() {}); // Fuerza la reconstrucción para sincronizar UI
   }
 
   // Guarda los datos en SharedPreferences
-  Future<void> _saveData(String newClues, String newId) async {
+  /*Future<void> _saveData(String newClues, String newId) async {
     await _sharedPreferencesService.saveClues(newClues);
     await _sharedPreferencesService.saveUserId(newId);
     print("Datos guardados: CLUES $newClues, ID $newId");
@@ -38,7 +38,7 @@ class AdminHomeScreenState extends State<AdminHomeScreen> {
     final savedClues = await _sharedPreferencesService.getClues();
     final savedId = await _sharedPreferencesService.getUserId();
     print("Datos verificados: CLUES $savedClues, ID $savedId");
-  }
+  }*/
 
   Future<String?> _getHospitalName() async {
     // Obtiene el CLUES actual desde SharedPreferences
@@ -68,7 +68,7 @@ class AdminHomeScreenState extends State<AdminHomeScreen> {
 
   // Cambia el CLUES y obtiene el nombre actualizado del hospital
   Future<void> updateClues(String newClues) async {
-    await _saveData(newClues, id); // Actualiza el CLUES y guarda el ID
+    //await _saveData(newClues, id); // Actualiza el CLUES y guarda el ID
     final hospitalName =
         await _getHospitalName(); // Obtén el nuevo nombre del hospital
 

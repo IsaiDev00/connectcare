@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:connectcare/presentation/screens/general/auth/forgot_password/change_password.dart';
 import 'package:connectcare/presentation/screens/general/dynamic_wrapper.dart';
 import 'package:connectcare/presentation/widgets/snack_bar.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:connectcare/core/constants/constants.dart';
@@ -104,10 +105,10 @@ class _TwoStepVerificationScreenState extends State<TwoStepVerificationScreen> {
 
         if (response.statusCode == 200) {
           if (mounted) {
-            showCustomSnackBar(context, 'Código enviado exitosamente por SMS.');
+            showCustomSnackBar(context, 'Code successfully sent by SMS.'.tr());
           }
         } else {
-          throw Exception('Error al enviar el código por SMS.');
+          throw Exception('Error sending the code by SMS.'.tr());
         }
       } else {
         final sendEmailUrl = Uri.parse('$baseUrl/auth/send-email-code');
@@ -120,15 +121,15 @@ class _TwoStepVerificationScreenState extends State<TwoStepVerificationScreen> {
         if (response.statusCode == 200) {
           if (mounted) {
             showCustomSnackBar(
-                context, 'Código enviado exitosamente al correo.');
+                context, 'Code successfully sent to the email.'.tr());
           }
         } else {
-          throw Exception('Error al enviar el código por correo.');
+          throw Exception('Error sending the code by email.'.tr());
         }
       }
     } catch (e) {
       if (mounted) {
-        showCustomSnackBar(context, 'Error al enviar el código: $e');
+        showCustomSnackBar(context, 'Error sending code'.tr());
       }
       setState(() {
         _isResendAllowed = true;
@@ -158,10 +159,10 @@ class _TwoStepVerificationScreenState extends State<TwoStepVerificationScreen> {
         if (response.statusCode == 200) {
           if (mounted) {
             showCustomSnackBar(
-                context, 'Código reenviado exitosamente por SMS.');
+                context, 'Code successfully forwarded by SMS.'.tr());
           }
         } else {
-          throw Exception('Error al reenviar el código por SMS.');
+          throw Exception('Error resending code via SMS.'.tr());
         }
       } else {
         final resendEmailUrl = Uri.parse('$baseUrl/auth/send-email-code');
@@ -174,15 +175,15 @@ class _TwoStepVerificationScreenState extends State<TwoStepVerificationScreen> {
         if (response.statusCode == 200) {
           if (mounted) {
             showCustomSnackBar(
-                context, 'Código reenviado exitosamente al correo.');
+                context, 'Code successfully forwarded to email.'.tr());
           }
         } else {
-          throw Exception('Error al reenviar el código por correo.');
+          throw Exception('Error resending the code by email.'.tr());
         }
       }
     } catch (e) {
       if (mounted) {
-        showCustomSnackBar(context, 'Error al reenviar el código: $e');
+        showCustomSnackBar(context, 'Error resending code'.tr());
       }
       setState(() {
         _isResendAllowed = true;
@@ -238,7 +239,7 @@ class _TwoStepVerificationScreenState extends State<TwoStepVerificationScreen> {
             );
           } else {
             if (mounted) {
-              showCustomSnackBar(context, 'Failed to retrieve user ID');
+              showCustomSnackBar(context, 'Failed to retrieve user ID'.tr());
             }
           }
         } else if (widget.purpose == 'login') {
@@ -307,7 +308,7 @@ class _TwoStepVerificationScreenState extends State<TwoStepVerificationScreen> {
               (route) => false);
         }
       } else {
-        throw Exception('Error en el registro: ${response.body}');
+        throw Exception('Registration error'.tr());
       }
     } catch (e) {
       //print("Error en _registerUser: $e");
@@ -318,7 +319,7 @@ class _TwoStepVerificationScreenState extends State<TwoStepVerificationScreen> {
   Future<void> _login() async {
     try {
       if (widget.userId == null || widget.userType == null) {
-        throw Exception('userId y userType no pueden ser nulos.');
+        throw Exception('userId y userType no pueden ser nulos.'.tr());
       }
       await userService.saveUserSession(
         widget.userId!,
@@ -333,7 +334,7 @@ class _TwoStepVerificationScreenState extends State<TwoStepVerificationScreen> {
             (route) => false);
       }
     } catch (e) {
-      _errorDeterminigUserType(e);
+      _errorDeterminigUserType();
     }
   }
 
@@ -379,11 +380,11 @@ class _TwoStepVerificationScreenState extends State<TwoStepVerificationScreen> {
 
       if (updateData.containsKey('telefono') &&
           updateData['telefono']!.isEmpty) {
-        throw Exception('El número de teléfono no puede estar vacío.');
+        throw Exception('The phone number cannot be empty.'.tr());
       }
       if (updateData.containsKey('correo_electronico') &&
           updateData['correo_electronico']!.isEmpty) {
-        throw Exception('El correo electrónico no puede estar vacío.');
+        throw Exception('The email cannot be empty.'.tr());
       }
       /*print(isStaff);
       print(widget.userType);
@@ -401,7 +402,7 @@ class _TwoStepVerificationScreenState extends State<TwoStepVerificationScreen> {
       if (response.statusCode == 200) {
         if (mounted) {
           showCustomSnackBar(
-              context, 'Your information has been successfully updated.');
+              context, 'Your information has been successfully updated.'.tr());
           Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(builder: (context) => DynamicWrapper()),
@@ -409,12 +410,11 @@ class _TwoStepVerificationScreenState extends State<TwoStepVerificationScreen> {
           );
         }
       } else {
-        throw Exception(
-            'Failed to update data: ${response.statusCode} - ${response.body}');
+        throw Exception('Failed to update data'.tr());
       }
     } catch (e) {
       if (mounted) {
-        showCustomSnackBar(context, 'Error updating data: $e');
+        showCustomSnackBar(context, 'Error updating data'.tr());
       }
     }
   }
@@ -422,7 +422,7 @@ class _TwoStepVerificationScreenState extends State<TwoStepVerificationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Verificación de Código')),
+      appBar: AppBar(title: Text('Code Verification'.tr())),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -432,8 +432,9 @@ class _TwoStepVerificationScreenState extends State<TwoStepVerificationScreen> {
             children: [
               Text(
                 widget.isSmsVerification
-                    ? 'Hemos enviado un código a tu número: ${widget.identifier}'
-                    : 'Hemos enviado un código a tu correo: ${widget.identifier}',
+                    ? 'sms_verification_message'.tr(args: [widget.identifier])
+                    : 'email_verification_message'
+                        .tr(args: [widget.identifier]),
                 textAlign: TextAlign.center,
                 style: const TextStyle(fontSize: 16),
               ),
@@ -443,19 +444,19 @@ class _TwoStepVerificationScreenState extends State<TwoStepVerificationScreen> {
                 keyboardType: TextInputType.number,
                 maxLength: 6,
                 decoration: InputDecoration(
-                  labelText: 'Código de Verificación',
+                  labelText: 'Verification Code'.tr(),
                   border: const OutlineInputBorder(),
                   counterText: "",
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'El código no puede estar vacío';
+                    return 'The code cannot be empty'.tr();
                   }
                   if (value.length != 6) {
-                    return 'El código debe tener exactamente 6 dígitos';
+                    return 'The code must be exactly 6 digits'.tr();
                   }
                   if (!RegExp(r'^\d{6}$').hasMatch(value)) {
-                    return 'El código solo debe contener números';
+                    return 'The code must only contain numbers'.tr();
                   }
                   return null;
                 },
@@ -465,15 +466,16 @@ class _TwoStepVerificationScreenState extends State<TwoStepVerificationScreen> {
                   ? const CircularProgressIndicator()
                   : ElevatedButton(
                       onPressed: _verifyCode,
-                      child: const Text('Verificar Código'),
+                      child: Text('Verify Code'.tr()),
                     ),
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _isResendAllowed ? _resendCode : null,
                 child: Text(
                   _isResendAllowed
-                      ? 'Reenviar Código'
-                      : 'Reenviar Código ($_resendWaitTime)',
+                      ? 'resend_code'.tr()
+                      : 'resend_code_wait'
+                          .tr(args: [_resendWaitTime.toString()]),
                 ),
               ),
             ],
@@ -484,18 +486,18 @@ class _TwoStepVerificationScreenState extends State<TwoStepVerificationScreen> {
   }
 
   void _invalidCode() {
-    showCustomSnackBar(context, 'Código inválido o expirado');
+    showCustomSnackBar(context, 'Invalid or expired code'.tr());
   }
 
   void _errorVerifyingCode() {
-    showCustomSnackBar(context, 'Error verificando el código');
+    showCustomSnackBar(context, 'Error verifying code'.tr());
   }
 
   void _errorRegisteringUser(e) {
-    showCustomSnackBar(context, 'Error registering user: $e');
+    showCustomSnackBar(context, 'Error registering user'.tr());
   }
 
-  void _errorDeterminigUserType(Object e) {
-    showCustomSnackBar(context, 'Error determining user type: $e');
+  void _errorDeterminigUserType() {
+    showCustomSnackBar(context, 'Error determining user type'.tr());
   }
 }

@@ -57,7 +57,7 @@ class FacebookAuthService {
     }
   }
 
-  Future<String?> loginWithFacebook(context) async {
+  Future<String?> loginWithFacebook(BuildContext context) async {
     await FacebookAuth.instance.logOut();
     try {
       final LoginResult result = await FacebookAuth.instance.login(
@@ -75,54 +75,46 @@ class FacebookAuthService {
           return 'No se pudo obtener el correo electrónico de Facebook. Asegúrate de que tu cuenta tiene un correo asociado y otorga los permisos necesarios.';
         }
 
-        bool emailExists = false;
-        try {
-          emailExists = await checkEmailExists(email.trim());
-        } catch (e) {
-          return 'Error al verificar el correo: $e';
-        }
-
-        if (!emailExists) {
-          return 'Este correo no está registrado. Por favor, regístrate primero.';
-        }
-
         try {
           await _auth.signInWithCredential(facebookAuthCredential);
 
           final String cleanEmail = email.trim();
-          final url2 = Uri.parse('$baseUrl/auth/loginWithEmail/$cleanEmail');
-          final response2 = await http.get(
-            url2,
+          final url = Uri.parse('$baseUrl/auth/loginWithProvider/$cleanEmail');
+          final response = await http.post(
+            url,
             headers: {'Content-Type': 'application/json'},
           );
 
-          if (response2.statusCode == 200) {
-            try {
-              final userDataQuery = jsonDecode(response2.body);
-              String userId = userDataQuery['id'].toString();
-              String userType = userDataQuery['tipo'];
-              String? clues = userDataQuery['clues'];
-              String? patients = userDataQuery['patients'];
-
-              await userService.saveUserSession(
-                userId,
-                userType,
-                clues: clues,
-                patients: patients,
-              );
-
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (context) => DynamicWrapper()),
-                (route) => false,
-              );
-              return 'Usuario logueado con exito';
-            } catch (e) {
-              throw Exception('Error al procesar la respuesta del servidor.');
-            }
-          } else {
-            throw Exception('Email no encontrado o credenciales inválidas');
+          if (response.statusCode == 404) {
+            return 'Este correo no está registrado. Por favor, regístrate primero.';
           }
+
+          if (response.statusCode != 200) {
+            throw Exception('Error al verificar el correo.');
+          }
+
+          final userDataQuery = jsonDecode(response.body);
+          String userId = userDataQuery['id'].toString();
+          String userType = userDataQuery['tipo'];
+          String? clues = userDataQuery['clues'];
+          String? patients = userDataQuery['patients'];
+
+          await userService.saveUserSession(
+            userId,
+            userType,
+            clues: clues,
+            patients: patients,
+          );
+
+          if (context.mounted) {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => DynamicWrapper()),
+              (route) => false,
+            );
+          }
+
+          return 'Usuario logueado con éxito';
         } on FirebaseAuthException catch (e) {
           if (e.code == 'account-exists-with-different-credential') {
             return 'Este correo ya está registrado con otro proveedor. Por favor, inicia sesión usando el proveedor correcto.';
@@ -136,7 +128,7 @@ class FacebookAuthService {
         return 'Error al iniciar sesión con Facebook';
       }
     } catch (e) {
-      return 'Error al iniciar sesión con Facebook';
+      return 'Error al iniciar sesión con Facebook: $e';
     }
   }
 }

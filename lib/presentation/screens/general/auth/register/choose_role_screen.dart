@@ -6,6 +6,7 @@ import 'package:connectcare/presentation/screens/general/settings/terms_and_cond
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/gestures.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class ChooseRoleScreen extends StatelessWidget {
   const ChooseRoleScreen({super.key});
@@ -39,13 +40,13 @@ class ChooseRoleScreen extends StatelessWidget {
             ),
             SizedBox(height: 40),
             Text(
-              'Welcome to ConnectCare',
+              'Welcome to ConnectCare'.tr(),
               style: Theme.of(context).textTheme.headlineLarge,
               textAlign: TextAlign.center,
             ),
             SizedBox(height: 20),
             Text(
-              'Create an account to get started.',
+              'Create an account to get started.'.tr(),
               style: Theme.of(context).textTheme.headlineSmall,
               textAlign: TextAlign.center,
             ),
@@ -57,7 +58,7 @@ class ChooseRoleScreen extends StatelessWidget {
                     MaterialPageRoute(
                         builder: (context) => StaffRegistration()));
               },
-              child: Text('Hospital staff'),
+              child: Text('Hospital staff'.tr()),
             ),
             SizedBox(height: 20),
             ElevatedButton(
@@ -67,7 +68,7 @@ class ChooseRoleScreen extends StatelessWidget {
                     MaterialPageRoute(
                         builder: (context) => FamiliarRegistration()));
               },
-              child: Text('Familiar'),
+              child: Text('Familiar'.tr()),
             ),
             SizedBox(height: 30),
             Column(
@@ -78,7 +79,7 @@ class ChooseRoleScreen extends StatelessWidget {
                         MaterialPageRoute(builder: (context) => LoginScreen()));
                   },
                   child: Text(
-                    'Already have an account? Log in',
+                    'Already have an account? Log in'.tr(),
                     style: TextStyle(
                       decoration: TextDecoration.underline,
                       color: Theme.of(context).primaryColor,
@@ -89,11 +90,11 @@ class ChooseRoleScreen extends StatelessWidget {
                 RichText(
                   textAlign: TextAlign.center,
                   text: TextSpan(
-                    text: 'By continuing, you agree to ConnectCare\'s ',
+                    text: 'By continuing, you agree to ConnectCare'.tr(),
                     style: Theme.of(context).textTheme.bodyMedium,
                     children: [
                       TextSpan(
-                        text: 'Terms and Conditions',
+                        text: 'Terms and Conditions'.tr(),
                         style: TextStyle(
                           color: Theme.of(context).primaryColor,
                           decoration: TextDecoration.underline,
@@ -107,9 +108,9 @@ class ChooseRoleScreen extends StatelessWidget {
                                         TermsAndConditionsScreen()));
                           },
                       ),
-                      TextSpan(text: ' and '),
+                      TextSpan(text: ' and '.tr()),
                       TextSpan(
-                        text: 'Privacy Policy',
+                        text: 'Privacy Policy'.tr(),
                         style: TextStyle(
                           color: Theme.of(context).primaryColor,
                           decoration: TextDecoration.underline,

@@ -29,6 +29,9 @@ dependencies:
   intl: ^0.19.0
   country_code_picker: ^3.1.0
   firebase_app_check: ^0.3.1+6
+  flutter_localizations:
+    sdk: flutter
+  easy_localization: ^3.0.7
 
 dev_dependencies:
   flutter_test:
@@ -45,11 +48,9 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/config/connectcareproject-6102d762b62b.json
     - assets/images/
-    - assets/certs/server-ca.pem
-    - assets/certs/client-cert.pem
-    - assets/certs/client-key.pem
+    - assets/translations/en.json
+    - assets/translations/es.json
 
   fonts:
     - family: Suisse_Intl

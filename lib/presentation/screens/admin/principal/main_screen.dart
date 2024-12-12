@@ -74,10 +74,7 @@ class MainScreenState extends State<MainScreen> {
               SizedBox(
                 width: MediaQuery.of(context).size.width / 1.5,
                 child: ElevatedButton(
-                  onPressed: () {
-                    // Navegar a la pantalla de ingreso a hospital
-                    Navigator.pushNamed(context, '/enterHospital');
-                  },
+                  onPressed: () {},
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 40, vertical: 20),

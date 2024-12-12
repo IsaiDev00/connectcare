@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:connectcare/core/constants/constants.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class CompleteFamiliarRegistration extends StatefulWidget {
   final User firebaseUser;
@@ -32,7 +33,7 @@ class CompleteFamiliarRegistrationState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Complete Familiar Registration'),
+        title: Text('Complete Familiar Registration'.tr()),
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
@@ -53,13 +54,13 @@ class CompleteFamiliarRegistrationState
                 const SizedBox(height: 30),
                 TextFormField(
                   controller: firstNameController,
-                  decoration: const InputDecoration(
-                    labelText: 'First Name',
+                  decoration: InputDecoration(
+                    labelText: 'First Name'.tr(),
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your first name';
+                      return 'Please enter your first name'.tr();
                     }
                     return null;
                   },
@@ -67,13 +68,13 @@ class CompleteFamiliarRegistrationState
                 const SizedBox(height: 15),
                 TextFormField(
                   controller: lastNamePaternalController,
-                  decoration: const InputDecoration(
-                    labelText: 'Last Name (Paternal)',
+                  decoration: InputDecoration(
+                    labelText: 'Last Name (Paternal)'.tr(),
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your paternal last name';
+                      return 'Please enter your paternal last name'.tr();
                     }
                     return null;
                   },
@@ -81,13 +82,13 @@ class CompleteFamiliarRegistrationState
                 const SizedBox(height: 15),
                 TextFormField(
                   controller: lastNameMaternalController,
-                  decoration: const InputDecoration(
-                    labelText: 'Last Name (Maternal)',
+                  decoration: InputDecoration(
+                    labelText: 'Last Name (Maternal)'.tr(),
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your maternal last name';
+                      return 'Please enter your maternal last name'.tr();
                     }
                     return null;
                   },
@@ -99,7 +100,7 @@ class CompleteFamiliarRegistrationState
                       await _registerUser();
                     }
                   },
-                  child: const Text('Register'),
+                  child: Text('Register'.tr()),
                 ),
               ],
             ),
@@ -145,14 +146,14 @@ class CompleteFamiliarRegistrationState
               (route) => false);
         }
       } else {
-        throw Exception('Registration failed: ${response.body}');
+        throw Exception('Registration failed'.tr());
       }
     } catch (e) {
-      _registrationFailed(e);
+      _registrationFailed();
     }
   }
 
-  void _registrationFailed(Object e) {
-    showCustomSnackBar(context, 'Registration failed: $e');
+  void _registrationFailed() {
+    showCustomSnackBar(context, 'Registration failed'.tr());
   }
 }

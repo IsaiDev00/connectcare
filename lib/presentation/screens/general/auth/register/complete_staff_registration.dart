@@ -7,6 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:connectcare/core/constants/constants.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class CompleteStaffRegistration extends StatefulWidget {
   final User firebaseUser;
@@ -43,7 +44,7 @@ class CompleteStaffRegistrationState extends State<CompleteStaffRegistration> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Complete Staff Registration'),
+        title: Text('Complete Staff Registration'.tr()),
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
@@ -64,8 +65,8 @@ class CompleteStaffRegistrationState extends State<CompleteStaffRegistration> {
                 const SizedBox(height: 30),
                 TextFormField(
                   controller: idController,
-                  decoration: const InputDecoration(
-                    labelText: 'Staff ID',
+                  decoration: InputDecoration(
+                    labelText: 'Staff ID'.tr(),
                     border: OutlineInputBorder(),
                   ),
                   inputFormatters: [
@@ -75,10 +76,10 @@ class CompleteStaffRegistrationState extends State<CompleteStaffRegistration> {
                   keyboardType: TextInputType.number,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your staff ID';
+                      return 'Please enter your staff ID'.tr();
                     }
                     if (value.length != 8) {
-                      return 'Staff ID must be exactly 8 digits';
+                      return 'Staff ID must be exactly 8 digits'.tr();
                     }
                     return null;
                   },
@@ -86,13 +87,13 @@ class CompleteStaffRegistrationState extends State<CompleteStaffRegistration> {
                 const SizedBox(height: 15),
                 TextFormField(
                   controller: firstNameController,
-                  decoration: const InputDecoration(
-                    labelText: 'First Name',
+                  decoration: InputDecoration(
+                    labelText: 'First Name'.tr(),
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your first name';
+                      return 'Please enter your first name'.tr();
                     }
                     return null;
                   },
@@ -100,13 +101,13 @@ class CompleteStaffRegistrationState extends State<CompleteStaffRegistration> {
                 const SizedBox(height: 15),
                 TextFormField(
                   controller: lastNamePaternalController,
-                  decoration: const InputDecoration(
-                    labelText: 'Last Name (Paternal)',
+                  decoration: InputDecoration(
+                    labelText: 'Last Name (Paternal)'.tr(),
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your paternal last name';
+                      return 'Please enter your paternal last name'.tr();
                     }
                     return null;
                   },
@@ -114,13 +115,13 @@ class CompleteStaffRegistrationState extends State<CompleteStaffRegistration> {
                 const SizedBox(height: 15),
                 TextFormField(
                   controller: lastNameMaternalController,
-                  decoration: const InputDecoration(
-                    labelText: 'Last Name (Maternal)',
+                  decoration: InputDecoration(
+                    labelText: 'Last Name (Maternal)'.tr(),
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your maternal last name';
+                      return 'Please enter your maternal last name'.tr();
                     }
                     return null;
                   },
@@ -128,8 +129,8 @@ class CompleteStaffRegistrationState extends State<CompleteStaffRegistration> {
                 const SizedBox(height: 15),
                 DropdownButtonFormField<String>(
                   value: selectedUserType,
-                  decoration: const InputDecoration(
-                    labelText: 'User Type',
+                  decoration: InputDecoration(
+                    labelText: 'User Type'.tr(),
                     border: OutlineInputBorder(),
                   ),
                   items: userTypes.map((String type) {
@@ -148,7 +149,7 @@ class CompleteStaffRegistrationState extends State<CompleteStaffRegistration> {
                   },
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please select a user type';
+                      return 'Please select a user type'.tr();
                     }
                     return null;
                   },
@@ -166,7 +167,7 @@ class CompleteStaffRegistrationState extends State<CompleteStaffRegistration> {
                       await _registerUser();
                     }
                   },
-                  child: const Text('Register'),
+                  child: Text('Register'.tr()),
                 ),
               ],
             ),
@@ -214,7 +215,7 @@ class CompleteStaffRegistrationState extends State<CompleteStaffRegistration> {
               (route) => false);
         }
       } else {
-        throw Exception('Registration failed: ${response.body}');
+        throw Exception('Registration failed'.tr());
       }
     } catch (e) {
       _registrationFailed(e);
@@ -222,7 +223,7 @@ class CompleteStaffRegistrationState extends State<CompleteStaffRegistration> {
   }
 
   void _registrationFailed(Object e) {
-    showCustomSnackBar(context, 'Registration failed: $e');
+    showCustomSnackBar(context, 'Registration failed'.tr());
   }
 
   Future<bool> checkStaffIdExists(String staffId) async {
@@ -234,11 +235,11 @@ class CompleteStaffRegistrationState extends State<CompleteStaffRegistration> {
     } else if (response.statusCode == 404) {
       return false;
     } else {
-      throw Exception('Error verifying Staff ID: ${response.body}');
+      throw Exception('Error verifying Staff ID'.tr());
     }
   }
 
   void _staffIdInUse() {
-    showCustomSnackBar(context, 'Staff ID is already in use');
+    showCustomSnackBar(context, 'Staff ID is already in use'.tr());
   }
 }

@@ -1,12 +1,12 @@
 import 'dart:convert';
 import 'package:connectcare/core/models/solicitud_a_hospital.dart';
-import 'package:connectcare/data/api/resend.dart';
+import 'package:connectcare/data/services/user_service.dart';
 import 'package:connectcare/presentation/widgets/snack_bar.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:connectcare/core/constants/constants.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 class ManageStaffUsers extends StatefulWidget {
   const ManageStaffUsers({super.key});
@@ -16,6 +16,15 @@ class ManageStaffUsers extends StatefulWidget {
 }
 
 class _ManageStaffUsersState extends State<ManageStaffUsers> {
+  String currentCLUES = '';
+
+  Future<void> _loadUserData() async {
+    final userData = await UserService().loadUserData();
+    setState(() {
+      currentCLUES = (userData['clues'] ?? '');
+    });
+  }
+
   String filterToLang(String f, bool lang) {
     switch (f) {
       case 'nombre':
@@ -47,11 +56,10 @@ class _ManageStaffUsersState extends State<ManageStaffUsers> {
     });
   }
 
-  String currentCLUES = 'ASDIF000011';
-
   @override
   void initState() {
     super.initState();
+    _loadUserData();
     if (mounted) {
       staffMembersInit();
       requestsToHospital();
@@ -103,21 +111,22 @@ class _ManageStaffUsersState extends State<ManageStaffUsers> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Confirm Deletion'),
-          content: const Text(
-              'Are you sure you want to remove this member from the staff?'),
+          title: Text('Confirm Deletion'.tr()),
+          content: Text(
+              'Are you sure you want to remove this member from the staff?'
+                  .tr()),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: const Text('Cancel'),
+              child: Text('Cancel'.tr()),
             ),
             TextButton(
               onPressed: () async {
                 await deleteStaffMember(id, currentCLUES);
               },
-              child: const Text('Remove'),
+              child: Text('Remove'.tr()),
             ),
           ],
         );
@@ -130,18 +139,22 @@ class _ManageStaffUsersState extends State<ManageStaffUsers> {
     var response = await http.get(url);
 
     if (response.body.isNotEmpty) {
-      final List<dynamic> data = json.decode(response.body);
-      setState(() {
-        requests = data.map((item) {
-          return {
-            'id_solicitud_a_hospital': item['id_solicitud_a_hospital'],
-            'fecha': item['fecha'],
-            'peticion': item['peticion'],
-            'clues': item['clues'],
-            'id_personal': item['id_personal']
-          };
-        }).toList();
-      });
+      try {
+        final List<dynamic> data = json.decode(response.body);
+        setState(() {
+          requests = data.map((item) {
+            return {
+              'id_solicitud_a_hospital': item['id_solicitud_a_hospital'],
+              'fecha': item['fecha'],
+              'peticion': item['peticion'],
+              'clues': item['clues'],
+              'id_personal': item['id_personal']
+            };
+          }).toList();
+        });
+      } catch (e) {
+        //showCustomSnackBar(context, "There are no requests".tr());
+      }
     }
   }
 
@@ -172,35 +185,50 @@ class _ManageStaffUsersState extends State<ManageStaffUsers> {
     setState(() {});
   }
 
-  Future<void> acceptUser(int idPersonal, int id) async {
-    final url = Uri.parse('$baseUrl/personal_hospital');
+  Future<void> acceptUser(int idPersonal, int id, String email) async {
     try {
-      Map req = {
+      final createUrl = Uri.parse('$baseUrl/personal_hospital');
+      Map<String, dynamic> createBody = {
         "id_personal": idPersonal.toString(),
         "clues": currentCLUES,
       };
 
-      final response = await http.post(
-        url,
+      final createResponse = await http.post(
+        createUrl,
         headers: {'Content-Type': 'application/json'},
-        body: json.encode(req),
+        body: json.encode(createBody),
       );
 
-      _responseHandlerPostPersonalHospital(response);
-      var urlDelete = Uri.parse('$baseUrl/solicitud_a_hospital/$id');
-      await http.delete(urlDelete);
+      if (createResponse.statusCode != 200 &&
+          createResponse.statusCode != 201) {
+        throw Exception('Failed to create personal_hospital record');
+      }
+
+      final emailUrl =
+          Uri.parse('$baseUrl/solicitud_a_hospital/accept-request/$id');
+      Map<String, dynamic> emailBody = {
+        "email": email,
+      };
+
+      final emailResponse = await http.put(
+        emailUrl,
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(emailBody),
+      );
+
+      if (emailResponse.statusCode != 200) {
+        throw Exception('Failed to send acceptance email');
+      }
+
+      final deleteUrl = Uri.parse('$baseUrl/solicitud_a_hospital/$id');
+      await http.delete(deleteUrl);
+
+      await requestsToHospital();
+      await staffMembersInit();
+      _requestAccepted();
     } catch (error) {
-      // print(error);
+      _errorRequest();
     }
-    requestsToHospital();
-
-    staffMembersInit();
-    setState(() {});
-  }
-
-  void _responseHandlerPostPersonalHospital(response) {
-    responseHandlerPost(response, context, 'Staff added successfully',
-        'Error adding user staff');
   }
 
   int _selectedIndex = 0;
@@ -244,8 +272,6 @@ class _ManageStaffUsersState extends State<ManageStaffUsers> {
   }
 
   void _showBottomSheet({required String id, required String email}) {
-    final resendService = ResendService();
-
     showModalBottomSheet(
       context: context,
       builder: (context) {
@@ -264,8 +290,8 @@ class _ManageStaffUsersState extends State<ManageStaffUsers> {
                 controller: descriptionController,
                 maxLines: 6,
                 keyboardType: TextInputType.text,
-                decoration: const InputDecoration(
-                  labelText: "Reason to decline user...",
+                decoration: InputDecoration(
+                  labelText: "Reason to decline user...".tr(),
                   border: OutlineInputBorder(),
                 ),
                 autofocus: true,
@@ -278,15 +304,38 @@ class _ManageStaffUsersState extends State<ManageStaffUsers> {
                       color: theme.colorScheme.onSurface,
                     ),
                     onPressed: () async {
-                      await resendService.sendReportRequestEmail(
-                        rejectionReason: descriptionController.text,
-                        sender: 'recipient@example.com',
-                      );
-                      await deleteRequest(id, descriptionController.text);
+                      if (descriptionController.text.isEmpty) {
+                        Navigator.of(context).pop();
+                        showCustomSnackBar(
+                          context,
+                          'Please provide a reason for rejection.'.tr(),
+                        );
+                      } else {
+                        final url = Uri.parse(
+                            '$baseUrl/solicitud_a_hospital/reject-request/$id');
+                        final body = json.encode({
+                          "email": email,
+                          "reason": descriptionController.text,
+                        });
+
+                        final response = await http.post(
+                          url,
+                          headers: {'Content-Type': 'application/json'},
+                          body: body,
+                        );
+
+                        if (response.statusCode == 200) {
+                          await requestsToHospital();
+                          _requestRejected();
+                        } else {
+                          _errorRejecting();
+                        }
+                        _navigatorPop();
+                      }
                     },
                   ),
                   Text(
-                    'Enviar',
+                    'Send'.tr(),
                     style: theme.textTheme.bodyLarge!.copyWith(
                       color: theme.colorScheme.onSurface,
                     ),
@@ -327,15 +376,15 @@ class _ManageStaffUsersState extends State<ManageStaffUsers> {
   void _responseHandlerDeleteStaff(response) {
     Navigator.pop(context);
 
-    responseHandlerDelete(response, context, 'Staff removed successfully',
-        'Couldnt remove staff user due to an error');
+    responseHandlerDelete(response, context, 'Staff removed successfully'.tr(),
+        'Couldnt remove staff user due to an error'.tr());
   }
 
   void _responseHandlerDeleteRequest(response) {
     Navigator.pop(context);
 
-    responseHandlerDelete(response, context, 'Staff removed successfully',
-        'Couldnt remove staff user due to an error');
+    responseHandlerDelete(response, context, 'Staff removed successfully'.tr(),
+        'Couldnt remove staff user due to an error'.tr());
   }
 
   @override
@@ -352,8 +401,8 @@ class _ManageStaffUsersState extends State<ManageStaffUsers> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  _buildMenuItem('Members', 0),
-                  _buildMenuItem('Requests', 1),
+                  _buildMenuItem('Members'.tr(), 0),
+                  _buildMenuItem('Requests'.tr(), 1),
                 ],
               ),
             ),
@@ -374,7 +423,7 @@ class _ManageStaffUsersState extends State<ManageStaffUsers> {
                       children: [
                         Center(
                           child: Text(
-                            'Staff members',
+                            'Staff members'.tr(),
                             style: theme.textTheme.headlineLarge,
                           ),
                         ),
@@ -392,8 +441,9 @@ class _ManageStaffUsersState extends State<ManageStaffUsers> {
                                         filter = filterTypes[filterIndex];
                                       });
                                     },
-                                    child: Text(
-                                        'Toogle filter: ${filterToLang(filter, false)}'))) //false because its eng,
+                                    child: Text('Toogle filter'.tr(args: [
+                                      filterToLang(filter, false)
+                                    ])))) //false because its eng,
                             ),
                         const SizedBox(height: 20),
                         Center(
@@ -403,14 +453,15 @@ class _ManageStaffUsersState extends State<ManageStaffUsers> {
                               controller: searchController,
                               onChanged: updateFilter,
                               decoration: InputDecoration(
-                                labelText:
-                                    "Search by ${filterToLang(filter, false)}...",
+                                labelText: "Search_by"
+                                    .tr(args: [filterToLang(filter, false)]),
                                 border: OutlineInputBorder(),
                               ),
                               autofocus: true,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return 'Por favor ingrese el name del hospital';
+                                  return 'Please enter the name of the hospital'
+                                      .tr();
                                 }
                                 return null;
                               },
@@ -420,9 +471,9 @@ class _ManageStaffUsersState extends State<ManageStaffUsers> {
                         const SizedBox(height: 20),
                         Expanded(
                           child: filterStaff.isEmpty
-                              ? const Center(
+                              ? Center(
                                   child: Text(
-                                    'No se encontro personal',
+                                    'No staff found'.tr(),
                                     style: TextStyle(fontSize: 18),
                                   ),
                                 )
@@ -442,27 +493,39 @@ class _ManageStaffUsersState extends State<ManageStaffUsers> {
                                                     CrossAxisAlignment.start,
                                                 children: [
                                                   Text(
-                                                    "Name: ${item['nombre']} ${item['apellido_paterno']} ${item['apellido_materno']}",
+                                                    "Name_staff".tr(args: [
+                                                      item['nombre'],
+                                                      item['apellido_paterno'],
+                                                      item['apellido_materno']
+                                                    ]),
                                                     style: theme.textTheme
                                                         .headlineSmall,
                                                   ),
                                                   Text(
-                                                    "ID: ${item['id_personal']}",
+                                                    "ID_staff".tr(args: [
+                                                      item['id_personal']
+                                                          .toString()
+                                                    ]),
                                                     style: theme.textTheme
                                                         .headlineSmall,
                                                   ),
                                                   Text(
-                                                    "Type: ${item['tipo']}",
+                                                    "type_staff".tr(
+                                                        args: [item['tipo']]),
                                                     style: theme.textTheme
                                                         .headlineSmall,
                                                   ),
                                                   Text(
-                                                    "Email: ${item['correo_electronico']}",
+                                                    "email_staff".tr(args: [
+                                                      item['correo_electronico']
+                                                    ]),
                                                     style: theme.textTheme
                                                         .headlineSmall,
                                                   ),
                                                   Text(
-                                                    "Phone: ${item['telefono']}",
+                                                    "phone_staff".tr(args: [
+                                                      item['telefono']
+                                                    ]),
                                                     style: theme.textTheme
                                                         .headlineSmall,
                                                   ),
@@ -499,16 +562,16 @@ class _ManageStaffUsersState extends State<ManageStaffUsers> {
                       children: [
                         Center(
                           child: Text(
-                            'Hospital requests',
+                            'Hospital requests'.tr(),
                             style: theme.textTheme.headlineLarge,
                           ),
                         ),
                         const SizedBox(height: 20),
                         Expanded(
                           child: requests.isEmpty
-                              ? const Center(
+                              ? Center(
                                   child: Text(
-                                    'No se encontraron solicitudes',
+                                    'No requests found'.tr(),
                                     style: TextStyle(fontSize: 18),
                                   ),
                                 )
@@ -530,24 +593,41 @@ class _ManageStaffUsersState extends State<ManageStaffUsers> {
                                                     CrossAxisAlignment.start,
                                                 children: [
                                                   Text(
-                                                    "Date: ${item['fecha']}",
+                                                    "date_staff".tr(
+                                                        args: [item['fecha']]),
                                                     style: theme.textTheme
                                                         .headlineSmall,
                                                   ),
                                                   Text(
-                                                    "ID: ${item['id_personal']}",
+                                                    "ID_staff".tr(args: [
+                                                      item['id_personal']
+                                                          .toString()
+                                                    ]),
                                                     style: theme.textTheme
                                                         .headlineSmall,
                                                   ),
                                                 ],
                                               ),
                                               IconButton(
-                                                  icon: Icon(Icons
-                                                      .person_add_outlined),
-                                                  onPressed: () => acceptUser(
-                                                      item['id_personal'],
-                                                      item[
-                                                          'id_solicitud_a_hospital'])),
+                                                icon: Icon(Icons
+                                                    .person_add_alt), // Nuevo icono
+                                                onPressed: () async {
+                                                  var url = Uri.parse(
+                                                      '$baseUrl/personal/${item['id_personal']}');
+                                                  var response =
+                                                      await http.get(url);
+                                                  var user = json
+                                                      .decode(response.body);
+
+                                                  await acceptUser(
+                                                    item['id_personal'],
+                                                    item[
+                                                        'id_solicitud_a_hospital'],
+                                                    user['correo_electronico']
+                                                        .toString(),
+                                                  );
+                                                },
+                                              ),
                                               IconButton(
                                                 icon: Icon(Icons
                                                     .person_remove_alt_1_outlined),
@@ -566,13 +646,13 @@ class _ManageStaffUsersState extends State<ManageStaffUsers> {
                                                       email: user[
                                                               'correo_electronico']
                                                           .toString());
-                                                  //email: 'damian.pebe@gmail.com'); //this is a temp email to verify only
                                                 },
                                               ),
                                             ],
                                           ),
                                           Text(
-                                            "Request: ${item['peticion']}",
+                                            "request_staff"
+                                                .tr(args: [item['peticion']]),
                                             style:
                                                 theme.textTheme.headlineSmall,
                                           ),
@@ -596,5 +676,31 @@ class _ManageStaffUsersState extends State<ManageStaffUsers> {
         ),
       ),
     );
+  }
+
+  void _requestRejected() {
+    showCustomSnackBar(
+      context,
+      'The request was rejected successfully.'.tr(),
+    );
+  }
+
+  void _errorRejecting() {
+    showCustomSnackBar(
+      context,
+      'There was an error rejecting the request.'.tr(),
+    );
+  }
+
+  void _navigatorPop() {
+    Navigator.of(context).pop();
+  }
+
+  void _requestAccepted() {
+    showCustomSnackBar(context, 'The request was accepted successfully.'.tr());
+  }
+
+  void _errorRequest() {
+    showCustomSnackBar(context, 'Error accepting the request.'.tr());
   }
 }

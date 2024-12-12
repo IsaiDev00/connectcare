@@ -10,6 +10,7 @@ import 'package:connectcare/data/api/google_auth.dart';
 import 'package:connectcare/data/api/facebook_auth.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:country_code_picker/country_code_picker.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class StaffRegistration extends StatefulWidget {
   const StaffRegistration({super.key});
@@ -81,7 +82,7 @@ class StaffRegistrationState extends State<StaffRegistration> {
     } else if (response.statusCode == 404) {
       return false;
     } else {
-      throw Exception('Error verifying Staff ID: ${response.body}');
+      throw Exception('Error verifying Staff ID'.tr());
     }
   }
 
@@ -91,7 +92,7 @@ class StaffRegistrationState extends State<StaffRegistration> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Register with ConnectCare'),
+        title: Text('Register with ConnectCare'.tr()),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () {
@@ -122,8 +123,8 @@ class StaffRegistrationState extends State<StaffRegistration> {
                 const SizedBox(height: 30),
                 TextFormField(
                   controller: idController,
-                  decoration: const InputDecoration(
-                    labelText: 'Staff ID',
+                  decoration: InputDecoration(
+                    labelText: 'Staff ID'.tr(),
                     border: OutlineInputBorder(),
                   ),
                   autofocus: true,
@@ -134,10 +135,10 @@ class StaffRegistrationState extends State<StaffRegistration> {
                   keyboardType: TextInputType.number,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your staff ID';
+                      return 'Please enter your staff ID'.tr();
                     }
                     if (value.length != 8) {
-                      return 'Staff ID must be exactly 8 digits';
+                      return 'Staff ID must be exactly 8 digits'.tr();
                     }
                     return null;
                   },
@@ -145,13 +146,13 @@ class StaffRegistrationState extends State<StaffRegistration> {
                 const SizedBox(height: 15),
                 TextFormField(
                   controller: _firstNameController,
-                  decoration: const InputDecoration(
-                    labelText: 'First Name',
+                  decoration: InputDecoration(
+                    labelText: 'First Name'.tr(),
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your first name';
+                      return 'Please enter your first name'.tr();
                     }
                     return null;
                   },
@@ -159,13 +160,13 @@ class StaffRegistrationState extends State<StaffRegistration> {
                 const SizedBox(height: 15),
                 TextFormField(
                   controller: _lastNamePaternalController,
-                  decoration: const InputDecoration(
-                    labelText: 'Last Name (Paternal)',
+                  decoration: InputDecoration(
+                    labelText: 'Last Name (Paternal)'.tr(),
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your paternal last name';
+                      return 'Please enter your paternal last name'.tr();
                     }
                     return null;
                   },
@@ -173,13 +174,13 @@ class StaffRegistrationState extends State<StaffRegistration> {
                 const SizedBox(height: 15),
                 TextFormField(
                   controller: _lastNameMaternalController,
-                  decoration: const InputDecoration(
-                    labelText: 'Last Name (Maternal)',
+                  decoration: InputDecoration(
+                    labelText: 'Last Name (Maternal)'.tr(),
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your maternal last name';
+                      return 'Please enter your maternal last name'.tr();
                     }
                     return null;
                   },
@@ -187,8 +188,8 @@ class StaffRegistrationState extends State<StaffRegistration> {
                 const SizedBox(height: 15),
                 DropdownButtonFormField<String>(
                   value: _selectedUserType,
-                  decoration: const InputDecoration(
-                    labelText: 'User type',
+                  decoration: InputDecoration(
+                    labelText: 'User Type'.tr(),
                     border: OutlineInputBorder(),
                   ),
                   items: userTypes.map((String type) {
@@ -207,7 +208,7 @@ class StaffRegistrationState extends State<StaffRegistration> {
                   },
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please select a user type';
+                      return 'Please select a user type'.tr();
                     }
                     return null;
                   },
@@ -216,18 +217,19 @@ class StaffRegistrationState extends State<StaffRegistration> {
                 isEmailMode
                     ? TextFormField(
                         controller: _emailOrPhoneController,
-                        decoration: const InputDecoration(
-                          labelText: 'Email Address',
+                        decoration: InputDecoration(
+                          labelText: 'Email Address'.tr(),
                           border: OutlineInputBorder(),
                         ),
                         keyboardType: TextInputType.emailAddress,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter your email address';
+                            return 'Please enter your email address'.tr();
                           }
                           final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
                           if (!emailRegex.hasMatch(value)) {
-                            return 'Please enter a valid email address (example@example.com)';
+                            return 'Please enter a valid email address (example@example.com)'
+                                .tr();
                           }
                           return null;
                         },
@@ -252,8 +254,8 @@ class StaffRegistrationState extends State<StaffRegistration> {
                           Expanded(
                             child: TextFormField(
                               controller: _phoneNumberController,
-                              decoration: const InputDecoration(
-                                labelText: 'Phone Number',
+                              decoration: InputDecoration(
+                                labelText: 'Phone Number'.tr(),
                                 border: OutlineInputBorder(),
                               ),
                               keyboardType: TextInputType.phone,
@@ -263,10 +265,11 @@ class StaffRegistrationState extends State<StaffRegistration> {
                               ],
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return 'Please enter your phone number';
+                                  return 'Please enter your phone number'.tr();
                                 }
                                 if (value.length != 10) {
-                                  return 'Phone number must be exactly 10 digits';
+                                  return 'Phone number must be exactly 10 digits'
+                                      .tr();
                                 }
                                 return null;
                               },
@@ -277,20 +280,21 @@ class StaffRegistrationState extends State<StaffRegistration> {
                 const SizedBox(height: 15),
                 TextFormField(
                   controller: _passwordController,
-                  decoration: const InputDecoration(
-                    labelText: 'Password',
+                  decoration: InputDecoration(
+                    labelText: 'Password'.tr(),
                     border: OutlineInputBorder(),
                     errorMaxLines: 3,
                   ),
                   obscureText: true,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your password';
+                      return 'Please enter your password'.tr();
                     }
                     final passwordRegex = RegExp(
                         r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#%^&*~`+\-/<>,.]).{8,}$');
                     if (!passwordRegex.hasMatch(value)) {
-                      return 'Password must be at least 8 characters and include uppercase, lowercase, numbers, and symbols ¡@#%^&*~`+-/<>,.';
+                      return 'Password must be at least 8 characters and include uppercase, lowercase, numbers, and symbols ¡@#%^&*~`+-/<>,.'
+                          .tr();
                     }
                     return null;
                   },
@@ -298,8 +302,8 @@ class StaffRegistrationState extends State<StaffRegistration> {
                 const SizedBox(height: 15),
                 TextFormField(
                   controller: _confirmPasswordController,
-                  decoration: const InputDecoration(
-                    labelText: 'Confirm Password',
+                  decoration: InputDecoration(
+                    labelText: 'Confirm Password'.tr(),
                     border: OutlineInputBorder(),
                   ),
                   obscureText: true,
@@ -307,7 +311,7 @@ class StaffRegistrationState extends State<StaffRegistration> {
                     if (value != _passwordController.text ||
                         value == null ||
                         value.isEmpty) {
-                      return 'Passwords do not match';
+                      return 'Passwords do not match'.tr();
                     }
                     return null;
                   },
@@ -323,8 +327,9 @@ class StaffRegistrationState extends State<StaffRegistration> {
                             await checkStaffIdExists(idController.text);
                         if (staffIdExists) {
                           scaffoldMessenger.showSnackBar(
-                            const SnackBar(
-                                content: Text('Staff ID is already in use')),
+                            SnackBar(
+                                content:
+                                    Text('Staff ID is already in use'.tr())),
                           );
                           return;
                         }
@@ -332,7 +337,8 @@ class StaffRegistrationState extends State<StaffRegistration> {
                             _emailOrPhoneController.text);
                         if (emailExists) {
                           scaffoldMessenger.showSnackBar(
-                            SnackBar(content: Text('Email is already in use')),
+                            SnackBar(
+                                content: Text('Email is already in use'.tr())),
                           );
                           return;
                         }
@@ -345,8 +351,9 @@ class StaffRegistrationState extends State<StaffRegistration> {
                             await checkStaffIdExists(idController.text);
                         if (staffIdExists) {
                           scaffoldMessenger.showSnackBar(
-                            const SnackBar(
-                                content: Text('Staff ID is already in use')),
+                            SnackBar(
+                                content:
+                                    Text('Staff ID is already in use'.tr())),
                           );
                           return;
                         }
@@ -355,8 +362,8 @@ class StaffRegistrationState extends State<StaffRegistration> {
                         if (phoneExists) {
                           scaffoldMessenger.showSnackBar(
                             SnackBar(
-                                content:
-                                    Text('Phone number is already in use')),
+                                content: Text(
+                                    'Phone number is already in use'.tr())),
                           );
                           return;
                         }
@@ -364,7 +371,7 @@ class StaffRegistrationState extends State<StaffRegistration> {
                       }
                     }
                   },
-                  child: const Text('Continue'),
+                  child: Text('Continue'.tr()),
                 ),
                 const SizedBox(height: 20),
                 Row(
@@ -372,7 +379,7 @@ class StaffRegistrationState extends State<StaffRegistration> {
                     const Expanded(child: Divider()),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Text("or"),
+                      child: Text("or".tr()),
                     ),
                     const Expanded(child: Divider()),
                   ],
@@ -394,7 +401,9 @@ class StaffRegistrationState extends State<StaffRegistration> {
                     color: Theme.of(context).iconTheme.color,
                   ),
                   label: Text(
-                    isEmailMode ? 'Continue with Phone' : 'Continue with Email',
+                    isEmailMode
+                        ? 'Continue with Phone'.tr()
+                        : 'Continue with Email'.tr(),
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                         color: Theme.of(context).textTheme.bodyLarge?.color),
                   ),
@@ -417,7 +426,7 @@ class StaffRegistrationState extends State<StaffRegistration> {
                         : Colors.blue,
                   ),
                   label: Text(
-                    'Continue with Facebook',
+                    'Continue with Facebook'.tr(),
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                         color: Theme.of(context).textTheme.bodyLarge?.color),
                   ),
@@ -440,7 +449,7 @@ class StaffRegistrationState extends State<StaffRegistration> {
                         : Colors.red,
                   ),
                   label: Text(
-                    'Continue with Google',
+                    'Continue with Google'.tr(),
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                         color: Theme.of(context).textTheme.bodyLarge?.color),
                   ),
@@ -475,7 +484,7 @@ class StaffRegistrationState extends State<StaffRegistration> {
                 builder: (context) =>
                     CompleteStaffRegistration(firebaseUser: firebaseUser)));
       } else {
-        _showSnackBarMessage('Failed to retrieve Google user.');
+        _showSnackBarMessage('Failed to retrieve Google user.'.tr());
       }
     } catch (e) {
       _showSnackBarMessage(e.toString());
@@ -487,7 +496,7 @@ class StaffRegistrationState extends State<StaffRegistration> {
     try {
       errorMessage = await _facebookAuthService.signInWithFacebook();
     } catch (e) {
-      _showSnackBarMessage('Error inesperado: $e');
+      _showSnackBarMessage('Unexpected error'.tr());
       return;
     }
 

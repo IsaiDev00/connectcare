@@ -3,8 +3,8 @@ import 'package:connectcare/presentation/screens/general/auth/register/choose_ro
 import 'package:connectcare/presentation/screens/general/settings/about_us_screen.dart';
 import 'package:connectcare/presentation/screens/general/settings/edit_profile_screen.dart';
 import 'package:connectcare/presentation/screens/general/settings/feedback_screen.dart';
-import 'package:connectcare/presentation/screens/general/settings/languaje_screen.dart';
-import 'package:connectcare/presentation/screens/general/settings/tutorial_screen.dart';
+import 'package:connectcare/presentation/screens/general/settings/language_screen.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -25,7 +25,7 @@ class SettingsScreenState extends State<SettingsScreen> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("Ajustes"),
+          title: Text("Settings".tr()),
           automaticallyImplyLeading: false,
         ),
         body: Padding(
@@ -38,12 +38,12 @@ class SettingsScreenState extends State<SettingsScreen> {
                   children: [
                     _buildSettingsCard(
                       context,
-                      title: 'Cuenta',
+                      title: 'Account'.tr(),
                       titleColor: colorScheme.onSurface,
                       options: [
                         _buildOption(context,
                             icon: Icons.person,
-                            text: 'Editar perfil',
+                            text: 'Edit profile'.tr(),
                             iconColor: colorScheme.onSurface,
                             textColor: colorScheme.onSurface,
                             onTap: () => Navigator.push(
@@ -55,37 +55,28 @@ class SettingsScreenState extends State<SettingsScreen> {
                     ),
                     _buildSettingsCard(
                       context,
-                      title: 'Preferencias',
+                      title: 'Preferences'.tr(),
                       titleColor: colorScheme.onSurface,
                       options: [
                         _buildOption(context,
                             icon: Icons.language,
-                            text: 'Idioma',
+                            text: 'Language'.tr(),
                             iconColor: colorScheme.onSurface,
                             textColor: colorScheme.onSurface,
                             onTap: () => Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => LanguageScreen()))),
-                        _buildOption(context,
-                            icon: Icons.play_circle_outline,
-                            text: 'Tutorial de uso',
-                            iconColor: colorScheme.onSurface,
-                            textColor: colorScheme.onSurface,
-                            onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => TutorialScreen()))),
                       ],
                     ),
                     _buildSettingsCard(
                       context,
-                      title: 'Información',
+                      title: 'Information'.tr(),
                       titleColor: colorScheme.onSurface,
                       options: [
                         _buildOption(context,
                             icon: Icons.info_outline,
-                            text: 'Sobre nosotros',
+                            text: 'About us'.tr(),
                             iconColor: colorScheme.onSurface,
                             textColor: colorScheme.onSurface,
                             onTap: () => Navigator.push(
@@ -94,7 +85,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                                     builder: (context) => AboutUsScreen()))),
                         _buildOption(context,
                             icon: Icons.feedback_outlined,
-                            text: 'Quejas y sugerencias',
+                            text: 'Complaints and suggestions'.tr(),
                             iconColor: colorScheme.onSurface,
                             textColor: colorScheme.onSurface,
                             onTap: () => Navigator.push(
@@ -105,13 +96,13 @@ class SettingsScreenState extends State<SettingsScreen> {
                     ),
                     _buildSettingsCard(
                       context,
-                      title: 'Cuenta',
+                      title: 'Account'.tr(),
                       titleColor: colorScheme.onSurface,
                       options: [
                         _buildOption(
                           context,
                           icon: Icons.logout,
-                          text: 'Cerrar sesión',
+                          text: 'Sign out'.tr(),
                           iconColor: Colors.red,
                           textColor: Colors.red,
                           onTap: () {
@@ -155,7 +146,7 @@ class SettingsScreenState extends State<SettingsScreen> {
               title,
               style: Theme.of(context).textTheme.headlineSmall!.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: titleColor, // Usa el color dinámico del tema
+                    color: titleColor,
                   ),
             ),
             const SizedBox(height: 10),

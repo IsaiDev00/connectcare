@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:connectcare/core/constants/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class ChangePassword extends StatefulWidget {
   final bool isStaff;
@@ -34,7 +35,7 @@ class ChangePasswordState extends State<ChangePassword> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Change your password'),
+        title: Text('Change your password'.tr()),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () {
@@ -65,20 +66,21 @@ class ChangePasswordState extends State<ChangePassword> {
                 const SizedBox(height: 30),
                 TextFormField(
                   controller: _passwordController,
-                  decoration: const InputDecoration(
-                    labelText: 'Password',
+                  decoration: InputDecoration(
+                    labelText: 'Password'.tr(),
                     border: OutlineInputBorder(),
                     errorMaxLines: 3,
                   ),
                   obscureText: true,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your password';
+                      return 'Please enter your password'.tr();
                     }
                     final passwordRegex = RegExp(
                         r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#%^&*~`+\-/<>,.]).{8,}$');
                     if (!passwordRegex.hasMatch(value)) {
-                      return 'Password must be at least 8 characters and include uppercase, lowercase, numbers, and symbols ¡@#%^&*~`+-/<>,.';
+                      return 'Password must be at least 8 characters and include uppercase, lowercase, numbers, and symbols ¡@#%^&*~`+-/<>,.'
+                          .tr();
                     }
                     return null;
                   },
@@ -86,8 +88,8 @@ class ChangePasswordState extends State<ChangePassword> {
                 const SizedBox(height: 15),
                 TextFormField(
                   controller: _confirmPasswordController,
-                  decoration: const InputDecoration(
-                    labelText: 'Confirm Password',
+                  decoration: InputDecoration(
+                    labelText: 'Confirm Password'.tr(),
                     border: OutlineInputBorder(),
                   ),
                   obscureText: true,
@@ -95,7 +97,7 @@ class ChangePasswordState extends State<ChangePassword> {
                     if (value != _passwordController.text ||
                         value == null ||
                         value.isEmpty) {
-                      return 'Passwords do not match';
+                      return 'Passwords do not match'.tr();
                     }
                     return null;
                   },
@@ -126,11 +128,11 @@ class ChangePasswordState extends State<ChangePassword> {
                           throw Exception('Error: ${response.body}');
                         }
                       } catch (e) {
-                        _failedToChangePassword(e);
+                        _failedToChangePassword();
                       }
                     }
                   },
-                  child: const Text('Continue'),
+                  child: Text('Continue'.tr()),
                 ),
               ],
             ),
@@ -141,11 +143,11 @@ class ChangePasswordState extends State<ChangePassword> {
   }
 
   void _passwordUpdatedSuccesfully() {
-    showCustomSnackBar(context, 'Password updated successfully');
+    showCustomSnackBar(context, 'Password updated successfully'.tr());
   }
 
-  void _failedToChangePassword(e) {
-    showCustomSnackBar(context, 'Failed to change password: $e');
+  void _failedToChangePassword() {
+    showCustomSnackBar(context, 'Failed to change password'.tr());
   }
 
   void _navigator() {

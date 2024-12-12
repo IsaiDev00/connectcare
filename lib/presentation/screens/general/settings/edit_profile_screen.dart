@@ -3,6 +3,7 @@ import 'package:connectcare/presentation/screens/general/auth/forgot_password/ch
 import 'package:connectcare/presentation/screens/general/auth/verification/two_step_verification_screen.dart';
 import 'package:connectcare/presentation/widgets/snack_bar.dart';
 import 'package:country_code_picker/country_code_picker.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
@@ -77,12 +78,11 @@ class EditProfileScreenState extends State<EditProfileScreen> {
             userTipo = userData['tipo'] ?? '';
           });
         } else {
-          throw Exception('No se pudo cargar la información del usuario.');
+          throw Exception('User information could not be loaded.'.tr());
         }
       }
     } catch (e) {
-      debugPrint('Error al cargar los datos del usuario: $e');
-      _userErrorResponse(e);
+      _userErrorResponse();
     } finally {
       setState(() {
         _isLoading = false;
@@ -100,7 +100,7 @@ class EditProfileScreenState extends State<EditProfileScreen> {
             Navigator.of(context).pop();
           },
         ),
-        title: const Text('Edit profile'),
+        title: Text('Edit profile'.tr()),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -112,12 +112,12 @@ class EditProfileScreenState extends State<EditProfileScreen> {
                   _buildProfileHeader(),
                   const SizedBox(height: 16.0),
                   _buildEditableCard(
-                      'name',
+                      'name'.tr(),
                       "$userName $userApellidoPaterno $userApellidoMaterno",
                       false),
-                  _buildEditableCard('phone', userPhone, true),
-                  _buildEditableCard('email', userEmail, true),
-                  _buildEditableCard('password', userPassword, true),
+                  _buildEditableCard('phone'.tr(), userPhone, true),
+                  _buildEditableCard('email'.tr(), userEmail, true),
+                  _buildEditableCard('password'.tr(), userPassword, true),
                 ],
               ),
             ),
@@ -143,7 +143,7 @@ class EditProfileScreenState extends State<EditProfileScreen> {
           ),
           const SizedBox(height: 8.0),
           Text(
-            userTipo.isNotEmpty ? userTipo : "Tipo no disponible",
+            userTipo.isNotEmpty ? userTipo : "Type not available".tr(),
             style: Theme.of(context).textTheme.bodySmall,
           ),
         ],
@@ -161,16 +161,16 @@ class EditProfileScreenState extends State<EditProfileScreen> {
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         subtitle: Text(
-          label == 'password' ? '********' : value,
+          label == 'password'.tr() ? '********' : value,
           style: const TextStyle(color: Colors.grey),
         ),
         trailing: isEditable
             ? IconButton(
                 icon: const Icon(Icons.edit, color: Colors.grey),
                 onPressed: () {
-                  if (label == 'phone' || label == 'email') {
+                  if (label == 'phone'.tr() || label == 'email'.tr()) {
                     _showEditFieldDialog(context, label, value);
-                  } else if (label == 'password') {
+                  } else if (label == 'password'.tr()) {
                     _showPasswordVerificationDialog();
                   }
                 },
@@ -184,7 +184,7 @@ class EditProfileScreenState extends State<EditProfileScreen> {
     String countryCode = '+52';
     String phoneNumber = value;
 
-    if (label == 'phone' && value.startsWith('+')) {
+    if (label == 'phone'.tr() && value.startsWith('+')) {
       value = value.substring(1);
       countryCode = '+${value.substring(0, 2)}';
       phoneNumber = value.substring(value.length - 10);
@@ -197,11 +197,11 @@ class EditProfileScreenState extends State<EditProfileScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Edit $label'),
+          title: Text('edit_label'.tr(args: [label])),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (label == 'phone')
+              if (label == 'phone'.tr())
                 Row(
                   children: [
                     CountryCodePicker(
@@ -222,8 +222,8 @@ class EditProfileScreenState extends State<EditProfileScreen> {
                           FilteringTextInputFormatter.digitsOnly,
                           LengthLimitingTextInputFormatter(10),
                         ],
-                        decoration: const InputDecoration(
-                          hintText: 'Phone Number',
+                        decoration: InputDecoration(
+                          hintText: 'Phone Number'.tr(),
                           hintStyle: TextStyle(
                             fontSize: 14,
                             color: Colors.grey,
@@ -237,11 +237,11 @@ class EditProfileScreenState extends State<EditProfileScreen> {
               else
                 TextField(
                   controller: controller,
-                  keyboardType: label == 'email'
+                  keyboardType: label == 'email'.tr()
                       ? TextInputType.emailAddress
                       : TextInputType.text,
                   decoration: InputDecoration(
-                    hintText: 'Enter new $label',
+                    hintText: 'Enter new'.tr(args: [label]),
                     hintStyle: const TextStyle(
                       fontSize: 14,
                       color: Colors.grey,
@@ -254,7 +254,7 @@ class EditProfileScreenState extends State<EditProfileScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
+              child: Text('Cancel'.tr()),
             ),
             TextButton(
               onPressed: () async {
@@ -262,15 +262,15 @@ class EditProfileScreenState extends State<EditProfileScreen> {
 
                 if (input.isEmpty) {
                   Navigator.of(context).pop();
-                  showCustomSnackBar(context, '$label cannot be empty.');
+                  showCustomSnackBar(context, 'empty label'.tr(args: [label]));
                   return;
                 }
 
                 if (label == 'phone') {
                   if (!RegExp(r'^\d{10}$').hasMatch(input)) {
                     Navigator.of(context).pop();
-                    showCustomSnackBar(
-                        context, 'Please enter a valid 10-digit phone number.');
+                    showCustomSnackBar(context,
+                        'Please enter a valid 10-digit phone number.'.tr());
                     return;
                   }
 
@@ -282,13 +282,13 @@ class EditProfileScreenState extends State<EditProfileScreen> {
                     return;
                   }
                   _navigateWithPhone(formattedPhone);
-                } else if (label == 'email') {
+                } else if (label == 'email'.tr()) {
                   input = input.toLowerCase();
 
                   if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(input)) {
                     Navigator.of(context).pop();
                     showCustomSnackBar(
-                        context, 'Please enter a valid email address.');
+                        context, 'Please enter a valid email address.'.tr());
                     return;
                   }
 
@@ -302,7 +302,7 @@ class EditProfileScreenState extends State<EditProfileScreen> {
                   _navigateWithEmail(input);
                 }
               },
-              child: const Text('Confirm'),
+              child: Text('Confirm'.tr()),
             ),
           ],
         );
@@ -317,12 +317,12 @@ class EditProfileScreenState extends State<EditProfileScreen> {
       context: context,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
-          title: const Text('First verify your current password'),
+          title: Text('First verify your current password'.tr()),
           content: TextField(
             controller: controller,
             obscureText: true,
-            decoration: const InputDecoration(
-              hintText: 'Enter current password',
+            decoration: InputDecoration(
+              hintText: 'Enter current password'.tr(),
               hintStyle: TextStyle(
                 fontSize: 14,
                 color: Colors.grey,
@@ -333,7 +333,7 @@ class EditProfileScreenState extends State<EditProfileScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text('Cancel'),
+              child: Text('Cancel'.tr()),
             ),
             TextButton(
               onPressed: () async {
@@ -342,7 +342,7 @@ class EditProfileScreenState extends State<EditProfileScreen> {
                 if (passwordInput.isEmpty) {
                   Navigator.of(dialogContext).pop();
                   showCustomSnackBar(
-                      dialogContext, 'Please enter your password');
+                      dialogContext, 'Please enter your password'.tr());
                   return;
                 }
 
@@ -366,10 +366,10 @@ class EditProfileScreenState extends State<EditProfileScreen> {
                     ),
                   );
                 } else {
-                  showCustomSnackBar(context, 'Incorrect password.');
+                  showCustomSnackBar(context, 'Incorrect password.'.tr());
                 }
               },
-              child: const Text('Verify'),
+              child: Text('Verify'.tr()),
             ),
           ],
         );
@@ -377,13 +377,13 @@ class EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  void _userErrorResponse(e) {
-    showCustomSnackBar(context, 'Error al cargar los datos del usuario: $e');
+  void _userErrorResponse() {
+    showCustomSnackBar(context, 'Error loading user data'.tr());
   }
 
   void _emailInUse() {
     Navigator.of(context).pop();
-    showCustomSnackBar(context, 'This email address is already in use.');
+    showCustomSnackBar(context, 'This email address is already in use.'.tr());
   }
 
   void _navigateWithEmail(input) {
@@ -419,7 +419,7 @@ class EditProfileScreenState extends State<EditProfileScreen> {
 
   void _phoneInUse() {
     Navigator.of(context).pop();
-    showCustomSnackBar(context, 'This phone number is already in use.');
+    showCustomSnackBar(context, 'This phone number is already in use.'.tr());
   }
 
   Future<bool> _verifyPassword(String passwordInput) async {
@@ -451,13 +451,13 @@ class EditProfileScreenState extends State<EditProfileScreen> {
         return result['isValid'];
       } else {
         if (mounted) {
-          showCustomSnackBar(context, 'Error verifying password.');
+          showCustomSnackBar(context, 'Error verifying password.'.tr());
         }
         return false;
       }
     } catch (e) {
       if (mounted) {
-        showCustomSnackBar(context, 'Error verifying password.');
+        showCustomSnackBar(context, 'Error verifying password.'.tr());
       }
       return false;
     }
