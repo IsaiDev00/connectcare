@@ -61,7 +61,6 @@ class TriageScreen extends StatefulWidget {
 }
 
 class _TriageScreenState extends State<TriageScreen> {
-  String cluesdoc = "CSSSA009635";
   final int id_medico = 19;
   final SharedPreferencesService _sharedPreferencesService =
       SharedPreferencesService();
@@ -163,13 +162,7 @@ class _TriageScreenState extends State<TriageScreen> {
   }
 
   Future<void> _initializeData() async {
-    await _saveData(cluesdoc); // Guardar valores iniciales
     setState(() {}); // Forzar reconstrucción para sincronizar UI
-  }
-
-  // Guardar datos en SharedPreferences
-  Future<void> _saveData(String newClues) async {
-    await _sharedPreferencesService.saveClues(newClues);
   }
 
   // Métodos de validación

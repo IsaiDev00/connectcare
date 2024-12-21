@@ -27,7 +27,7 @@ class PatientRegState extends State<PatientRegScreen> {
   String? _selectedBloodGroup;
 
   // Opciones de selección
-  final List<String> _sexOptions = ['Masculino', 'Femenino'];
+  final List<String> _sexOptions = ['Male', 'Female'];
   final List<String> _bloodGroupOptions = [
     'A+',
     'A-',

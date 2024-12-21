@@ -914,8 +914,14 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
 
         if (cajas != null) {
           setState(() {
-            addedMedicamentos.add(AddedMedication(
-                medicamento: selectedMedicamento, cajas: cajas));
+            if (addedMedicamentos.length < 20) {
+              addedMedicamentos.add(AddedMedication(
+                  medicamento: selectedMedicamento, cajas: cajas));
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Cant add more than 20 medications')),
+              );
+            }
           });
         }
       }

@@ -32,7 +32,7 @@ class HospitalNameScreenState extends State<HospitalNameScreen> {
 
   Future<void> _registerHospital() async {
     try {
-      final cluesData = await _sharedPreferencesService.getCluesCode();
+      final cluesData = await _sharedPreferencesService.getClues();
       final userId = await _sharedPreferencesService.getUserId();
 
       if (cluesData != null && userId != null) {

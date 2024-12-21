@@ -56,18 +56,6 @@ class SharedPreferencesService {
   }
 
   // Guardar el código CLUES del usuario
-  Future<void> saveCluesCode(String cluesCode) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('cluesCode', cluesCode);
-  }
-
-  // Obtener el código CLUES del usuario
-  Future<String?> getCluesCode() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('cluesCode');
-  }
-
-  // Guardar el código CLUES del usuario
   Future<void> saveVerificationCode(String code) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('code', code);

@@ -66,7 +66,7 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Service registered successfully')),
         );
-        Navigator.pushNamed(context, '/manageServiceScreen');
+        Navigator.pop(context, 'refresh');
       } else if (response.statusCode == 409) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(

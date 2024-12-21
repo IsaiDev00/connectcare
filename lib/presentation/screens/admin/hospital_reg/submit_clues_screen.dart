@@ -228,7 +228,7 @@ class SubmitCluesScreenState extends State<SubmitCluesScreen> {
     showCustomSnackBar(context, "Texto detectado: $detectedText");
 
     if (detectedText != null && detectedText != "No se detectó código CLUES.") {
-      _sharedPreferencesService.saveCluesCode(detectedText!);
+      _sharedPreferencesService.saveClues(detectedText!);
       showCustomSnackBar(context, "CLUES GUARDADO: $detectedText");
       Navigator.pushNamed(context, '/verificationCodeScreen');
     } else {

@@ -14,13 +14,25 @@ class CreateProcedureScreen extends StatefulWidget {
 }
 
 class _CreateProcedureScreenState extends State<CreateProcedureScreen> {
-
   final SharedPreferencesService _sharedPreferencesService =
       SharedPreferencesService();
   final _formKey = GlobalKey<FormState>();
 
   List<Map<String, dynamic>> salas = [];
   List<String> formattedSalas = [];
+
+  // Controladores para los campos de texto
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController descController = TextEditingController();
+  final TextEditingController startVisitingController = TextEditingController();
+
+  // Se reemplaza el dropdown por:
+  final TextEditingController salaSearchController = TextEditingController();
+  String searchQuery = '';
+  String? salaController; // Aquí almacenaremos la sala elegida
+
+  final TextEditingController cantNurseController = TextEditingController();
+  final TextEditingController cantDoctorController = TextEditingController();
 
   Future<void> fetchSalas() async {
     final clues = await _sharedPreferencesService.getClues();
@@ -51,12 +63,15 @@ class _CreateProcedureScreenState extends State<CreateProcedureScreen> {
     fetchSalas();
   }
 
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController descController = TextEditingController();
-  final TextEditingController startVisitingController = TextEditingController();
-  String? salaController;
-  final TextEditingController cantNurseController = TextEditingController();
-  final TextEditingController cantDoctorController = TextEditingController();
+  // Getter para filtrar salas según el texto escrito
+  List<String> get searchResults {
+    if (searchQuery.isEmpty) {
+      return [];
+    }
+    return formattedSalas
+        .where((s) => s.toLowerCase().contains(searchQuery.toLowerCase()))
+        .toList();
+  }
 
   Future<void> crearProcedimiento(
     String nombre,
@@ -168,169 +183,199 @@ class _CreateProcedureScreenState extends State<CreateProcedureScreen> {
         ),
       ),
       body: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: SingleChildScrollView(
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const SizedBox(height: 30),
+        padding: const EdgeInsets.all(16.0),
+        child: SingleChildScrollView(
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(height: 30),
 
-                  //NOMBRE
-                  TextFormField(
-                      controller: nameController,
-                      decoration: const InputDecoration(
-                        labelText: "Name of the procesure",
-                        border: OutlineInputBorder(),
-                      ),
-                      autofocus: true,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter a name for the procedure';
-                        } else if (value.length > 25) {
-                          return 'Please enter a shorter name, less than 26 char';
-                        }
-                        return null;
-                      }),
-
-                  const SizedBox(height: 15),
-
-                  //DESCRIPCION
-                  TextFormField(
-                    controller: descController,
-                    decoration: const InputDecoration(
-                      labelText: "Description of the procedure",
-                      border: OutlineInputBorder(),
-                    ),
-                    autofocus: true,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter a description for the procedure';
-                      } else if (value.length > 500) {
-                        return 'Please enter a shorter description, less than 501 char';
-                      }
-                      return null;
-                    },
+                // NOMBRE
+                TextFormField(
+                  controller: nameController,
+                  decoration: const InputDecoration(
+                    labelText: "Name of the procedure",
+                    border: OutlineInputBorder(),
                   ),
+                  autofocus: true,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a name for the procedure';
+                    } else if (value.length > 25) {
+                      return 'Please enter a shorter name, less than 26 char';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 15),
 
-                  const SizedBox(height: 15),
+                // DESCRIPCION
+                TextFormField(
+                  controller: descController,
+                  decoration: const InputDecoration(
+                    labelText: "Description of the procedure",
+                    border: OutlineInputBorder(),
+                  ),
+                  autofocus: true,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a description for the procedure';
+                    } else if (value.length > 500) {
+                      return 'Please enter a shorter description, less than 501 char';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 15),
 
-                  //SALA (LISTA)
-                  DropdownButtonFormField<String>(
-                    value: salaController,
-                    decoration: const InputDecoration(
-                      labelText: 'Room',
-                      border: OutlineInputBorder(),
-                    ),
-                    items: formattedSalas.map((String sala) {
-                      return DropdownMenuItem<String>(
-                        value: sala,
-                        child: Text(
-                          sala,
-                          style: Theme.of(context).textTheme.bodyLarge,
+                // SALA (BUSCADOR)
+                TextFormField(
+                  controller: salaSearchController,
+                  decoration: const InputDecoration(
+                    labelText: "Search for room",
+                    border: OutlineInputBorder(),
+                  ),
+                  onChanged: (value) {
+                    setState(() {
+                      searchQuery = value;
+                    });
+                  },
+                ),
+
+                // Lista de resultados
+                if (searchResults.isNotEmpty)
+                  Container(
+                    // Para controlar la altura del listado desplegado
+                    constraints: const BoxConstraints(maxHeight: 150),
+                    margin: const EdgeInsets.only(top: 8),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).cardColor,
+                      borderRadius: BorderRadius.circular(5),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black26,
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
                         ),
-                      );
-                    }).toList(),
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        salaController = newValue;
-                      });
-                    },
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please select a sala';
-                      }
-                      return null;
-                    },
-                  ),
-
-                  const SizedBox(height: 15),
-
-                  //CANTIDAD ENFERMEROS
-                  TextFormField(
-                    controller: cantNurseController,
-                    decoration: const InputDecoration(
-                      labelText:
-                          "The needed amount of nurses in this procedure",
-                      border: OutlineInputBorder(),
+                      ],
                     ),
-                    autofocus: true,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly,
-                    ],
-                    keyboardType: TextInputType.number,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter an amount of nurses';
-                      } else if (int.parse(value) > 25) {
-                        return 'Please enter a number less or equal than 25';
-                      }
-                      return null;
-                    },
-                  ),
-
-                  const SizedBox(height: 15),
-
-                  //CANTIDAD DOCTORES
-                  TextFormField(
-                    controller: cantDoctorController,
-                    decoration: const InputDecoration(
-                      labelText:
-                          "The needed amount of doctors in this procedure",
-                      border: OutlineInputBorder(),
-                    ),
-                    autofocus: true,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly,
-                    ],
-                    keyboardType: TextInputType.number,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter an amount of doctors';
-                      } else if (int.parse(value) > 25) {
-                        return 'Please enter a number less or equal than 25';
-                      }
-                      return null;
-                    },
-                  ),
-
-                  const SizedBox(height: 15),
-
-                  //BOTON ENVIAR
-                  ElevatedButton(
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        crearProcedimiento(
-                          nameController.text,
-                          descController.text,
-                          salaController!, // Este es el nombre de la sala seleccionado en el Dropdown
-                          int.parse(cantNurseController.text),
-                          int.parse(cantDoctorController.text),
+                    child: ListView.builder(
+                      padding: EdgeInsets.zero,
+                      shrinkWrap: true,
+                      itemCount: searchResults.length,
+                      itemBuilder: (context, index) {
+                        final room = searchResults[index];
+                        return ListTile(
+                          title: Text(room),
+                          onTap: () {
+                            setState(() {
+                              salaController = room;
+                              salaSearchController.text = room;
+                              // Limpiamos el query para esconder la lista
+                              searchQuery = '';
+                            });
+                          },
                         );
-                      } else {
+                      },
+                    ),
+                  ),
+                const SizedBox(height: 15),
+
+                // CANTIDAD ENFERMEROS
+                TextFormField(
+                  controller: cantNurseController,
+                  decoration: const InputDecoration(
+                    labelText: "The needed amount of nurses in this procedure",
+                    border: OutlineInputBorder(),
+                  ),
+                  autofocus: true,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                  ],
+                  keyboardType: TextInputType.number,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter an amount of nurses';
+                    } else if (int.parse(value) > 25) {
+                      return 'Please enter a number less or equal than 25';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 15),
+
+                // CANTIDAD DOCTORES
+                TextFormField(
+                  controller: cantDoctorController,
+                  decoration: const InputDecoration(
+                    labelText: "The needed amount of doctors in this procedure",
+                    border: OutlineInputBorder(),
+                  ),
+                  autofocus: true,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                  ],
+                  keyboardType: TextInputType.number,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter an amount of doctors';
+                    } else if (int.parse(value) > 25) {
+                      return 'Please enter a number less or equal than 25';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 15),
+
+                // BOTON ENVIAR
+                ElevatedButton(
+                  onPressed: () {
+                    // Validamos formulario y sala elegida
+                    if (_formKey.currentState!.validate()) {
+                      if (salaController == null || salaController!.isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content:
-                                Text('Please don\'t leave any fields blank'),
+                            content: Text('Please select a room from the list'),
                           ),
                         );
+                        return;
                       }
-                    },
-                    child: const Text("Create procedure"),
-                  ),
-                ],
-              ),
+
+                      crearProcedimiento(
+                        nameController.text,
+                        descController.text,
+                        salaController!,
+                        int.parse(cantNurseController.text),
+                        int.parse(cantDoctorController.text),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Please don\'t leave any fields blank'),
+                        ),
+                      );
+                    }
+                  },
+                  child: const Text("Create procedure"),
+                ),
+              ],
             ),
-          )),
+          ),
+        ),
+      ),
     );
   }
 
   void _responseCreateProcedure() {
     showCustomSnackBar(
-        context, "Procedimiento y enlace con sala creados exitosamente");
-    Navigator.pushNamed(context, '/manageProcedureScreen');
+      context,
+      "Procedimiento y enlace con sala creados exitosamente",
+    );
+    // Aquí en lugar de pushReplacementNamed, devolvemos 'refresh'.
+    Navigator.pop(context, 'refresh');
   }
 
   void _responseError(e) {

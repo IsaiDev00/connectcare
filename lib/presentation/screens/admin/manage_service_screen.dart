@@ -29,7 +29,7 @@ class ManageServiceScreenState extends State<ManageServiceScreen> {
     final clues = await _sharedPreferencesService.getClues();
     try {
       final response = await http.get(
-          Uri.parse('$baseUrl/servicio//$clues'));
+          Uri.parse('$baseUrl/servicio/$clues'));
 
       if (response.statusCode == 200) {
         List<dynamic> data = json.decode(response.body);
@@ -191,7 +191,12 @@ class ManageServiceScreenState extends State<ManageServiceScreen> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, '/createServiceScreen');
+                  Navigator.pushNamed(context, '/createServiceScreen')
+                      .then((value) {
+                    if (value == 'refresh') {
+                      _fetchServices();
+                    }
+                  });
                 },
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),

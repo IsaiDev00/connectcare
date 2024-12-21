@@ -70,7 +70,7 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.lightTheme(),
       darkTheme: AppTheme.darkTheme(),
       themeMode: ThemeMode.system,
-      initialRoute: '/',
+      initialRoute: initialRoute,
       routes: {
         '/': (context) => const DynamicWrapper(),
         '/mainScreen': (context) => MainScreen(),
