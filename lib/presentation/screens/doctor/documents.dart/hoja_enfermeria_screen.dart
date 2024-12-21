@@ -88,7 +88,9 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
   List<String> codigoTempOpciones = ['FR', 'AX', 'OR', 'RE'];
   String? codigoTemp;
 
-  // UP TO 10 FIELDS
+  String nss = "987654321";
+  int id_medico = 19;
+
   // VITAL SIGNS
   List<TextEditingController> fcControllers = [];
   List<TextEditingController> tiControllers = [];
@@ -99,8 +101,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
   List<TextEditingController> frecRespiratoriaControllers = [];
   List<TextEditingController> interColaboControllers = [];
 
-  // UP TO 5 FIELDS
-  // INTRAVENOUS INFUSION
+  // CONTROL OF LIQUIDS
   List<TextEditingController> ingOralControllers = [];
   List<TextEditingController> sondaControllers = [];
   List<TextEditingController> hemoControllers = [];
@@ -121,6 +122,13 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
   List<TextEditingController> respEvoControllers = [];
   List<TextEditingController> obsControllers = [];
   List<TextEditingController> planEgresoControllers = [];
+
+  // NUEVA SECCION: INFUSIÓN INTRAVENOSA
+  // 3 datos (formula, dieta, líquidos orales) con hasta 5 campos cada uno, y 1 total (un solo campo).
+  List<TextEditingController> formulaControllers = [];
+  List<TextEditingController> dietaControllers = [];
+  List<TextEditingController> liquidosOralesInfControllers = [];
+  final TextEditingController totalInfusionController = TextEditingController();
 
   // MEDICATIONS
   List<AddedMedication> addedMedicamentos = [];
@@ -162,10 +170,14 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
     obsControllers.add(TextEditingController());
     planEgresoControllers.add(TextEditingController());
 
+    // Inicializamos la sección de Infusión intravenosa
+    formulaControllers.add(TextEditingController());
+    dietaControllers.add(TextEditingController());
+    liquidosOralesInfControllers.add(TextEditingController());
+
     _loadData();
   }
 
-  // Funciones para obtener datos del backend
   Future<Map<String, dynamic>> obtenerDiagnostico(String nssPaciente) async {
     final response =
         await http.get(Uri.parse('$baseUrl/triage/diagnostico/$nssPaciente'));
@@ -186,15 +198,12 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
     }
   }
 
-  // Función para cargar datos al iniciar la pantalla
   void _loadData() async {
     try {
-      String nssPaciente = '987654321';
-      final diagnostico = await obtenerDiagnostico(nssPaciente);
-      final hojaEnfermeria = await obtenerHojaEnfermeria(nssPaciente);
+      final diagnostico = await obtenerDiagnostico(nss);
+      final hojaEnfermeria = await obtenerHojaEnfermeria(nss);
 
       setState(() {
-        // Ahora, asignamos los valores a los controladores
         dxMedicoController.text = diagnostico['diagnostico'] ?? '';
         alergiasController.text = hojaEnfermeria['alergias'] ?? '';
         pesoController.text = hojaEnfermeria['peso'] != null
@@ -206,7 +215,6 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
         estado = hojaEnfermeria['estado'] ?? '';
       });
     } catch (e) {
-      // Manejar errores
       print('Error: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error al cargar datos: $e')),
@@ -214,7 +222,6 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
     }
   }
 
-  // Functions to add fields
   void addFcField() {
     if (fcControllers.length < 10) {
       setState(() {
@@ -439,7 +446,58 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
     }
   }
 
-  // Functions to remove fields
+  // NUEVAS FUNCIONES PARA INFUSIÓN INTRAVENOSA
+  void addFormulaField() {
+    if (formulaControllers.length < 5) {
+      setState(() {
+        formulaControllers.add(TextEditingController());
+      });
+    }
+  }
+
+  void removeFormulaField() {
+    if (formulaControllers.length > 1) {
+      setState(() {
+        formulaControllers.last.dispose();
+        formulaControllers.removeLast();
+      });
+    }
+  }
+
+  void addDietaField() {
+    if (dietaControllers.length < 5) {
+      setState(() {
+        dietaControllers.add(TextEditingController());
+      });
+    }
+  }
+
+  void removeDietaField() {
+    if (dietaControllers.length > 1) {
+      setState(() {
+        dietaControllers.last.dispose();
+        dietaControllers.removeLast();
+      });
+    }
+  }
+
+  void addLiquidosInfField() {
+    if (liquidosOralesInfControllers.length < 5) {
+      setState(() {
+        liquidosOralesInfControllers.add(TextEditingController());
+      });
+    }
+  }
+
+  void removeLiquidosInfField() {
+    if (liquidosOralesInfControllers.length > 1) {
+      setState(() {
+        liquidosOralesInfControllers.last.dispose();
+        liquidosOralesInfControllers.removeLast();
+      });
+    }
+  }
+
   void removeFcField() {
     if (fcControllers.length > 1) {
       setState(() {
@@ -734,7 +792,6 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
     }
   }
 
-  // Function to open the medication selection dialog
   void openAddMedicamentoDialog() async {
     try {
       List<Medicamento> medicamentos = await fetchMedicamentos();
@@ -742,7 +799,6 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
         medicamentosList = medicamentos;
       });
     } catch (e) {
-      // Handle API errors
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error loading medications')),
       );
@@ -800,7 +856,6 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
       },
     ).then((selectedMedicamento) async {
       if (selectedMedicamento != null) {
-        // Show dialog to enter quantity of boxes
         String? errorMessage;
         int? cajas = await showDialog<int>(
           context: context,
@@ -867,7 +922,6 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
     });
   }
 
-  // Function to fetch medications from the database
   Future<List<Medicamento>> fetchMedicamentos() async {
     final response = await http.get(Uri.parse('$baseUrl/medicamento/'));
 
@@ -881,7 +935,6 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
 
   @override
   void dispose() {
-    // Dispose controllers
     alergiasController.dispose();
     pesoController.dispose();
     estaturaController.dispose();
@@ -976,6 +1029,17 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
       controller.dispose();
     }
 
+    for (var controller in formulaControllers) {
+      controller.dispose();
+    }
+    for (var controller in dietaControllers) {
+      controller.dispose();
+    }
+    for (var controller in liquidosOralesInfControllers) {
+      controller.dispose();
+    }
+    totalInfusionController.dispose();
+
     super.dispose();
   }
 
@@ -1018,6 +1082,13 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
       String obs = obsControllers.map((c) => c.text).join(', ');
       String planEgreso = planEgresoControllers.map((c) => c.text).join(', ');
 
+      // NUEVOS CAMPOS PARA INFUSIÓN INTRAVENOSA
+      String formula = formulaControllers.map((c) => c.text).join(', ');
+      String dieta = dietaControllers.map((c) => c.text).join(', ');
+      String liquidosInf =
+          liquidosOralesInfControllers.map((c) => c.text).join(', ');
+      String totalInfusion = totalInfusionController.text;
+
       Map<String, dynamic> data = {
         "fecha": DateTime.now().toIso8601String(),
         "codigo_temperatura": codigoTemp,
@@ -1033,7 +1104,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
         "peso": pesoController.text,
         "intervenciones_colaboracion": intervencionesColaboracion,
         "dx_medico": dxMedicoController.text,
-        "nss_paciente": 987654321,
+        "nss_paciente": nss,
         "alergias": alergiasController.text,
         "estatura": estaturaController.text,
         "total_ingresos": totalIngresosController.text,
@@ -1061,6 +1132,13 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
         "riesgo_ulceras_pres": riesgoUlcerasPresCon,
         "riesgo_caidas": riesgoCaidasCon,
         "estado": estado,
+        "id_medico": id_medico,
+        "tc": tc,
+        // CAMPOS NUEVOS DE INFUSIÓN INTRAVENOSA
+        "formula_inf": formula,
+        "dieta_inf": dieta,
+        "liquidos_inf": liquidosInf,
+        "total_inf": totalInfusion,
       };
 
       final response = await http.post(
@@ -1097,13 +1175,12 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
           key: _formKey,
           child: Column(
             children: [
-              Center(
-                  child: const Text(
+              Text(
                 "General Information",
                 style: TextStyle(
-                  fontSize: 40.0,
+                  fontSize: 30,
                 ),
-              )),
+              ),
               const SizedBox(height: 40),
 
               Text(
@@ -1126,7 +1203,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                   labelText: 'Medical Diagnosis',
                   border: OutlineInputBorder(),
                 ),
-                autofocus: true,
+                autofocus: false,
                 maxLength: 100,
                 validator: (value) {
                   if ((value?.isEmpty ?? true)) {
@@ -1137,15 +1214,6 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
               ),
 
               const SizedBox(height: 15),
-
-              Text(
-                "General Information:",
-                style: TextStyle(
-                  fontSize: 20,
-                ),
-              ),
-
-              const SizedBox(height: 30),
 
               // Allergies
               TextFormField(
@@ -1332,12 +1400,13 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                   children: [
                     ElevatedButton(
                       onPressed: addFcField,
-                      child: Text("Add FC (+)"),
+                      child: Text("Add FC (+)", style: TextStyle(fontSize: 10)),
                     ),
                     SizedBox(width: 10),
                     ElevatedButton(
                       onPressed: removeFcField,
-                      child: Text("Remove FC (-)"),
+                      child:
+                          Text("Remove FC (-)", style: TextStyle(fontSize: 10)),
                     ),
                   ],
                 ),
@@ -1378,12 +1447,13 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                   children: [
                     ElevatedButton(
                       onPressed: addTiField,
-                      child: Text("Add TI (+)"),
+                      child: Text("Add TI (+)", style: TextStyle(fontSize: 10)),
                     ),
                     SizedBox(width: 10),
                     ElevatedButton(
                       onPressed: removeTiField,
-                      child: Text("Remove TI (-)"),
+                      child:
+                          Text("Remove TI (-)", style: TextStyle(fontSize: 10)),
                     ),
                   ],
                 ),
@@ -1424,12 +1494,13 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                   children: [
                     ElevatedButton(
                       onPressed: addTcField,
-                      child: Text("Add TC (+)"),
+                      child: Text("Add TC (+)", style: TextStyle(fontSize: 10)),
                     ),
                     SizedBox(width: 10),
                     ElevatedButton(
                       onPressed: removeTcField,
-                      child: Text("Remove TC (-)"),
+                      child:
+                          Text("Remove TC (-)", style: TextStyle(fontSize: 10)),
                     ),
                   ],
                 ),
@@ -1468,12 +1539,14 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                   children: [
                     ElevatedButton(
                       onPressed: addTasField,
-                      child: Text("Add TAS (+)"),
+                      child:
+                          Text("Add TAS (+)", style: TextStyle(fontSize: 10)),
                     ),
                     SizedBox(width: 10),
                     ElevatedButton(
                       onPressed: removeTasField,
-                      child: Text("Remove TAS (-)"),
+                      child: Text("Remove TAS (-)",
+                          style: TextStyle(fontSize: 10)),
                     ),
                   ],
                 ),
@@ -1512,12 +1585,14 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                   children: [
                     ElevatedButton(
                       onPressed: addTadField,
-                      child: Text("Add TAD (+)"),
+                      child:
+                          Text("Add TAD (+)", style: TextStyle(fontSize: 10)),
                     ),
                     SizedBox(width: 10),
                     ElevatedButton(
                       onPressed: removeTadField,
-                      child: Text("Remove TAD (-)"),
+                      child: Text("Remove TAD (-)",
+                          style: TextStyle(fontSize: 10)),
                     ),
                   ],
                 ),
@@ -1558,12 +1633,14 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                   children: [
                     ElevatedButton(
                       onPressed: addPvcField,
-                      child: Text("Add PVC (+)"),
+                      child:
+                          Text("Add PVC (+)", style: TextStyle(fontSize: 10)),
                     ),
                     SizedBox(width: 10),
                     ElevatedButton(
                       onPressed: removePvcField,
-                      child: Text("Remove PVC (-)"),
+                      child: Text("Remove PVC (-)",
+                          style: TextStyle(fontSize: 10)),
                     ),
                   ],
                 ),
@@ -1602,12 +1679,14 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                   children: [
                     ElevatedButton(
                       onPressed: addFrecRespiratoriaField,
-                      child: Text("Add Rate (+)"),
+                      child:
+                          Text("Add Rate (+)", style: TextStyle(fontSize: 10)),
                     ),
                     SizedBox(width: 10),
                     ElevatedButton(
                       onPressed: removeFrecRespiratoriaField,
-                      child: Text("Remove Rate (-)"),
+                      child: Text("Remove Rate (-)",
+                          style: TextStyle(fontSize: 10)),
                     ),
                   ],
                 ),
@@ -1643,15 +1722,164 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                   children: [
                     ElevatedButton(
                       onPressed: addInterColaboField,
-                      child: Text("Add Intervention (+)"),
+                      child: Text("Add Intervention (+)",
+                          style: TextStyle(fontSize: 10)),
                     ),
                     SizedBox(width: 10),
                     ElevatedButton(
                       onPressed: removeInterColaboField,
-                      child: Text("Remove Intervention (-)"),
+                      child: Text("Remove Intervention (-)",
+                          style: TextStyle(fontSize: 10)),
                     ),
                   ],
                 ),
+              ),
+
+              // NUEVA SECCIÓN: INFUSIÓN INTRAVENOSA
+              const SizedBox(height: 30),
+              Center(
+                  child: const Text(
+                "Intravenous Infusion",
+                style: TextStyle(
+                  fontSize: 20.0,
+                ),
+              )),
+              const SizedBox(height: 15),
+
+              // Formula
+              const SizedBox(height: 15),
+              Center(child: const Text("Formula")),
+              const SizedBox(height: 10),
+              ...formulaControllers.map((controller) {
+                int index = formulaControllers.indexOf(controller);
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 5.0),
+                  child: TextFormField(
+                    controller: controller,
+                    decoration: InputDecoration(
+                      labelText: "Formula ${index + 1}",
+                      border: OutlineInputBorder(),
+                    ),
+                    maxLength: 100,
+                    validator: (value) {
+                      return null;
+                    },
+                  ),
+                );
+              }),
+              Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      onPressed: addFormulaField,
+                      child: Text("Add Formula (+)",
+                          style: TextStyle(fontSize: 10)),
+                    ),
+                    SizedBox(width: 10),
+                    ElevatedButton(
+                      onPressed: removeFormulaField,
+                      child: Text("Remove Formula (-)",
+                          style: TextStyle(fontSize: 10)),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Dieta
+              const SizedBox(height: 15),
+              Center(child: const Text("Diet")),
+              const SizedBox(height: 10),
+              ...dietaControllers.map((controller) {
+                int index = dietaControllers.indexOf(controller);
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 5.0),
+                  child: TextFormField(
+                    controller: controller,
+                    decoration: InputDecoration(
+                      labelText: "Diet ${index + 1}",
+                      border: OutlineInputBorder(),
+                    ),
+                    maxLength: 100,
+                    validator: (value) {
+                      return null;
+                    },
+                  ),
+                );
+              }),
+              Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      onPressed: addDietaField,
+                      child:
+                          Text("Add Diet (+)", style: TextStyle(fontSize: 10)),
+                    ),
+                    SizedBox(width: 10),
+                    ElevatedButton(
+                      onPressed: removeDietaField,
+                      child: Text("Remove Diet (-)",
+                          style: TextStyle(fontSize: 10)),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Líquidos orales
+              const SizedBox(height: 15),
+              Center(child: const Text("Oral Liquids")),
+              const SizedBox(height: 10),
+              ...liquidosOralesInfControllers.map((controller) {
+                int index = liquidosOralesInfControllers.indexOf(controller);
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 5.0),
+                  child: TextFormField(
+                    controller: controller,
+                    decoration: InputDecoration(
+                      labelText: "Oral Liquids ${index + 1}",
+                      border: OutlineInputBorder(),
+                    ),
+                    maxLength: 100,
+                    validator: (value) {
+                      return null;
+                    },
+                  ),
+                );
+              }),
+              Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      onPressed: addLiquidosInfField,
+                      child: Text("Add Liquids (+)",
+                          style: TextStyle(fontSize: 10)),
+                    ),
+                    SizedBox(width: 10),
+                    ElevatedButton(
+                      onPressed: removeLiquidosInfField,
+                      child: Text("Remove Liquids (-)",
+                          style: TextStyle(fontSize: 10)),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Total (un solo campo)
+              const SizedBox(height: 15),
+              Center(child: const Text("Total Infusion")),
+              const SizedBox(height: 10),
+              TextFormField(
+                controller: totalInfusionController,
+                decoration: InputDecoration(
+                  labelText: "Total Infusion",
+                  border: OutlineInputBorder(),
+                ),
+                maxLength: 100,
+                validator: (value) {
+                  return null;
+                },
               ),
 
               // CONTROL OF LIQUIDS
@@ -1695,12 +1923,14 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                   children: [
                     ElevatedButton(
                       onPressed: addIngOralField,
-                      child: Text("Add Intake (+)"),
+                      child: Text("Add Intake (+)",
+                          style: TextStyle(fontSize: 10)),
                     ),
                     SizedBox(width: 10),
                     ElevatedButton(
                       onPressed: removeIngOralField,
-                      child: Text("Remove Intake (-)"),
+                      child: Text("Remove Intake (-)",
+                          style: TextStyle(fontSize: 10)),
                     ),
                   ],
                 ),
@@ -1736,12 +1966,14 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                   children: [
                     ElevatedButton(
                       onPressed: addSondaField,
-                      child: Text("Add Sonda (+)"),
+                      child:
+                          Text("Add Sonda (+)", style: TextStyle(fontSize: 10)),
                     ),
                     SizedBox(width: 10),
                     ElevatedButton(
                       onPressed: removeSondaField,
-                      child: Text("Remove Sonda (-)"),
+                      child: Text("Remove Sonda (-)",
+                          style: TextStyle(fontSize: 10)),
                     ),
                   ],
                 ),
@@ -1777,12 +2009,14 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                   children: [
                     ElevatedButton(
                       onPressed: addHemoField,
-                      child: Text("Add Hemoderivative (+)"),
+                      child: Text("Add \nHemoderivative (+)",
+                          style: TextStyle(fontSize: 10)),
                     ),
                     SizedBox(width: 10),
                     ElevatedButton(
                       onPressed: removeHemoField,
-                      child: Text("Remove Hemoderivative (-)"),
+                      child: Text("Remove \nHemoderivative (-)",
+                          style: TextStyle(fontSize: 10)),
                     ),
                   ],
                 ),
@@ -1818,12 +2052,14 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                   children: [
                     ElevatedButton(
                       onPressed: addNutriParField,
-                      child: Text("Add Nutrition (+)"),
+                      child: Text("Add Nutrition (+)",
+                          style: TextStyle(fontSize: 10)),
                     ),
                     SizedBox(width: 10),
                     ElevatedButton(
                       onPressed: removeNutriParField,
-                      child: Text("Remove Nutrition (-)"),
+                      child: Text("Remove Nutrition (-)",
+                          style: TextStyle(fontSize: 10)),
                     ),
                   ],
                 ),
@@ -1859,12 +2095,14 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                   children: [
                     ElevatedButton(
                       onPressed: addSolucionField,
-                      child: Text("Add Solution (+)"),
+                      child: Text("Add Solution (+)",
+                          style: TextStyle(fontSize: 10)),
                     ),
                     SizedBox(width: 10),
                     ElevatedButton(
                       onPressed: removeSolucionField,
-                      child: Text("Remove Solution (-)"),
+                      child: Text("Remove Solution (-)",
+                          style: TextStyle(fontSize: 10)),
                     ),
                   ],
                 ),
@@ -1900,12 +2138,14 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                   children: [
                     ElevatedButton(
                       onPressed: addOtroField,
-                      child: Text("Add Field (+)"),
+                      child:
+                          Text("Add Field (+)", style: TextStyle(fontSize: 10)),
                     ),
                     SizedBox(width: 10),
                     ElevatedButton(
                       onPressed: removeOtroField,
-                      child: Text("Remove Field (-)"),
+                      child: Text("Remove Field (-)",
+                          style: TextStyle(fontSize: 10)),
                     ),
                   ],
                 ),
@@ -1941,12 +2181,14 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                   children: [
                     ElevatedButton(
                       onPressed: addBalanceField,
-                      child: Text("Add Balance (+)"),
+                      child: Text("Add Balance (+)",
+                          style: TextStyle(fontSize: 10)),
                     ),
                     SizedBox(width: 10),
                     ElevatedButton(
                       onPressed: removeBalanceField,
-                      child: Text("Remove Balance (-)"),
+                      child: Text("Remove Balance (-)",
+                          style: TextStyle(fontSize: 10)),
                     ),
                   ],
                 ),
@@ -1982,12 +2224,14 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                   children: [
                     ElevatedButton(
                       onPressed: addEgresosUresisField,
-                      child: Text("Add Egress (+)"),
+                      child: Text("Add Egress (+)",
+                          style: TextStyle(fontSize: 10)),
                     ),
                     SizedBox(width: 10),
                     ElevatedButton(
                       onPressed: removeEgresosUresisField,
-                      child: Text("Remove Egress (-)"),
+                      child: Text("Remove Egress (-)",
+                          style: TextStyle(fontSize: 10)),
                     ),
                   ],
                 ),
@@ -2023,12 +2267,14 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                   children: [
                     ElevatedButton(
                       onPressed: addEvacuacionesField,
-                      child: Text("Add Evacuation (+)"),
+                      child: Text("Add Evacuation (+)",
+                          style: TextStyle(fontSize: 10)),
                     ),
                     SizedBox(width: 10),
                     ElevatedButton(
                       onPressed: removeEvacuacionesField,
-                      child: Text("Remove Evacuation (-)"),
+                      child: Text("Remove Evacuation (-)",
+                          style: TextStyle(fontSize: 10)),
                     ),
                   ],
                 ),
@@ -2050,8 +2296,8 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                     ),
                     maxLength: 100,
                     validator: (value) {
-                      if ((value?.length ?? 0) > 100) {
-                        return 'Must be less than 100 characters';
+                      if ((value?.isEmpty ?? true)) {
+                        return 'Please enter the hemorrhage No. ${index + 1}';
                       }
                       return null;
                     },
@@ -2065,12 +2311,14 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                   children: [
                     ElevatedButton(
                       onPressed: addHemorragiaField,
-                      child: Text("Add Hemorrhage (+)"),
+                      child: Text("Add Hemorrhage (+)",
+                          style: TextStyle(fontSize: 10)),
                     ),
                     SizedBox(width: 10),
                     ElevatedButton(
                       onPressed: removeHemorragiaField,
-                      child: Text("Remove Hemorrhage (-)"),
+                      child: Text("Remove Hemorrhage (-)",
+                          style: TextStyle(fontSize: 10)),
                     ),
                   ],
                 ),
@@ -2107,12 +2355,14 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                   children: [
                     ElevatedButton(
                       onPressed: addVomAspField,
-                      child: Text("Add Field (+)"),
+                      child:
+                          Text("Add Field (+)", style: TextStyle(fontSize: 10)),
                     ),
                     SizedBox(width: 10),
                     ElevatedButton(
                       onPressed: removeVomAspField,
-                      child: Text("Remove Field (-)"),
+                      child: Text("Remove Field (-)",
+                          style: TextStyle(fontSize: 10)),
                     ),
                   ],
                 ),
@@ -2149,12 +2399,14 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                   children: [
                     ElevatedButton(
                       onPressed: addDrenesField,
-                      child: Text("Add Drain (+)"),
+                      child:
+                          Text("Add Drain (+)", style: TextStyle(fontSize: 10)),
                     ),
                     SizedBox(width: 10),
                     ElevatedButton(
                       onPressed: removeDrenesField,
-                      child: Text("Remove Drain (-)"),
+                      child: Text("Remove Drain (-)",
+                          style: TextStyle(fontSize: 10)),
                     ),
                   ],
                 ),
@@ -2168,7 +2420,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                   labelText: "Total Income",
                   border: OutlineInputBorder(),
                 ),
-                autofocus: true,
+                autofocus: false,
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}'))
                 ],
@@ -2190,7 +2442,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                   labelText: "Total Expenses",
                   border: OutlineInputBorder(),
                 ),
-                autofocus: true,
+                autofocus: false,
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}'))
                 ],
@@ -2212,7 +2464,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                   labelText: "Total Liquid Balance",
                   border: OutlineInputBorder(),
                 ),
-                autofocus: true,
+                autofocus: false,
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}'))
                 ],
@@ -2236,7 +2488,6 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
               )),
               const SizedBox(height: 15),
 
-              // Medications list
               ...addedMedicamentos.map((addedMed) {
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 5.0),
@@ -2258,12 +2509,14 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                   children: [
                     ElevatedButton(
                       onPressed: openAddMedicamentoDialog,
-                      child: Text("Add Medication (+)"),
+                      child: Text("Add Medication (+)",
+                          style: TextStyle(fontSize: 10)),
                     ),
                     SizedBox(width: 10),
                     ElevatedButton(
                       onPressed: removeMedicamentoField,
-                      child: Text("Remove Medication (-)"),
+                      child: Text("Remove Medication (-)",
+                          style: TextStyle(fontSize: 10)),
                     ),
                   ],
                 ),
@@ -2409,12 +2662,13 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                   children: [
                     ElevatedButton(
                       onPressed: addPfField,
-                      child: Text("Add PF (+)"),
+                      child: Text("Add PF (+)", style: TextStyle(fontSize: 10)),
                     ),
                     SizedBox(width: 10),
                     ElevatedButton(
                       onPressed: removePfField,
-                      child: Text("Remove PF (-)"),
+                      child:
+                          Text("Remove PF (-)", style: TextStyle(fontSize: 10)),
                     ),
                   ],
                 ),
@@ -2450,12 +2704,14 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                   children: [
                     ElevatedButton(
                       onPressed: addSinSigField,
-                      child: Text("Add S&S (+)"),
+                      child:
+                          Text("Add S&S (+)", style: TextStyle(fontSize: 10)),
                     ),
                     SizedBox(width: 10),
                     ElevatedButton(
                       onPressed: removeSinSigField,
-                      child: Text("Remove S&S (-)"),
+                      child: Text("Remove S&S (-)",
+                          style: TextStyle(fontSize: 10)),
                     ),
                   ],
                 ),
@@ -2491,12 +2747,14 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                   children: [
                     ElevatedButton(
                       onPressed: addProblemaInterField,
-                      child: Text("Add I.P. (+)"),
+                      child:
+                          Text("Add I.P. (+)", style: TextStyle(fontSize: 10)),
                     ),
                     SizedBox(width: 10),
                     ElevatedButton(
                       onPressed: removeProblemaInterField,
-                      child: Text("Remove I.P. (-)"),
+                      child: Text("Remove I.P. (-)",
+                          style: TextStyle(fontSize: 10)),
                     ),
                   ],
                 ),
@@ -2532,12 +2790,14 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                   children: [
                     ElevatedButton(
                       onPressed: addJuicioClinicoField,
-                      child: Text("Add clinical trial (+)"),
+                      child: Text("Add clinical trial (+)",
+                          style: TextStyle(fontSize: 10)),
                     ),
                     SizedBox(width: 10),
                     ElevatedButton(
                       onPressed: removeJuicioClinicoField,
-                      child: Text("Remove clinical trial (-)"),
+                      child: Text("Remove clinical trial (-)",
+                          style: TextStyle(fontSize: 10)),
                     ),
                   ],
                 ),
@@ -2573,12 +2833,14 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                   children: [
                     ElevatedButton(
                       onPressed: addActEnfermeriaField,
-                      child: Text("Add a nurse activity (+)"),
+                      child: Text("Add a nurse \nactivity (+)",
+                          style: TextStyle(fontSize: 10)),
                     ),
                     SizedBox(width: 10),
                     ElevatedButton(
                       onPressed: removeActEnfermeriaField,
-                      child: Text("Remove a nurse activity (-)"),
+                      child: Text("Remove a nurse \nactivity (-)",
+                          style: TextStyle(fontSize: 10)),
                     ),
                   ],
                 ),
@@ -2614,12 +2876,14 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                   children: [
                     ElevatedButton(
                       onPressed: addRespEvoField,
-                      child: Text("Add response and evo (+)"),
+                      child: Text("Add response \nand evo (+)",
+                          style: TextStyle(fontSize: 10)),
                     ),
                     SizedBox(width: 10),
                     ElevatedButton(
                       onPressed: removeRespEvoField,
-                      child: Text("Remove response and evo (-)"),
+                      child: Text("Remove response \nand evo (-)",
+                          style: TextStyle(fontSize: 10)),
                     ),
                   ],
                 ),
@@ -2655,12 +2919,14 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                   children: [
                     ElevatedButton(
                       onPressed: addObsField,
-                      child: Text("Add observation (+)"),
+                      child: Text("Add observation (+)",
+                          style: TextStyle(fontSize: 10)),
                     ),
                     SizedBox(width: 10),
                     ElevatedButton(
                       onPressed: removeObsField,
-                      child: Text("Remove observation (-)"),
+                      child: Text("Remove observation (-)",
+                          style: TextStyle(fontSize: 10)),
                     ),
                   ],
                 ),
@@ -2690,18 +2956,29 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                   ),
                 );
               }),
+
               Center(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     ElevatedButton(
                       onPressed: addPlanEgresoField,
-                      child: Text("Add egress plan (+)"),
+                      child: Text(
+                        "Add egress plan (+)",
+                        style: TextStyle(
+                          fontSize: 10,
+                        ),
+                      ),
                     ),
                     SizedBox(width: 10),
                     ElevatedButton(
                       onPressed: removePlanEgresoField,
-                      child: Text("Remove egress plan (-)"),
+                      child: Text(
+                        "Remove egress plan (-)",
+                        style: TextStyle(
+                          fontSize: 10,
+                        ),
+                      ),
                     ),
                   ],
                 ),
