@@ -56,10 +56,10 @@ class _DynamicWrapperState extends State<DynamicWrapper> {
   Future<void> _loadUserData() async {
     final userData = await UserService().loadUserData();
 
-    print("User data loaded:");
+    /*print("User data loaded:");
     print("userType: ${userData['userType']}");
     print("hasClues: ${userData['clues']}");
-    print("hasPatients: ${userData['patients']}");
+    print("hasPatients: ${userData['patients']}");*/
 
     setState(() {
       userType = userData['userType']?.trim() ?? '';
@@ -75,20 +75,21 @@ class _DynamicWrapperState extends State<DynamicWrapper> {
       ].contains(userType);
     });
 
-    _configurePages();
+    if (userType.isNotEmpty) {
+      _configurePages();
+    }
   }
 
   void _configurePages() {
     _pages.clear();
     _navItems.clear();
 
-    print("Configuring pages:");
+    /*print("Configuring pages:");
     print("UserType: $userType");
     print("HasClues: $hasClues");
-    print("HasPatients: $hasPatients");
+    print("HasPatients: $hasPatients");*/
 
-    _pages.clear();
-    _navItems.clear();
+    if (userType.isEmpty) return;
 
     _pages.add(const SettingsScreen());
     _navItems.add(TabItem(icon: Icons.settings, title: 'Settings'.tr()));
@@ -176,6 +177,8 @@ class _DynamicWrapperState extends State<DynamicWrapper> {
   }
 
   void _navigateToChooseRoleScreen() {
+    if (userType.isNotEmpty) return;
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Navigator.pushAndRemoveUntil(
         context,
@@ -191,7 +194,6 @@ class _DynamicWrapperState extends State<DynamicWrapper> {
 
     return Builder(
       builder: (context) {
-        // Actualizamos las páginas y los títulos dinámicamente en función del idioma actual
         _configurePages();
 
         return Scaffold(
