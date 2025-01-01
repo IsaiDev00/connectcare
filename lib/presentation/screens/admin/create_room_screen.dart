@@ -1,4 +1,5 @@
 import 'package:connectcare/core/constants/constants.dart';
+import 'package:connectcare/data/services/shared_preferences_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:convert';
@@ -59,6 +60,8 @@ class CreateRoomScreenState extends State<CreateRoomScreen> {
     'Sunday': false,
   };
 
+  final SharedPreferencesService _sharedPreferencesService =
+      SharedPreferencesService();
   // Variable para manejar el estado de carga
   bool isLoading = false;
 
@@ -69,14 +72,15 @@ class CreateRoomScreenState extends State<CreateRoomScreen> {
   }
 
   Future<void> _fetchServices() async {
+    final clues = await _sharedPreferencesService.getClues();
     try {
-      final response = await http.get(Uri.parse('$baseUrl/servicio/'));
+      final response = await http.get(Uri.parse('$baseUrl/servicio/$clues'));
       if (response.statusCode == 200) {
         List<dynamic> data = json.decode(response.body);
         setState(() {
           services = data
-              .map(
-                  (item) => {'id': item['id_servicio'], 'name': item['nombre']})
+              .map((item) =>
+                  {'id': item['id_servicio'], 'name': item['servicio_nombre']})
               .toList();
         });
       } else {
@@ -218,7 +222,7 @@ class CreateRoomScreenState extends State<CreateRoomScreen> {
   void _responseCreateRoom(http.Response response) {
     if (response.statusCode == 201) {
       showCustomSnackBar(context, 'Sala creada con éxito');
-      Navigator.pushNamed(context, '/manageRoomScreen');
+      Navigator.pop(context, 'refresh');
     } else {
       showCustomSnackBar(context, 'Error al crear sala');
       print('Response status: ${response.statusCode}');

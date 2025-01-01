@@ -39,7 +39,7 @@ class ManageRoomScreenState extends State<ManageRoomScreen> {
               .map((item) => {
                     'id_sala': item['id_sala'],
                     'nombre':
-                        '${item['nombre_sala']} ${item['numero']} - ${item['nombre_servicio']}'
+                        '${item['nombre_sala']} ${item['numero_sala']} - ${item['nombre_servicio']}'
                   })
               .toList();
           filteredRooms = rooms; // Inicializa con todas las salas
@@ -189,7 +189,12 @@ class ManageRoomScreenState extends State<ManageRoomScreen> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, '/createRoomScreen');
+                  Navigator.pushNamed(context, '/createRoomScreen')
+                      .then((value) {
+                    if (value == 'refresh') {
+                      _fetchRooms();
+                    }
+                  });
                 },
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),

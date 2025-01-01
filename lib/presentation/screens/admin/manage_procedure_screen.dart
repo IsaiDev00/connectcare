@@ -13,10 +13,8 @@ class ManageProcedureScreen extends StatefulWidget {
 }
 
 class ManageProcedureScreenState extends State<ManageProcedureScreen> {
-
   final SharedPreferencesService _sharedPreferencesService =
       SharedPreferencesService();
-
 
   List<Map<String, dynamic>> procedures = [];
   List<Map<String, dynamic>> fliteredProcedures = [];
@@ -31,7 +29,8 @@ class ManageProcedureScreenState extends State<ManageProcedureScreen> {
   Future<void> _fetchProcedures() async {
     try {
       final clues = await _sharedPreferencesService.getClues();
-      final response = await http.get(Uri.parse('$baseUrl/procedimiento/$clues'));
+      final response =
+          await http.get(Uri.parse('$baseUrl/procedimiento/$clues'));
 
       if (response.statusCode == 200) {
         List<dynamic> data = json.decode(response.body);
@@ -62,13 +61,14 @@ class ManageProcedureScreenState extends State<ManageProcedureScreen> {
     });
   }
 
-    void _confirmDeleteProcedure(int procedureID) {
+  void _confirmDeleteProcedure(int procedureID) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Confirm Deletion'),
-          content: const Text('Are you sure you want to delete this procedure?'),
+          content:
+              const Text('Are you sure you want to delete this procedure?'),
           actions: [
             TextButton(
               onPressed: () {
@@ -90,10 +90,11 @@ class ManageProcedureScreenState extends State<ManageProcedureScreen> {
   }
 
   Future<void> deleteProcedure(int id) async {
-    try{
-      final response = await http.delete(Uri.parse('$baseUrl/procedimiento/$id'));
+    try {
+      final response =
+          await http.delete(Uri.parse('$baseUrl/procedimiento/$id'));
       print("id: $id");
-      if(response.statusCode == 200){
+      if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Procedure deleted successfully')),
         );
@@ -101,7 +102,7 @@ class ManageProcedureScreenState extends State<ManageProcedureScreen> {
       } else {
         throw Exception('Error deleting the procedure');
       }
-    } catch (e){
+    } catch (e) {
       print('Error: $e');
     }
   }
@@ -160,7 +161,10 @@ class ManageProcedureScreenState extends State<ManageProcedureScreen> {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => EditProcedureScreen(procedureId: procedure['id_procedimiento']),
+                                        builder: (context) =>
+                                            EditProcedureScreen(
+                                                procedureId: procedure[
+                                                    'id_procedimiento']),
                                       ),
                                     );
                                   },
@@ -168,7 +172,8 @@ class ManageProcedureScreenState extends State<ManageProcedureScreen> {
                                 IconButton(
                                   icon: const Icon(Icons.delete),
                                   onPressed: () {
-                                    _confirmDeleteProcedure(procedure['id_procedimiento']);
+                                    _confirmDeleteProcedure(
+                                        procedure['id_procedimiento']);
                                   },
                                 ),
                               ],
@@ -185,7 +190,12 @@ class ManageProcedureScreenState extends State<ManageProcedureScreen> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, '/createProcedureScreen');
+                  Navigator.pushNamed(context, '/createProcedureScreen')
+                      .then((value) {
+                    if (value == 'refresh') {
+                      _fetchProcedures();
+                    }
+                  });
                 },
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
