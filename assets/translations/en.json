@@ -179,6 +179,8 @@
   "date_staff": "Date: {}",
   "request_staff": "Request: {}",
   "Please provide a reason for your request.": "Please provide a reason for your request.",
-  "Request sent": "Request sent"
+  "Request sent": "Request sent",
+  "Triage": "Triage",
+  "Nursing": "Nursing"
 }
   

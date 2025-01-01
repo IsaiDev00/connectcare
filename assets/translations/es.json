@@ -179,6 +179,8 @@
   "date_staff": "Fecha: {}",
   "request_staff": "Solicitud: {}",
   "Please provide a reason for your request.": "Proporcione el motivo de su solicitud.",
-  "Request sent": "Solicitud enviada"
+  "Request sent": "Solicitud enviada",
+  "Triage": "Triaje",
+  "Nursing": "Enfemeria"
 }
   

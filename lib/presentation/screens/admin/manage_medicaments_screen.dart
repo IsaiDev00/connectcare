@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:connectcare/core/constants/constants.dart';
+import 'package:connectcare/presentation/screens/admin/create_medicament_screen.dart';
 import 'package:connectcare/presentation/screens/admin/update_medicament.dart';
 import 'package:connectcare/presentation/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
@@ -163,8 +164,10 @@ class _ManageMedicationsState extends State<ManageMedications> {
                 padding: const EdgeInsets.symmetric(vertical: 10.0),
                 child: ElevatedButton(
                   onPressed: () async {
-                    final result = await Navigator.pushNamed(
-                        context, '/createMedicamentScreen');
+                    final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => CreateMedicamentScreen()));
                     if (result == 'created') {
                       await medicamentsInit();
                     }
