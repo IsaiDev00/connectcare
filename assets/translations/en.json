@@ -83,6 +83,7 @@
   "The code cannot be empty": "The code cannot be empty",
   "The code must be exactly 6 digits": "The code must be exactly 6 digits",
   "The code must only contain numbers": "The code must only contain numbers",
+  "Verify Code": "Verify Code",
   "resend_code": "Resend Code",
   "resend_code_wait": "Resend Code ({})",
   "Invalid or expired code": "Invalid or expired code",
@@ -92,7 +93,7 @@
   "About us": "About us",
   "Mission": "Our mission is to connect and facilitate the management of hospitals, patients and families with the most advanced technology.",
   "Do you have questions? Contact us at:": "Do you have questions? Contact us at:",
-  "Info": "Email1: guillermoisailh@gmail.com\nEmail2: carlosivanb@gmail.com\nTeléfono1: +52 33 2354 8237\nTeléfono2: +52 33 3328 6272",
+  "Info": "Developers:\n- Guillermo Isaí Félix Cortéz\n- Carlos Iván Becerra Quintero\nTeléfono1: +52 33 2354 8237\nTeléfono2: +52 33 3328 6272",
   "User information could not be loaded.": "User information could not be loaded.",
   "Edit profile": "Edit profile",
   "name": "name",
@@ -182,6 +183,7 @@
   "Request sent": "Request sent",
   "Triage": "Triage",
   "Nursing": "Nursing",
-  "Add a password": "Add a password"
+  "Add a password": "Add a password",
+  "email_edit_error": "This email cannot be edited as it was registered using {}"
 }
   
