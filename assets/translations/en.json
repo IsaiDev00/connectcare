@@ -184,6 +184,13 @@
   "Triage": "Triage",
   "Nursing": "Nursing",
   "Add a password": "Add a password",
-  "email_edit_error": "This email cannot be edited as it was registered using {}"
+  "email_edit_error": "This email cannot be edited as it was registered using {}",
+  "Unknown": "Unknown",
+  "Administrator": "Administrator",
+  "Stretcher Bearer": "Stretcher bearer",
+  "Human Resources": "Human Resources",
+  "Failed to load feedbacks.": "Failed to load feedbacks.",
+  "Failed to delete feedback.": "Failed to delete feedback.",
+  "Feedbacks": "Feedbacks"
 }
   

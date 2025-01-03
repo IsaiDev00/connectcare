@@ -184,6 +184,13 @@
   "Triage": "Triaje",
   "Nursing": "Enfemeria",
   "Add a password": "Agrega una contraseña",
-  "email_edit_error": "Este correo no se puede editar porque fue registrado usando {}"
+  "email_edit_error": "Este correo no se puede editar porque fue registrado usando {}",
+  "Unknown": "Desconocido",
+  "Administrator": "Administrador",
+  "Stretcher Bearer": "Camillero",
+  "Human Resources": "Recursos humanos",
+  "Failed to load feedbacks.": "Error al cargar los comentarios.",
+  "Failed to delete feedback.": "Error al eliminar el comentario.",
+  "Feedbacks": "Comentarios"
 }
   

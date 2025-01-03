@@ -67,6 +67,25 @@ class _ManageStaffUsersState extends State<ManageStaffUsers> {
     }
   }
 
+  String translateUserType(String userType) {
+    switch (userType) {
+      case 'administrator':
+        return 'Administrator'.tr();
+      case 'doctor':
+        return 'Doctor'.tr();
+      case 'nurse':
+        return 'Nurse'.tr();
+      case 'social worker':
+        return 'Social Worker'.tr();
+      case 'stretcher bearer':
+        return 'Stretcher Bearer'.tr();
+      case 'human resources':
+        return 'Human Resources'.tr();
+      default:
+        return 'Unknown'.tr();
+    }
+  }
+
   Future<void> staffMembersInit() async {
     var url = Uri.parse('$baseUrl/personal_hospital');
     var response = await http.get(url);
@@ -92,14 +111,14 @@ class _ManageStaffUsersState extends State<ManageStaffUsers> {
       staff = dataStaff.map((item) {
         return {
           'id_personal': item['id_personal'],
-          'nombre': item['nombre'] ?? 'Unknown',
-          'apellido_paterno': item['apellido_paterno'] ?? 'Unknown',
-          'apellido_materno': item['apellido_materno'] ?? 'Unknown',
+          'nombre': item['nombre'] ?? 'Unknown'.tr(),
+          'apellido_paterno': item['apellido_paterno'] ?? 'Unknown'.tr(),
+          'apellido_materno': item['apellido_materno'] ?? 'Unknown'.tr(),
           'tipo': item['tipo'] ?? 'Unknown',
-          'correo_electronico': item['correo_electronico'] ?? 'Unknown',
-          'telefono': item['telefono'] ?? 'Unknown',
-          'estatus': item['estatus'] ?? 'Not Available',
-          'clues': item['clues'] ?? 'Not Available',
+          'correo_electronico': item['correo_electronico'] ?? 'Unknown'.tr(),
+          'telefono': item['telefono'] ?? 'Unknown'.tr(),
+          'estatus': item['estatus'] ?? 'Unknown'.tr(),
+          'clues': item['clues'] ?? 'Unknown'.tr(),
         };
       }).toList();
       filterStaff = List.from(staff);
@@ -173,16 +192,22 @@ class _ManageStaffUsersState extends State<ManageStaffUsers> {
 
   Future<void> deleteRequest(String id, String reason) async {
     try {
-      var url = Uri.parse('$baseUrl/solicitud_a_hospital/$id');
-      var response = await http.delete(url);
+      final url = Uri.parse('$baseUrl/solicitud_a_hospital/$id');
+      final response = await http.delete(url);
 
-      _responseHandlerDeleteRequest(response);
+      if (response.statusCode == 200) {
+        setState(() {
+          requests.removeWhere(
+              (request) => request['id_solicitud_a_hospital'].toString() == id);
+        });
+        await staffMembersInit();
+        _requestRejected();
+      } else {
+        _errorRejecting();
+      }
     } catch (error) {
-      // print(error);
+      _errorRejecting();
     }
-
-    requestsToHospital();
-    setState(() {});
   }
 
   Future<void> acceptUser(int idPersonal, int id, String email) async {
@@ -223,7 +248,11 @@ class _ManageStaffUsersState extends State<ManageStaffUsers> {
       final deleteUrl = Uri.parse('$baseUrl/solicitud_a_hospital/$id');
       await http.delete(deleteUrl);
 
-      await requestsToHospital();
+      setState(() {
+        requests
+            .removeWhere((request) => request['id_solicitud_a_hospital'] == id);
+      });
+
       await staffMembersInit();
       _requestAccepted();
     } catch (error) {
@@ -299,41 +328,39 @@ class _ManageStaffUsersState extends State<ManageStaffUsers> {
               Column(
                 children: [
                   IconButton(
-                    icon: Icon(
-                      Icons.send_rounded,
-                      color: theme.colorScheme.onSurface,
-                    ),
-                    onPressed: () async {
-                      if (descriptionController.text.isEmpty) {
-                        Navigator.of(context).pop();
-                        showCustomSnackBar(
-                          context,
-                          'Please provide a reason for rejection.'.tr(),
-                        );
-                      } else {
-                        final url = Uri.parse(
-                            '$baseUrl/solicitud_a_hospital/reject-request/$id');
-                        final body = json.encode({
-                          "email": email,
-                          "reason": descriptionController.text,
-                        });
-
-                        final response = await http.post(
-                          url,
-                          headers: {'Content-Type': 'application/json'},
-                          body: body,
-                        );
-
-                        if (response.statusCode == 200) {
-                          await requestsToHospital();
-                          _requestRejected();
+                      icon: Icon(
+                        Icons.send_rounded,
+                        color: theme.colorScheme.onSurface,
+                      ),
+                      onPressed: () async {
+                        if (descriptionController.text.isEmpty) {
+                          Navigator.of(context).pop();
+                          showCustomSnackBar(
+                            context,
+                            'Please provide a reason for rejection.'.tr(),
+                          );
                         } else {
-                          _errorRejecting();
+                          final url = Uri.parse(
+                              '$baseUrl/solicitud_a_hospital/reject-request/$id');
+                          final body = json.encode({
+                            "email": email,
+                            "reason": descriptionController.text,
+                          });
+
+                          final response = await http.post(
+                            url,
+                            headers: {'Content-Type': 'application/json'},
+                            body: body,
+                          );
+
+                          if (response.statusCode == 200) {
+                            await deleteRequest(id, descriptionController.text);
+                          } else {
+                            _errorRejecting();
+                          }
+                          _navigatorPop();
                         }
-                        _navigatorPop();
-                      }
-                    },
-                  ),
+                      }),
                   Text(
                     'Send'.tr(),
                     style: theme.textTheme.bodyLarge!.copyWith(
@@ -374,13 +401,6 @@ class _ManageStaffUsersState extends State<ManageStaffUsers> {
   }
 
   void _responseHandlerDeleteStaff(response) {
-    Navigator.pop(context);
-
-    responseHandlerDelete(response, context, 'Staff removed successfully'.tr(),
-        'Couldnt remove staff user due to an error'.tr());
-  }
-
-  void _responseHandlerDeleteRequest(response) {
     Navigator.pop(context);
 
     responseHandlerDelete(response, context, 'Staff removed successfully'.tr(),
@@ -510,8 +530,11 @@ class _ManageStaffUsersState extends State<ManageStaffUsers> {
                                                         .headlineSmall,
                                                   ),
                                                   Text(
-                                                    "type_staff".tr(
-                                                        args: [item['tipo']]),
+                                                    "type_staff".tr(args: [
+                                                      translateUserType(
+                                                          item['tipo'] ??
+                                                              'Unknown')
+                                                    ]),
                                                     style: theme.textTheme
                                                         .headlineSmall,
                                                   ),

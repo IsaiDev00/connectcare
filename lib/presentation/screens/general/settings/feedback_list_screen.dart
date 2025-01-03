@@ -52,7 +52,7 @@ class _FeedbackListScreenState extends State<FeedbackListScreen> {
           _isLoading = false;
         });
       } else {
-        throw Exception('Failed to load feedbacks.');
+        throw Exception('Failed to load feedbacks.'.tr());
       }
     } catch (e) {
       _errorLoadingFeedbacks();
@@ -73,12 +73,12 @@ class _FeedbackListScreenState extends State<FeedbackListScreen> {
           _feedbacks
               .removeWhere((feedback) => feedback['id_feedback'] == feedbackId);
         });
-        showCustomSnackBar(context, 'Feedback deleted successfully'.tr());
+        _feedbackDeletedSuccessfully();
       } else {
-        throw Exception('Failed to delete feedback.');
+        throw Exception('Failed to delete feedback.'.tr());
       }
     } catch (e) {
-      showCustomSnackBar(context, 'Error deleting feedback'.tr());
+      _errorDeletingFeedback();
     }
   }
 
@@ -134,5 +134,13 @@ class _FeedbackListScreenState extends State<FeedbackListScreen> {
 
   void _userErrorResponse() {
     showCustomSnackBar(context, 'Error loading user data'.tr());
+  }
+
+  void _feedbackDeletedSuccessfully() {
+    showCustomSnackBar(context, 'Feedback deleted successfully'.tr());
+  }
+
+  void _errorDeletingFeedback() {
+    showCustomSnackBar(context, 'Error deleting feedback'.tr());
   }
 }
