@@ -2,8 +2,10 @@ import 'package:connectcare/data/services/user_service.dart';
 import 'package:connectcare/presentation/screens/general/auth/register/choose_role_screen.dart';
 import 'package:connectcare/presentation/screens/general/settings/about_us_screen.dart';
 import 'package:connectcare/presentation/screens/general/settings/edit_profile_screen.dart';
+import 'package:connectcare/presentation/screens/general/settings/feedback_list_screen.dart';
 import 'package:connectcare/presentation/screens/general/settings/feedback_screen.dart';
 import 'package:connectcare/presentation/screens/general/settings/language_screen.dart';
+import 'package:connectcare/presentation/widgets/snack_bar.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
@@ -16,6 +18,24 @@ class SettingsScreen extends StatefulWidget {
 
 class SettingsScreenState extends State<SettingsScreen> {
   final userService = UserService();
+  String userType = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    try {
+      final userData = await UserService().loadUserData();
+      setState(() {
+        userType = (userData['userType'] ?? '');
+      });
+    } catch (e) {
+      _userErrorResponse();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -87,11 +107,20 @@ class SettingsScreenState extends State<SettingsScreen> {
                             icon: Icons.feedback_outlined,
                             text: 'Complaints and suggestions'.tr(),
                             iconColor: colorScheme.onSurface,
-                            textColor: colorScheme.onSurface,
-                            onTap: () => Navigator.push(
+                            textColor: colorScheme.onSurface, onTap: () {
+                          if (userType == 'administrator') {
+                            Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => FeedbackScreen()))),
+                                    builder: (context) =>
+                                        FeedbackListScreen()));
+                          } else {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => FeedbackScreen()));
+                          }
+                        }),
                       ],
                     ),
                     _buildSettingsCard(
@@ -132,7 +161,7 @@ class SettingsScreenState extends State<SettingsScreen> {
       required Color titleColor}) {
     return Card(
       margin: const EdgeInsets.only(bottom: 20),
-      color: Theme.of(context).cardColor, // Adapta al tema claro/oscuro
+      color: Theme.of(context).cardColor,
       elevation: 4,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
@@ -187,5 +216,9 @@ class SettingsScreenState extends State<SettingsScreen> {
         ),
       ),
     );
+  }
+
+  void _userErrorResponse() {
+    showCustomSnackBar(context, 'Error loading user data'.tr());
   }
 }

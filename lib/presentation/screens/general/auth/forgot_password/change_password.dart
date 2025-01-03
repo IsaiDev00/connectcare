@@ -136,10 +136,6 @@ class ChangePasswordState extends State<ChangePassword> {
                           body = {'contrasena': _passwordController.text};
                         }
 
-                        print('Request URL: $url');
-                        print('Request Body: $body');
-
-                        // Usa POST para el propósito "set", PUT para los demás
                         final response = widget.purpose == 'set'
                             ? await http.post(
                                 Uri.parse(url),
@@ -152,9 +148,6 @@ class ChangePasswordState extends State<ChangePassword> {
                                 body: jsonEncode(body),
                               );
 
-                        print('Response Status: ${response.statusCode}');
-                        print('Response Body: ${response.body}');
-
                         if (response.statusCode == 200) {
                           _passwordUpdatedSuccesfully();
                           _navigator();
@@ -162,7 +155,6 @@ class ChangePasswordState extends State<ChangePassword> {
                           throw Exception('Error: ${response.body}');
                         }
                       } catch (e) {
-                        print('Error: $e');
                         _failedToChangePassword();
                       }
                     }
