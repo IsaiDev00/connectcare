@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'package:connectcare/data/services/user_service.dart';
 import 'package:connectcare/presentation/screens/general/auth/login/login_screen.dart';
+import 'package:connectcare/presentation/screens/general/auth/register/choose_role_screen.dart';
 import 'package:connectcare/presentation/screens/general/settings/edit_profile_screen.dart';
 import 'package:connectcare/presentation/widgets/snack_bar.dart';
 import 'package:http/http.dart' as http;
@@ -24,6 +26,7 @@ class ChangePassword extends StatefulWidget {
 
 class ChangePasswordState extends State<ChangePassword> {
   final _formKey = GlobalKey<FormState>();
+  final userService = UserService();
 
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
@@ -31,11 +34,18 @@ class ChangePasswordState extends State<ChangePassword> {
 
   @override
   Widget build(BuildContext context) {
+    String title = '';
+    if (widget.purpose == "set") {
+      title = 'Add a password'.tr();
+    } else {
+      title = 'Change your password'.tr();
+    }
+
     var brightness = Theme.of(context).brightness;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Change your password'.tr()),
+        title: Text(title),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () {
@@ -107,19 +117,43 @@ class ChangePasswordState extends State<ChangePassword> {
                   onPressed: () async {
                     if (_formKey.currentState!.validate()) {
                       try {
-                        final String url = widget.isStaff
-                            ? '$baseUrl/personal/update-password/${widget.userId}'
-                            : '$baseUrl/familiar/update-password/${widget.userId}';
+                        final String url;
+                        Map<String, dynamic> body;
 
-                        //print(url);
-
-                        final response = await http.put(
-                          Uri.parse(url),
-                          headers: {'Content-Type': 'application/json'},
-                          body: jsonEncode({
+                        if (widget.purpose == 'set') {
+                          url = '$baseUrl/auth/set-password';
+                          body = {
+                            'email': widget.userId,
                             'contrasena': _passwordController.text,
-                          }),
-                        );
+                          };
+                        } else if (widget.isStaff) {
+                          url =
+                              '$baseUrl/personal/update-password/${widget.userId}';
+                          body = {'contrasena': _passwordController.text};
+                        } else {
+                          url =
+                              '$baseUrl/familiar/update-password/${widget.userId}';
+                          body = {'contrasena': _passwordController.text};
+                        }
+
+                        print('Request URL: $url');
+                        print('Request Body: $body');
+
+                        // Usa POST para el propósito "set", PUT para los demás
+                        final response = widget.purpose == 'set'
+                            ? await http.post(
+                                Uri.parse(url),
+                                headers: {'Content-Type': 'application/json'},
+                                body: jsonEncode(body),
+                              )
+                            : await http.put(
+                                Uri.parse(url),
+                                headers: {'Content-Type': 'application/json'},
+                                body: jsonEncode(body),
+                              );
+
+                        print('Response Status: ${response.statusCode}');
+                        print('Response Body: ${response.body}');
 
                         if (response.statusCode == 200) {
                           _passwordUpdatedSuccesfully();
@@ -128,6 +162,7 @@ class ChangePasswordState extends State<ChangePassword> {
                           throw Exception('Error: ${response.body}');
                         }
                       } catch (e) {
+                        print('Error: $e');
                         _failedToChangePassword();
                       }
                     }
@@ -161,6 +196,12 @@ class ChangePasswordState extends State<ChangePassword> {
         return route is MaterialPageRoute &&
             route.builder(context) is LoginScreen;
       });
+    } else if (widget.purpose == 'set') {
+      userService.clearUserSession();
+      Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => ChooseRoleScreen()),
+          (route) => false);
     }
   }
 }

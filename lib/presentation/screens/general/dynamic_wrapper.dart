@@ -54,29 +54,39 @@ class _DynamicWrapperState extends State<DynamicWrapper> {
   }
 
   Future<void> _loadUserData() async {
-    final userData = await UserService().loadUserData();
+    try {
+      final userData = await UserService().loadUserData();
 
-    /*print("User data loaded:");
-    print("userType: ${userData['userType']}");
-    print("hasClues: ${userData['clues']}");
-    print("hasPatients: ${userData['patients']}");*/
+      print("User data loaded:");
+      print("userType: ${userData['userType']}");
+      print("hasClues: ${userData['clues']}");
+      print("hasPatients: ${userData['patients']}");
 
-    setState(() {
-      userType = userData['userType']?.trim() ?? '';
-      hasClues = (userData['clues'] ?? '').isNotEmpty;
-      hasPatients = (userData['patients'] ?? '').isNotEmpty;
-      isStaff = [
-        'stretcher bearer',
-        'doctor',
-        'nurse',
-        'social worker',
-        'human resources',
-        'administrator'
-      ].contains(userType);
-    });
+      setState(() {
+        userType = userData['userType']?.trim() ?? '';
+        hasClues = (userData['clues'] ?? '').isNotEmpty;
+        hasPatients = (userData['patients'] ?? '').isNotEmpty;
+        isStaff = [
+          'stretcher bearer',
+          'doctor',
+          'nurse',
+          'social worker',
+          'human resources',
+          'administrator'
+        ].contains(userType);
+      });
 
-    if (userType.isNotEmpty) {
-      _configurePages();
+      if (userType.isEmpty) {
+        _navigateToChooseRoleScreen();
+      } else {
+        _configurePages();
+      }
+    } catch (e) {
+      print("Error loading user data: $e");
+      setState(() {
+        userType = '';
+      });
+      _navigateToChooseRoleScreen();
     }
   }
 
@@ -84,20 +94,10 @@ class _DynamicWrapperState extends State<DynamicWrapper> {
     _pages.clear();
     _navItems.clear();
 
-    /*print("Configuring pages:");
-    print("UserType: $userType");
-    print("HasClues: $hasClues");
-    print("HasPatients: $hasPatients");*/
-
     if (userType.isEmpty) return;
 
     _pages.add(const SettingsScreen());
     _navItems.add(TabItem(icon: Icons.settings, title: 'Settings'.tr()));
-
-    if (userType.isEmpty || userType == '') {
-      _navigateToChooseRoleScreen();
-      return;
-    }
 
     if (userType == 'administrator' && isStaff && !hasClues) {
       _pages.insert(0, const RegisterHospitalScreen());
@@ -177,8 +177,6 @@ class _DynamicWrapperState extends State<DynamicWrapper> {
   }
 
   void _navigateToChooseRoleScreen() {
-    if (userType.isNotEmpty) return;
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Navigator.pushAndRemoveUntil(
         context,
@@ -194,8 +192,6 @@ class _DynamicWrapperState extends State<DynamicWrapper> {
 
     return Builder(
       builder: (context) {
-        _configurePages();
-
         return Scaffold(
           body: _pages.isNotEmpty
               ? _pages[_pageIndex]
