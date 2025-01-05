@@ -6,6 +6,7 @@ import 'package:connectcare/presentation/screens/admin/create_medicament_screen.
 import 'package:connectcare/presentation/screens/admin/update_medicament.dart';
 import 'package:connectcare/presentation/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:http/http.dart' as http;
 
 class ManageMedications extends StatefulWidget {
@@ -51,10 +52,10 @@ class _ManageMedicationsState extends State<ManageMedications> {
           filterMedicaments = List.from(medicaments);
         });
       } else {
-        throw Exception('Error al obtener los medicamentos');
+        throw Exception('error_fetching_medicines'.tr());
       }
     } catch (e) {
-      //print("Error: $e");
+      // print("Error: $e");
     }
   }
 
@@ -77,7 +78,7 @@ class _ManageMedicationsState extends State<ManageMedications> {
   }
 
   _responseHandlerPost() {
-    showCustomSnackBar(context, "Medicamento eliminado correctamente");
+    showCustomSnackBar(context, "medicine_deleted_successfully".tr());
   }
 
   @override
@@ -86,7 +87,7 @@ class _ManageMedicationsState extends State<ManageMedications> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Gestionar Medicamentos'),
+        title: Text('manage_medicines'.tr()),
         centerTitle: true,
       ),
       body: Padding(
@@ -101,14 +102,14 @@ class _ManageMedicationsState extends State<ManageMedications> {
                 child: TextFormField(
                   controller: searchController,
                   onChanged: updateFilter,
-                  decoration: const InputDecoration(
-                    labelText: "Search...",
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: "search".tr(),
+                    border: const OutlineInputBorder(),
                   ),
                   autofocus: true,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Por favor ingrese el nombre del medicamento';
+                      return 'enter_medicine_name'.tr();
                     }
                     return null;
                   },
@@ -118,10 +119,10 @@ class _ManageMedicationsState extends State<ManageMedications> {
               filterMedicaments.isEmpty
                   ? SizedBox(
                       height: 450,
-                      child: const Center(
+                      child: Center(
                         child: Text(
-                          'Nada que ver por aquí',
-                          style: TextStyle(fontSize: 18),
+                          'nothing_to_see'.tr(),
+                          style: const TextStyle(fontSize: 18),
                         ),
                       ),
                     )
@@ -144,7 +145,7 @@ class _ManageMedicationsState extends State<ManageMedications> {
                                 Row(
                                   children: [
                                     IconButton(
-                                      icon: Icon(Icons.edit),
+                                      icon: const Icon(Icons.edit),
                                       onPressed: () async {
                                         final result = await Navigator.push(
                                           context,
@@ -162,7 +163,7 @@ class _ManageMedicationsState extends State<ManageMedications> {
                                     ),
                                     const SizedBox(width: 8),
                                     IconButton(
-                                      icon: Icon(Icons.delete),
+                                      icon: const Icon(Icons.delete),
                                       onPressed: () async {
                                         await deleteMedicament(item['id']);
                                         setState(() {});
@@ -184,7 +185,8 @@ class _ManageMedicationsState extends State<ManageMedications> {
                     final result = await Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => CreateMedicamentScreen()));
+                            builder: (context) =>
+                                const CreateMedicamentScreen()));
                     if (result == 'created') {
                       await medicamentsInit();
                     }
@@ -194,7 +196,7 @@ class _ManageMedicationsState extends State<ManageMedications> {
                         horizontal: 40, vertical: 20),
                     textStyle: const TextStyle(fontSize: 18),
                   ),
-                  child: const Text('Agregar medicamento'),
+                  child: Text('add_medicine'.tr()),
                 ),
               ),
             ],

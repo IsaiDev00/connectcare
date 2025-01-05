@@ -5,9 +5,9 @@ import 'package:connectcare/core/models/medicamento.dart';
 import 'package:connectcare/data/services/shared_preferences_service.dart';
 import 'package:connectcare/presentation/widgets/selectable_calendar.dart';
 import 'package:connectcare/presentation/widgets/snack_bar.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 
 class UpdateMedicamentScreen extends StatefulWidget {
@@ -26,7 +26,12 @@ class _UpdateMedicamentScreenState extends State<UpdateMedicamentScreen> {
   TextEditingController brandController = TextEditingController();
   TextEditingController concentrationController = TextEditingController();
   String? selectedMedicamentType;
-  final List<String> medicamentTypes = ['Unidad', 'Volumen', 'Peso', 'Dosis'];
+  final List<String> medicamentTypes = [
+    'unit',
+    'volume',
+    'weight',
+    'dose',
+  ];
   String? selectedMedicament;
   List<String> medicamentList = [];
   TextEditingController amountController = TextEditingController();
@@ -38,113 +43,145 @@ class _UpdateMedicamentScreenState extends State<UpdateMedicamentScreen> {
 
   List<String> medicamentListTypes() {
     switch (selectedMedicamentType) {
-      case 'Unidad':
+      case 'unit':
         return [
-          'Cápsula',
-          'Tableta',
-          'Gragea',
-          'Píldora',
-          'Supositorio',
-          'Óvulo',
-          'Parche'
+          'capsule',
+          'tablet',
+          'dragee',
+          'pill',
+          'suppository',
+          'ovule',
+          'patch',
         ];
-      case 'Volumen':
+      case 'volume':
         return [
-          'Jarabe',
-          'Suspensión',
-          'Elixir',
-          'Gotas',
-          'Inyectable',
-          'Aerosol'
+          'syrup',
+          'suspension',
+          'elixir',
+          'drops',
+          'injectable',
+          'aerosol',
         ];
-      case 'Peso':
-        return ['Crema', 'Pomada', 'Gel', 'Polvo'];
-      case 'Dosis':
-        return ['Nebulizador', 'Inhalador'];
+      case 'weight':
+        return [
+          'cream',
+          'ointment',
+          'gel',
+          'powder',
+        ];
+      case 'dose':
+        return [
+          'nebulizer',
+          'inhaler',
+        ];
       default:
         return [];
     }
   }
 
+  String lookForType() {
+    switch (selectedMedicament) {
+      case 'capsule':
+      case 'tablet':
+      case 'dragee':
+      case 'pill':
+      case 'patch':
+      case 'suppository':
+      case 'ovule':
+        return 'unit';
+      case 'aerosol':
+      case 'drops':
+      case 'injectable':
+      case 'suspension':
+      case 'syrup':
+      case 'elixir':
+        return 'volume';
+      case 'powder':
+      case 'ointment':
+      case 'cream':
+      case 'gel':
+        return 'weight';
+      case 'inhaler':
+      case 'nebulizer':
+        return 'dose';
+      default:
+        return '';
+    }
+  }
+
   String? validator(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Ingrese la cantidad por presentación';
+      return 'enter_presentation_quantity'.tr();
     }
     int valueInt = int.parse(value);
     switch (selectedMedicament) {
-      case 'Cápsula':
-      case 'Tableta':
-      case 'Gragea':
-      case 'Píldora':
+      case 'capsule':
+      case 'tablet':
+      case 'dragee':
+      case 'pill':
         if (valueInt > 1000) {
-          return 'La cantidad por presentación máxima es de 1000 unidades';
+          return 'max_unit_quantity'.tr();
         }
         break;
-      case 'Polvo':
+      case 'powder':
         if (valueInt > 500) {
-          return 'La cantidad por presentación máxima es de 500 gramos';
+          return 'max_weight_quantity'.tr();
         }
         break;
-      case 'Jarabe':
-      case 'Suspensión':
+      case 'syrup':
+      case 'suspension':
         if (valueInt > 2000) {
-          return 'La cantidad por presentación máxima es de 2000 ml';
+          return 'max_volume_quantity_2000'.tr();
         }
         break;
-      case 'Elixir':
+      case 'elixir':
         if (valueInt > 1500) {
-          return 'La cantidad por presentación máxima es de 1500 ml';
+          return 'max_volume_quantity_1500'.tr();
         }
         break;
-      case 'Gotas':
-        if (valueInt > 2000) {
-          return 'La cantidad por presentación máxima es de 200 ml';
-        }
-        break;
-      case 'Crema':
-      case 'Pomada':
-      case 'Gel':
-        if (valueInt > 1000) {
-          return 'La cantidad por presentación máxima es de 1000 gramos';
-        }
-        break;
-      case 'Parche':
-        if (valueInt > 300) {
-          return 'La cantidad por presentación máxima es de 300 unidades';
-        }
-        break;
-      case 'Aerosol':
-        if (valueInt > 500) {
-          return 'La cantidad por presentación máxima es de 500 ml';
-        }
-        break;
-      case 'Nebulizador':
-      case 'Inhalador':
+      case 'drops':
         if (valueInt > 200) {
-          return 'La cantidad por presentación máxima es de 200 dosis';
+          return 'max_volume_quantity_200'.tr();
         }
         break;
-      case 'Supositorio':
-      case 'Óvulo':
-        if (valueInt > 500) {
-          return 'La cantidad por presentación máxima es de 500 unidades';
-        }
-        break;
-      case 'Inyectable':
+      case 'cream':
+      case 'ointment':
+      case 'gel':
         if (valueInt > 1000) {
-          return 'La cantidad por presentación máxima es de 1000 ml';
+          return 'max_weight_quantity'.tr();
         }
         break;
-      case 'Otro':
-        return null;
+      case 'patch':
+        if (valueInt > 300) {
+          return 'max_patch_quantity'.tr();
+        }
+        break;
+      case 'aerosol':
+        if (valueInt > 500) {
+          return 'max_aerosol_quantity'.tr();
+        }
+        break;
+      case 'nebulizer':
+      case 'inhaler':
+        if (valueInt > 200) {
+          return 'max_dose_quantity'.tr();
+        }
+        break;
+      case 'suppository':
+      case 'ovule':
+        if (valueInt > 500) {
+          return 'max_suppository_quantity'.tr();
+        }
+        break;
+      case 'injectable':
+        if (valueInt > 1000) {
+          return 'max_injectable_quantity'.tr();
+        }
+        break;
       default:
-        return 'undefined';
+        return 'undefined'.tr();
     }
     return null;
-  }
-
-  String dateView() {
-    return formattedDate != null ? formattedDate! : '';
   }
 
   @override
@@ -163,58 +200,25 @@ class _UpdateMedicamentScreenState extends State<UpdateMedicamentScreen> {
     var url = Uri.parse('$baseUrl/medicamento/${widget.id}');
     var response = await http.get(url);
     final Map data = json.decode(response.body);
+
     setState(() {
       nameController.text = data['nombre'];
       brandController.text = data['marca'];
       concentrationController.text = data['concentracion'];
-      medicamentList = ['${data['tipo']}'];
       selectedMedicament = data['tipo'];
       formattedDate = data['caducidad'];
       amountController.text = data['cantidad_presentacion'].toString();
       stockController.text = data['cantidad_stock'].toString();
-    });
-    setState(() {
+
       selectedMedicamentType = lookForType();
+
+      medicamentList = medicamentListTypes();
     });
   }
 
-  String lookForType() {
-    switch (selectedMedicament) {
-      case 'Cápsula':
-      case 'Tableta':
-      case 'Gragea':
-      case 'Píldora':
-      case 'Parche':
-      case 'Supositorio':
-      case 'Óvulo':
-        return 'Unidad';
-      case 'Aerosol':
-      case 'Gotas':
-      case 'Inyectable':
-      case 'Suspensión':
-      case 'Jarabe':
-      case 'Elixir':
-        return 'Volumen';
-
-      case 'Polvo':
-      case 'Pomada':
-      case 'Crema':
-      case 'Gel':
-        return 'Peso';
-
-      case 'Inhalador':
-      case 'Nebulizador':
-        return 'Dosis';
-
-      default:
-        return '';
-    }
-  }
-
-  void setMedicamentList() async {
+  void setMedicamentList() {
     medicamentList = medicamentListTypes();
     setState(() {});
-    await medicamentInit();
   }
 
   Future<void> updateMedicament(
@@ -247,8 +251,8 @@ class _UpdateMedicamentScreenState extends State<UpdateMedicamentScreen> {
   }
 
   _responseHandlerPut(response) {
-    responseHandlerPut(response, context, 'Medicamento actualizado con exito',
-        'Error al actualizar medicamento');
+    responseHandlerPut(response, context, 'medicine_updated_successfully'.tr(),
+        'error_updating_medicine'.tr());
   }
 
   @override
@@ -257,7 +261,7 @@ class _UpdateMedicamentScreenState extends State<UpdateMedicamentScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Editar medicamento"),
+        title: Text("edit_medicine".tr()),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () {
@@ -283,7 +287,6 @@ class _UpdateMedicamentScreenState extends State<UpdateMedicamentScreen> {
           child: Form(
             key: _formKey,
             child: Center(
-              // Center the Column
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
@@ -294,17 +297,17 @@ class _UpdateMedicamentScreenState extends State<UpdateMedicamentScreen> {
                     child: TextFormField(
                       controller: nameController,
                       keyboardType: TextInputType.name,
-                      decoration: const InputDecoration(
-                        labelText: "Nombre del medicamento",
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        labelText: "medicine_name".tr(),
+                        border: const OutlineInputBorder(),
                       ),
                       autofocus: true,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Ingrese el nombre del medicamento';
+                          return 'enter_medicine_name'.tr();
                         }
                         if (value.length > 25) {
-                          return 'Maximo de 25 caracteres';
+                          return 'max_characters'.tr();
                         }
                         return null;
                       },
@@ -316,17 +319,17 @@ class _UpdateMedicamentScreenState extends State<UpdateMedicamentScreen> {
                     child: TextFormField(
                       controller: brandController,
                       keyboardType: TextInputType.name,
-                      decoration: const InputDecoration(
-                        labelText: "Marca del medicamento",
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        labelText: "medicine_brand".tr(),
+                        border: const OutlineInputBorder(),
                       ),
                       autofocus: true,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Ingrese la marca del medicamento';
+                          return 'enter_medicine_brand'.tr();
                         }
                         if (value.length > 25) {
-                          return 'Maximo de 25 caracteres';
+                          return 'max_characters'.tr();
                         }
                         return null;
                       },
@@ -341,14 +344,14 @@ class _UpdateMedicamentScreenState extends State<UpdateMedicamentScreen> {
                       inputFormatters: <TextInputFormatter>[
                         FilteringTextInputFormatter.digitsOnly,
                       ],
-                      decoration: const InputDecoration(
-                        labelText: "Cantidad por concentración del medicamento",
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        labelText: "medicine_concentration".tr(),
+                        border: const OutlineInputBorder(),
                       ),
                       autofocus: true,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Ingrese la cantidad por concentración del medicamento';
+                          return 'enter_medicine_concentration'.tr();
                         }
                         return null;
                       },
@@ -359,9 +362,9 @@ class _UpdateMedicamentScreenState extends State<UpdateMedicamentScreen> {
                     width: MediaQuery.of(context).size.width * .9,
                     child: DropdownButtonFormField<String>(
                       value: selectedMedicamentType,
-                      decoration: const InputDecoration(
-                        labelText: 'Tipo de medicamento',
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        labelText: 'medicament_type'.tr(),
+                        border: const OutlineInputBorder(),
                       ),
                       items: medicamentTypes.map((String type) {
                         return DropdownMenuItem<String>(
@@ -382,7 +385,7 @@ class _UpdateMedicamentScreenState extends State<UpdateMedicamentScreen> {
                       },
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Por favor selecciona un tipo de medicamento';
+                          return 'select_medicine_type'.tr();
                         }
                         return null;
                       },
@@ -393,9 +396,9 @@ class _UpdateMedicamentScreenState extends State<UpdateMedicamentScreen> {
                     width: MediaQuery.of(context).size.width * .9,
                     child: DropdownButtonFormField<String>(
                       value: selectedMedicament,
-                      decoration: const InputDecoration(
-                        labelText: 'Tipo de medicamento',
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        labelText: 'medicament_specific_type'.tr(),
+                        border: const OutlineInputBorder(),
                       ),
                       items: medicamentList.map((String type) {
                         return DropdownMenuItem<String>(
@@ -413,7 +416,7 @@ class _UpdateMedicamentScreenState extends State<UpdateMedicamentScreen> {
                       },
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Por favor selecciona un tipo de medicamento';
+                          return 'select_specific_medicine_type'.tr();
                         }
                         return null;
                       },
@@ -428,9 +431,9 @@ class _UpdateMedicamentScreenState extends State<UpdateMedicamentScreen> {
                       inputFormatters: <TextInputFormatter>[
                         FilteringTextInputFormatter.digitsOnly,
                       ],
-                      decoration: const InputDecoration(
-                        labelText: "Cantidad por presentación",
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        labelText: "presentation_quantity".tr(),
+                        border: const OutlineInputBorder(),
                       ),
                       autofocus: true,
                       onChanged: (value) {
@@ -482,7 +485,7 @@ class _UpdateMedicamentScreenState extends State<UpdateMedicamentScreen> {
                           Text(
                             formattedDate != null
                                 ? formattedDate!
-                                : 'Seleccionar fecha',
+                                : 'select_expiration_date'.tr(),
                             style: Theme.of(context)
                                 .textTheme
                                 .bodyMedium
@@ -511,10 +514,9 @@ class _UpdateMedicamentScreenState extends State<UpdateMedicamentScreen> {
                       inputFormatters: <TextInputFormatter>[
                         FilteringTextInputFormatter.digitsOnly,
                       ],
-                      decoration: const InputDecoration(
-                        labelText: "Unidades disponibles",
-                        border: OutlineInputBorder(),
-                      ),
+                      decoration: InputDecoration(
+                          labelText: "available_units".tr(),
+                          border: const OutlineInputBorder()),
                       autofocus: true,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
