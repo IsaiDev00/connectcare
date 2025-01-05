@@ -191,6 +191,22 @@
   "Human Resources": "Recursos humanos",
   "Failed to load feedbacks.": "Error al cargar los comentarios.",
   "Failed to delete feedback.": "Error al eliminar el comentario.",
-  "Feedbacks": "Comentarios"
+  "Feedbacks": "Comentarios",
+  "Error loading feedbacks": "Error al cargar los comentarios",
+  "Feedback deleted successfully": "Comentario eliminado con éxito",
+  "Error deleting feedback": "Error al eliminar el comentario",
+  "No comment": "Sin comentario",
+  "Feedback_user": "{} ({})", 
+  "Feedback_destination": "Destino: {}",
+  "Feedback_date": "Fecha: {}",
+  "Personal": "Personal",
+  "Family": "Familiar",
+  "Developers": "Desarrolladores",
+  "Administrators": "Administradores",
+  "Please write a comment": "Por favor escribe un comentario",
+  "You cannot send feedback to administrators because no hospital is assigned to you.": "No puedes enviar comentarios a los administradores porque no tienes un hospital asignado.",
+  "Administration": "Administración",
+  "For feedback about administration.": "Para comentarios sobre la administración.",
+  "For feedback about app functionality.": "Para comentarios sobre la funcionalidad de la aplicación."
 }
   

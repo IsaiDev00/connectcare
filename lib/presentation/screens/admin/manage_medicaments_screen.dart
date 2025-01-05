@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:connectcare/core/constants/constants.dart';
+import 'package:connectcare/data/services/shared_preferences_service.dart';
 import 'package:connectcare/presentation/screens/admin/create_medicament_screen.dart';
 import 'package:connectcare/presentation/screens/admin/update_medicament.dart';
 import 'package:connectcare/presentation/widgets/snack_bar.dart';
@@ -18,6 +19,9 @@ class _ManageMedicationsState extends State<ManageMedications> {
   List<Map<String, dynamic>> medicaments = [];
   List<Map<String, dynamic>> filterMedicaments = [];
   TextEditingController searchController = TextEditingController();
+  String _clues = '';
+  final SharedPreferencesService _sharedPreferencesService =
+      SharedPreferencesService();
 
   @override
   void initState() {
@@ -26,18 +30,32 @@ class _ManageMedicationsState extends State<ManageMedications> {
   }
 
   Future<void> medicamentsInit() async {
-    var url = Uri.parse('$baseUrl/medicamento');
-    var response = await http.get(url);
-    final List<dynamic> data = json.decode(response.body);
+    final data = await _sharedPreferencesService.getClues();
     setState(() {
-      medicaments = data.map((item) {
-        return {
-          'id': item['id_medicamento'].toString(),
-          'nombre': item['nombre'],
-        };
-      }).toList();
-      filterMedicaments = List.from(medicaments);
+      _clues = data ?? '';
     });
+
+    var url = Uri.parse('$baseUrl/medicamento?clues=$_clues');
+    try {
+      var response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        setState(() {
+          medicaments = data.map((item) {
+            return {
+              'id': item['id_medicamento'].toString(),
+              'nombre': item['nombre'],
+            };
+          }).toList();
+          filterMedicaments = List.from(medicaments);
+        });
+      } else {
+        throw Exception('Error al obtener los medicamentos');
+      }
+    } catch (e) {
+      //print("Error: $e");
+    }
   }
 
   void updateFilter(String query) {
@@ -51,16 +69,15 @@ class _ManageMedicationsState extends State<ManageMedications> {
 
   Future<void> deleteMedicament(String id) async {
     var url = Uri.parse('$baseUrl/medicamento/$id');
-    var response = await http.delete(url);
-    _responseHandlerPost(response);
+    await http.delete(url);
+    _responseHandlerPost();
 
     medicamentsInit();
     setState(() {});
   }
 
-  _responseHandlerPost(response) {
-    responseHandlerDelete(response, context, 'Medicamento creado con exito',
-        'Error al crear medicamento');
+  _responseHandlerPost() {
+    showCustomSnackBar(context, "Medicamento eliminado correctamente");
   }
 
   @override

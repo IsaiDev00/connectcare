@@ -191,6 +191,22 @@
   "Human Resources": "Human Resources",
   "Failed to load feedbacks.": "Failed to load feedbacks.",
   "Failed to delete feedback.": "Failed to delete feedback.",
-  "Feedbacks": "Feedbacks"
+  "Feedbacks": "Feedbacks",
+  "Error loading feedbacks": "Error loading feedbacks",
+  "Feedback deleted successfully": "Feedback deleted successfully",
+  "Error deleting feedback": "Error deleting feedback",
+  "No comment": "No comment",
+  "Feedback_user": "{} ({})", 
+  "Feedback_destination": "Destination: {}",
+  "Feedback_date": "Date: {}",
+  "Personal": "Staff",
+  "Family": "Family",
+  "Administrators": "Administrators",
+  "Please write a comment": "Please write a comment",
+  "You cannot send feedback to administrators because no hospital is assigned to you.": "You cannot send feedback to administrators because no hospital is assigned to you.",
+  "Administration": "Administration",
+  "Developers": "Developers",
+  "For feedback about administration.": "For feedback about administration.",
+  "For feedback about app functionality.": "For feedback about app functionality."
 }
   

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:connectcare/core/constants/constants.dart';
 import 'package:connectcare/core/models/medicamento.dart';
+import 'package:connectcare/data/services/shared_preferences_service.dart';
 import 'package:connectcare/presentation/widgets/selectable_calendar.dart';
 import 'package:connectcare/presentation/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
@@ -17,8 +18,8 @@ class CreateMedicamentScreen extends StatefulWidget {
 }
 
 class _CreateMedicamentScreenState extends State<CreateMedicamentScreen> {
-  int idAdministrador = 4;
   TextEditingController nameController = TextEditingController();
+  String _clues = '';
   TextEditingController brandController = TextEditingController();
   TextEditingController concentrationController = TextEditingController();
   String? selectedMedicamentType;
@@ -28,6 +29,9 @@ class _CreateMedicamentScreenState extends State<CreateMedicamentScreen> {
   TextEditingController amountController = TextEditingController();
   TextEditingController expirationDateController = TextEditingController();
   TextEditingController stockController = TextEditingController();
+
+  final SharedPreferencesService _sharedPreferencesService =
+      SharedPreferencesService();
 
   DateTime? expirationDay;
   String? formattedDate;
@@ -146,8 +150,14 @@ class _CreateMedicamentScreenState extends State<CreateMedicamentScreen> {
 
   @override
   void initState() {
+    _loadClues();
     setMedicamentList();
     super.initState();
+  }
+
+  Future<void> _loadClues() async {
+    final data = await _sharedPreferencesService.getClues();
+    _clues = data ?? '';
   }
 
   void setMedicamentList() {
@@ -163,7 +173,7 @@ class _CreateMedicamentScreenState extends State<CreateMedicamentScreen> {
       String concentracion,
       int cantidadStock,
       String caducidad,
-      int idAdministrador) async {
+      String clues) async {
     final url = Uri.parse('$baseUrl/medicamento');
     Medicamento medicamento = Medicamento(
         nombre: nombre,
@@ -173,7 +183,7 @@ class _CreateMedicamentScreenState extends State<CreateMedicamentScreen> {
         concentracion: concentracion,
         cantidadStock: cantidadStock,
         caducidad: caducidad,
-        idAdministrador: idAdministrador);
+        clues: clues);
 
     final response = await http.post(
       url,
@@ -228,7 +238,7 @@ class _CreateMedicamentScreenState extends State<CreateMedicamentScreen> {
                 children: [
                   const SizedBox(height: 30),
                   SizedBox(
-                    width: MediaQuery.of(context).size.width / 2,
+                    width: MediaQuery.of(context).size.width * 0.9,
                     child: TextFormField(
                       controller: nameController,
                       keyboardType: TextInputType.name,
@@ -250,7 +260,7 @@ class _CreateMedicamentScreenState extends State<CreateMedicamentScreen> {
                   ),
                   const SizedBox(height: 15),
                   SizedBox(
-                    width: MediaQuery.of(context).size.width / 2,
+                    width: MediaQuery.of(context).size.width * 0.9,
                     child: TextFormField(
                       controller: brandController,
                       keyboardType: TextInputType.name,
@@ -272,7 +282,7 @@ class _CreateMedicamentScreenState extends State<CreateMedicamentScreen> {
                   ),
                   const SizedBox(height: 15),
                   SizedBox(
-                    width: MediaQuery.of(context).size.width / 2,
+                    width: MediaQuery.of(context).size.width * 0.9,
                     child: TextFormField(
                       controller: concentrationController,
                       keyboardType: TextInputType.number,
@@ -294,7 +304,7 @@ class _CreateMedicamentScreenState extends State<CreateMedicamentScreen> {
                   ),
                   const SizedBox(height: 15),
                   SizedBox(
-                    width: MediaQuery.of(context).size.width / 2,
+                    width: MediaQuery.of(context).size.width * 0.9,
                     child: DropdownButtonFormField<String>(
                       value: selectedMedicamentType,
                       decoration: const InputDecoration(
@@ -328,7 +338,7 @@ class _CreateMedicamentScreenState extends State<CreateMedicamentScreen> {
                   ),
                   const SizedBox(height: 15),
                   SizedBox(
-                    width: MediaQuery.of(context).size.width / 2,
+                    width: MediaQuery.of(context).size.width * 0.9,
                     child: DropdownButtonFormField<String>(
                       value: selectedMedicament,
                       decoration: const InputDecoration(
@@ -359,7 +369,7 @@ class _CreateMedicamentScreenState extends State<CreateMedicamentScreen> {
                   ),
                   const SizedBox(height: 15),
                   SizedBox(
-                    width: MediaQuery.of(context).size.width / 2,
+                    width: MediaQuery.of(context).size.width * 0.9,
                     child: TextFormField(
                       controller: amountController,
                       keyboardType: TextInputType.number,
@@ -381,46 +391,68 @@ class _CreateMedicamentScreenState extends State<CreateMedicamentScreen> {
                   ),
                   const SizedBox(height: 15),
                   SizedBox(
-                    width: MediaQuery.of(context).size.width / 2,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Colors.grey.withOpacity(0.5),
-                          width: 1.5,
-                        ),
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          var response = await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const SelectableCalendar(),
-                            ),
-                          );
+                    width: MediaQuery.of(context).size.width * 0.9,
+                    child: OutlinedButton(
+                      onPressed: () async {
+                        var response = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const SelectableCalendar(),
+                          ),
+                        );
 
-                          if (response != null &&
-                              response['selectedDate'] != null) {
-                            expirationDay = response['selectedDate'];
-                            formattedDate =
-                                DateFormat('dd/MM/yyyy').format(expirationDay!);
-                          }
-                          setState(() {});
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.transparent,
-                          shadowColor: Colors.transparent,
-                          textStyle: const TextStyle(fontSize: 14),
-                          padding: const EdgeInsets.symmetric(vertical: 15),
+                        if (response != null &&
+                            response['selectedDate'] != null) {
+                          expirationDay = response['selectedDate'];
+                          formattedDate =
+                              DateFormat('dd/MM/yyyy').format(expirationDay!);
+                        }
+                        setState(() {});
+                      },
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 15, horizontal: 16),
+                        side: BorderSide(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withOpacity(0.8),
+                          width: 1,
                         ),
-                        child: Text(
-                            'Seleccionar fecha de caducidad ${dateView()}'),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        backgroundColor: Theme.of(context).colorScheme.surface,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            formattedDate != null
+                                ? formattedDate!
+                                : 'Seleccionar fecha',
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(
+                                  fontSize: 11,
+                                ),
+                          ),
+                          Icon(
+                            Icons.calendar_today,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurface
+                                .withOpacity(0.8),
+                            size: 20,
+                          ),
+                        ],
                       ),
                     ),
                   ),
                   const SizedBox(height: 15),
                   SizedBox(
-                    width: MediaQuery.of(context).size.width / 2,
+                    width: MediaQuery.of(context).size.width * 0.9,
                     child: TextFormField(
                       controller: stockController,
                       keyboardType: TextInputType.number,
@@ -461,7 +493,7 @@ class _CreateMedicamentScreenState extends State<CreateMedicamentScreen> {
                             concentrationController.text,
                             int.parse(stockController.text),
                             formattedDate!,
-                            idAdministrador);
+                            _clues);
                         nav();
                       }
                     },

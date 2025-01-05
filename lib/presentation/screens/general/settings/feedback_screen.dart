@@ -61,6 +61,16 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
       return;
     }
 
+    if (selectedDestination == 'administrators' && clues.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text(
+                'You cannot send feedback to administrators because no hospital is assigned to you.'
+                    .tr())),
+      );
+      return;
+    }
+
     setState(() {
       _isLoading = true;
     });
@@ -153,23 +163,31 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
 
   Widget _buildDestinationCard(BuildContext context, String value,
       IconData icon, String title, String description) {
+    final isDisabled = value == 'administrators' && clues.isEmpty;
+
     return Expanded(
       child: GestureDetector(
-        onTap: () {
-          setState(() {
-            selectedDestination = value;
-          });
-        },
+        onTap: isDisabled
+            ? null
+            : () {
+                setState(() {
+                  selectedDestination = value;
+                });
+              },
         child: Container(
           decoration: BoxDecoration(
-            color: selectedDestination == value
-                ? Theme.of(context).colorScheme.primary.withOpacity(0.1)
-                : Theme.of(context).colorScheme.surface,
+            color: isDisabled
+                ? Colors.grey[300]
+                : selectedDestination == value
+                    ? Theme.of(context).colorScheme.primary.withOpacity(0.1)
+                    : Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(15),
             border: Border.all(
-              color: selectedDestination == value
-                  ? Theme.of(context).colorScheme.primary
-                  : Theme.of(context).dividerColor,
+              color: isDisabled
+                  ? Colors.grey
+                  : selectedDestination == value
+                      ? Theme.of(context).colorScheme.primary
+                      : Theme.of(context).dividerColor,
               width: 2,
             ),
           ),
@@ -178,9 +196,11 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
             children: [
               Icon(
                 icon,
-                color: selectedDestination == value
-                    ? Theme.of(context).colorScheme.primary
-                    : Theme.of(context).iconTheme.color,
+                color: isDisabled
+                    ? Colors.grey
+                    : selectedDestination == value
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(context).iconTheme.color,
                 size: 30,
               ),
               const SizedBox(height: 8),
@@ -188,6 +208,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                 title.tr(),
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       fontWeight: FontWeight.w500,
+                      color: isDisabled ? Colors.grey : null,
                     ),
               ),
               const SizedBox(height: 4),
@@ -195,7 +216,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                 description,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.grey[600],
+                      color: isDisabled ? Colors.grey : Colors.grey[600],
                     ),
               ),
             ],

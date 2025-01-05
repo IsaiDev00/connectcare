@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:connectcare/core/constants/constants.dart';
 import 'package:connectcare/core/models/medicamento.dart';
+import 'package:connectcare/data/services/shared_preferences_service.dart';
 import 'package:connectcare/presentation/widgets/selectable_calendar.dart';
 import 'package:connectcare/presentation/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
@@ -18,7 +19,9 @@ class UpdateMedicamentScreen extends StatefulWidget {
 }
 
 class _UpdateMedicamentScreenState extends State<UpdateMedicamentScreen> {
-  int idAdministrador = 4;
+  String _clues = '';
+  final SharedPreferencesService _sharedPreferencesService =
+      SharedPreferencesService();
   TextEditingController nameController = TextEditingController();
   TextEditingController brandController = TextEditingController();
   TextEditingController concentrationController = TextEditingController();
@@ -146,8 +149,14 @@ class _UpdateMedicamentScreenState extends State<UpdateMedicamentScreen> {
 
   @override
   void initState() {
+    _loadClues();
     setMedicamentList();
     super.initState();
+  }
+
+  Future<void> _loadClues() async {
+    final data = await _sharedPreferencesService.getClues();
+    _clues = data ?? '';
   }
 
   Future<void> medicamentInit() async {
@@ -155,7 +164,6 @@ class _UpdateMedicamentScreenState extends State<UpdateMedicamentScreen> {
     var response = await http.get(url);
     final Map data = json.decode(response.body);
     setState(() {
-      idAdministrador = data['id_administrador'];
       nameController.text = data['nombre'];
       brandController.text = data['marca'];
       concentrationController.text = data['concentracion'];
@@ -217,7 +225,7 @@ class _UpdateMedicamentScreenState extends State<UpdateMedicamentScreen> {
       String concentracion,
       int cantidadStock,
       String caducidad,
-      int idAdministrador) async {
+      String clues) async {
     final url = Uri.parse('$baseUrl/medicamento/${widget.id}');
     Medicamento medicamento = Medicamento(
         nombre: nombre,
@@ -227,7 +235,7 @@ class _UpdateMedicamentScreenState extends State<UpdateMedicamentScreen> {
         concentracion: concentracion,
         cantidadStock: cantidadStock,
         caducidad: caducidad,
-        idAdministrador: idAdministrador);
+        clues: clues);
 
     final response = await http.put(
       url,
@@ -282,7 +290,7 @@ class _UpdateMedicamentScreenState extends State<UpdateMedicamentScreen> {
                 children: [
                   const SizedBox(height: 30),
                   SizedBox(
-                    width: MediaQuery.of(context).size.width / 1.5,
+                    width: MediaQuery.of(context).size.width * .9,
                     child: TextFormField(
                       controller: nameController,
                       keyboardType: TextInputType.name,
@@ -304,7 +312,7 @@ class _UpdateMedicamentScreenState extends State<UpdateMedicamentScreen> {
                   ),
                   const SizedBox(height: 15),
                   SizedBox(
-                    width: MediaQuery.of(context).size.width / 1.5,
+                    width: MediaQuery.of(context).size.width * .9,
                     child: TextFormField(
                       controller: brandController,
                       keyboardType: TextInputType.name,
@@ -326,7 +334,7 @@ class _UpdateMedicamentScreenState extends State<UpdateMedicamentScreen> {
                   ),
                   const SizedBox(height: 15),
                   SizedBox(
-                    width: MediaQuery.of(context).size.width / 1.5,
+                    width: MediaQuery.of(context).size.width * .9,
                     child: TextFormField(
                       controller: concentrationController,
                       keyboardType: TextInputType.number,
@@ -348,7 +356,7 @@ class _UpdateMedicamentScreenState extends State<UpdateMedicamentScreen> {
                   ),
                   const SizedBox(height: 15),
                   SizedBox(
-                    width: MediaQuery.of(context).size.width / 1.5,
+                    width: MediaQuery.of(context).size.width * .9,
                     child: DropdownButtonFormField<String>(
                       value: selectedMedicamentType,
                       decoration: const InputDecoration(
@@ -382,7 +390,7 @@ class _UpdateMedicamentScreenState extends State<UpdateMedicamentScreen> {
                   ),
                   const SizedBox(height: 15),
                   SizedBox(
-                    width: MediaQuery.of(context).size.width / 1.5,
+                    width: MediaQuery.of(context).size.width * .9,
                     child: DropdownButtonFormField<String>(
                       value: selectedMedicament,
                       decoration: const InputDecoration(
@@ -413,7 +421,7 @@ class _UpdateMedicamentScreenState extends State<UpdateMedicamentScreen> {
                   ),
                   const SizedBox(height: 15),
                   SizedBox(
-                    width: MediaQuery.of(context).size.width / 1.5,
+                    width: MediaQuery.of(context).size.width * .9,
                     child: TextFormField(
                       controller: amountController,
                       keyboardType: TextInputType.number,
@@ -435,49 +443,68 @@ class _UpdateMedicamentScreenState extends State<UpdateMedicamentScreen> {
                   ),
                   const SizedBox(height: 15),
                   SizedBox(
-                    width: MediaQuery.of(context).size.width / 1.5,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Colors.grey.withOpacity(0.5),
-                          width: 1.5,
-                        ),
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          var response = await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const SelectableCalendar(),
-                            ),
-                          );
+                    width: MediaQuery.of(context).size.width * 0.9,
+                    child: OutlinedButton(
+                      onPressed: () async {
+                        var response = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const SelectableCalendar(),
+                          ),
+                        );
 
-                          if (response != null &&
-                              response['selectedDate'] != null) {
-                            expirationDay = response['selectedDate'];
-                            formattedDate =
-                                DateFormat('dd/MM/yyyy').format(expirationDay!);
-                          }
-                          setState(() {});
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.transparent,
-                          shadowColor: Colors.transparent,
-                          textStyle: const TextStyle(fontSize: 14),
-                          padding: const EdgeInsets.symmetric(vertical: 15),
+                        if (response != null &&
+                            response['selectedDate'] != null) {
+                          expirationDay = response['selectedDate'];
+                          formattedDate =
+                              DateFormat('dd/MM/yyyy').format(expirationDay!);
+                        }
+                        setState(() {});
+                      },
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 15, horizontal: 16),
+                        side: BorderSide(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withOpacity(0.8),
+                          width: 1,
                         ),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                          child: Text(
-                              'Seleccionar fecha de caducidad ${dateView()}'),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5),
                         ),
+                        backgroundColor: Theme.of(context).colorScheme.surface,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            formattedDate != null
+                                ? formattedDate!
+                                : 'Seleccionar fecha',
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(
+                                  fontSize: 11,
+                                ),
+                          ),
+                          Icon(
+                            Icons.calendar_today,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurface
+                                .withOpacity(0.8),
+                            size: 20,
+                          ),
+                        ],
                       ),
                     ),
                   ),
                   const SizedBox(height: 15),
                   SizedBox(
-                    width: MediaQuery.of(context).size.width / 1.5,
+                    width: MediaQuery.of(context).size.width * .9,
                     child: TextFormField(
                       controller: stockController,
                       keyboardType: TextInputType.number,
@@ -518,7 +545,7 @@ class _UpdateMedicamentScreenState extends State<UpdateMedicamentScreen> {
                             concentrationController.text,
                             int.parse(stockController.text),
                             formattedDate!,
-                            idAdministrador);
+                            _clues);
                         nav();
                       }
                     },

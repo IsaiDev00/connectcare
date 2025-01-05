@@ -67,6 +67,16 @@ class _SelectableCalendarState extends State<SelectableCalendar> {
                 shape: BoxShape.circle,
               ),
             ),
+            headerStyle: HeaderStyle(
+              formatButtonVisible: false,
+              titleCentered: true,
+              decoration: BoxDecoration(
+                color: Colors.transparent,
+              ),
+              titleTextStyle: TextStyle(
+                fontSize: 16,
+              ),
+            ),
           ),
           const SizedBox(
             height: 20,
@@ -104,8 +114,8 @@ class _SelectableCalendarPushState extends State<SelectableCalendarPush> {
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         TableCalendar(
-          firstDay: DateTime.now().subtract(Duration(days: 30)),
-          lastDay: DateTime.now(),
+          firstDay: DateTime.now(),
+          lastDay: DateTime.utc(2026, 12, 31),
           focusedDay: _focusedDay,
           selectedDayPredicate: (day) => isSameDay(_selectedDate, day),
           onDaySelected: (selectedDay, focusedDay) {
@@ -122,6 +132,16 @@ class _SelectableCalendarPushState extends State<SelectableCalendarPush> {
             todayDecoration: const BoxDecoration(
               color: Color.fromARGB(255, 200, 92, 184),
               shape: BoxShape.circle,
+            ),
+          ),
+          headerStyle: HeaderStyle(
+            formatButtonVisible: false,
+            titleCentered: true,
+            decoration: BoxDecoration(
+              color: Colors.transparent,
+            ),
+            titleTextStyle: TextStyle(
+              fontSize: 16,
             ),
           ),
         ),

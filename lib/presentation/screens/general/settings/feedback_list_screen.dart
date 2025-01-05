@@ -14,6 +14,16 @@ class FeedbackListScreen extends StatefulWidget {
 }
 
 class _FeedbackListScreenState extends State<FeedbackListScreen> {
+  String formatDate(String date) {
+    try {
+      DateTime parsedDate = DateTime.parse(date);
+      Intl.defaultLocale = context.locale.toString();
+      return DateFormat.yMMMMd(Intl.defaultLocale).add_jm().format(parsedDate);
+    } catch (e) {
+      return 'Invalid date'.tr();
+    }
+  }
+
   List<dynamic> _feedbacks = [];
   bool _isLoading = true;
   String? _clues;
@@ -107,14 +117,20 @@ class _FeedbackListScreenState extends State<FeedbackListScreen> {
                           : Icons.group,
                       color: colorScheme.primary,
                     ),
-                    title: Text(feedback['comentario']),
+                    title: Text(feedback['comentario'] ?? 'No comment'.tr()),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                            '${feedback['nombre_usuario']} (${feedback['tipo_usuario']})'),
-                        Text('Destination: ${feedback['destino']}'),
-                        Text('Date: ${feedback['fecha']}'),
+                          'Feedback_user'.tr(args: [
+                            feedback['nombre_usuario'] ?? 'Unknown'.tr(),
+                            translateUserType(feedback['tipo_usuario'])
+                          ]),
+                        ),
+                        Text(
+                            'Destination: ${translateDestination(feedback['destino'])}'),
+                        Text('Feedback_date'
+                            .tr(args: [formatDate(feedback['fecha'])])),
                       ],
                     ),
                     trailing: IconButton(
@@ -126,6 +142,28 @@ class _FeedbackListScreenState extends State<FeedbackListScreen> {
               },
             ),
     );
+  }
+
+  String translateUserType(String userType) {
+    switch (userType) {
+      case 'personal':
+        return 'Personal'.tr();
+      case 'familiar':
+        return 'Family'.tr();
+      default:
+        return 'Unknown'.tr();
+    }
+  }
+
+  String translateDestination(String destination) {
+    switch (destination) {
+      case 'developers':
+        return 'Developers'.tr();
+      case 'administrators':
+        return 'Administrators'.tr();
+      default:
+        return 'Unknown'.tr();
+    }
   }
 
   void _errorLoadingFeedbacks() {
