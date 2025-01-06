@@ -274,6 +274,11 @@
   "dose": "Dosis",
   "medicine_updated_successfully": "Medicamento actualizado con éxito",
   "error_updating_medicine": "Error al actualizar el medicamento",
-  "select_expiration_date_error": "Por favor seleccione una fecha de caducidad."
+  "select_expiration_date_error": "Por favor seleccione una fecha de caducidad.",
+  "Aceptar cambios": "Aceptar cambios",
+  "max_volume_quantity_100": "La cantidad máxima por volumen es 100 ml",
+  "Crear medicamento": "Crear medicamento",
+  "Seleccionar fecha de caducidad": "Seleccionar fecha de caducidad",
+  "View Daily Report From": "Ver reporte diario desde: {}"
 }
   

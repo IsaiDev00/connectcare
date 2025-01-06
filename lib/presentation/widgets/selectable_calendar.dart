@@ -1,7 +1,7 @@
 import 'package:connectcare/presentation/screens/admin/info_report.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class SelectableCalendar extends StatefulWidget {
@@ -21,7 +21,7 @@ class _SelectableCalendarState extends State<SelectableCalendar> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Crear medicamento"),
+        title: Text("Crear medicamento".tr()),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () {
@@ -89,7 +89,7 @@ class _SelectableCalendarState extends State<SelectableCalendar> {
               padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
               textStyle: const TextStyle(fontSize: 18),
             ),
-            child: const Text('Seleccionar fecha de caducidad'),
+            child: Text('Seleccionar fecha de caducidad'.tr()),
           ),
         ],
       ),
@@ -163,8 +163,11 @@ class _SelectableCalendarPushState extends State<SelectableCalendarPush> {
             padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
             textStyle: const TextStyle(fontSize: 18),
           ),
-          child: Text(
-              'View Daily Report From: ${_selectedDate != null ? DateFormat('dd/MM/yy').format(_selectedDate!) : ''}'),
+          child: Text('View Daily Report From'.tr(args: [
+            _selectedDate != null
+                ? DateFormat('dd/MM/yy').format(_selectedDate!)
+                : ''
+          ])),
         ),
       ],
     );

@@ -267,13 +267,18 @@
   "create_medicine_button": "Create Medicine",
   "medicine_created_successfully": "Medicine created successfully",
   "error_creating_medicine": "Error creating medicine",
-  "edit_medicine": "Editar medicamento",
-  "unit": "Unidad",
-  "volume": "Volumen",
-  "weight": "Peso",
-  "dose": "Dosis",
-  "medicine_updated_successfully": "Medicamento actualizado con éxito",
-  "error_updating_medicine": "Error al actualizar el medicamento",
-  "select_expiration_date_error": "Please select an expiration date."
+  "edit_medicine": "Edit Medicine",
+  "unit": "Unit",
+  "volume": "Volume",
+  "weight": "Weight",
+  "dose": "Dose",
+  "medicine_updated_successfully": "Medicine updated successfully",
+  "error_updating_medicine": "Error updating medicine",
+  "select_expiration_date_error": "Please select an expiration date",
+  "Aceptar cambios": "Accept changes",
+  "max_volume_quantity_100": "Maximum quantity per volume is 100 ml",
+  "Crear medicamento": "Create Medicine",
+  "Seleccionar fecha de caducidad": "Select expiration date",
+  "View Daily Report From": "View Daily Report From: {}"
 }
   

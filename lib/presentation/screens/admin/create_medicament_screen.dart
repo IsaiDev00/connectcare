@@ -24,14 +24,9 @@ class _CreateMedicamentScreenState extends State<CreateMedicamentScreen> {
   TextEditingController brandController = TextEditingController();
   TextEditingController concentrationController = TextEditingController();
   String? selectedMedicamentType;
-  final List<String> medicamentTypes = [
-    'unit',
-    'volume',
-    'weight',
-    'dose',
-  ];
+
   String? selectedMedicament;
-  List<String> medicamentList = [];
+  List<Map<String, String>> medicamentList = [];
   TextEditingController amountController = TextEditingController();
   TextEditingController expirationDateController = TextEditingController();
   TextEditingController stockController = TextEditingController();
@@ -44,38 +39,47 @@ class _CreateMedicamentScreenState extends State<CreateMedicamentScreen> {
   final _formKey = GlobalKey<FormState>();
   String? dateErrorMessage;
 
-  List<String> medicamentListTypes() {
+  List<Map<String, String>> get medicamentTypes {
+    return [
+      {'key': 'unit', 'value': 'unit'.tr()},
+      {'key': 'volume', 'value': 'volume'.tr()},
+      {'key': 'weight', 'value': 'weight'.tr()},
+      {'key': 'dose', 'value': 'dose'.tr()},
+    ];
+  }
+
+  List<Map<String, String>> medicamentListTypes() {
     switch (selectedMedicamentType) {
       case 'unit':
         return [
-          'capsule',
-          'tablet',
-          'dragee',
-          'pill',
-          'suppository',
-          'ovule',
-          'patch',
+          {'key': 'capsule', 'value': tr('capsule')},
+          {'key': 'tablet', 'value': tr('tablet')},
+          {'key': 'dragee', 'value': tr('dragee')},
+          {'key': 'pill', 'value': tr('pill')},
+          {'key': 'suppository', 'value': tr('suppository')},
+          {'key': 'ovule', 'value': tr('ovule')},
+          {'key': 'patch', 'value': tr('patch')},
         ];
       case 'volume':
         return [
-          'syrup',
-          'suspension',
-          'elixir',
-          'drops',
-          'injectable',
-          'aerosol',
+          {'key': 'syrup', 'value': tr('syrup')},
+          {'key': 'suspension', 'value': tr('suspension')},
+          {'key': 'elixir', 'value': tr('elixir')},
+          {'key': 'drops', 'value': tr('drops')},
+          {'key': 'injectable', 'value': tr('injectable')},
+          {'key': 'aerosol', 'value': tr('aerosol')},
         ];
       case 'weight':
         return [
-          'cream',
-          'ointment',
-          'gel',
-          'powder',
+          {'key': 'cream', 'value': tr('cream')},
+          {'key': 'ointment', 'value': tr('ointment')},
+          {'key': 'gel', 'value': tr('gel')},
+          {'key': 'powder', 'value': tr('powder')},
         ];
       case 'dose':
         return [
-          'nebulizer',
-          'inhaler',
+          {'key': 'nebulizer', 'value': tr('nebulizer')},
+          {'key': 'inhaler', 'value': tr('inhaler')},
         ];
       default:
         return [];
@@ -113,8 +117,8 @@ class _CreateMedicamentScreenState extends State<CreateMedicamentScreen> {
         }
         break;
       case 'drops':
-        if (valueInt > 200) {
-          return 'max_volume_quantity_200'.tr();
+        if (valueInt > 100) {
+          return 'max_volume_quantity_100'.tr();
         }
         break;
       case 'cream':
@@ -329,11 +333,11 @@ class _CreateMedicamentScreenState extends State<CreateMedicamentScreen> {
                         labelText: 'medicament_type'.tr(),
                         border: const OutlineInputBorder(),
                       ),
-                      items: medicamentTypes.map((String type) {
+                      items: medicamentTypes.map((type) {
                         return DropdownMenuItem<String>(
-                          value: type,
+                          value: type['key'],
                           child: Text(
-                            type.tr(),
+                            type['value']!,
                             style: Theme.of(context).textTheme.bodyLarge,
                           ),
                         );
@@ -363,11 +367,11 @@ class _CreateMedicamentScreenState extends State<CreateMedicamentScreen> {
                         labelText: 'medicament_specific_type'.tr(),
                         border: const OutlineInputBorder(),
                       ),
-                      items: medicamentList.map((String type) {
+                      items: medicamentList.map((type) {
                         return DropdownMenuItem<String>(
-                          value: type,
+                          value: type['key'],
                           child: Text(
-                            type,
+                            type['value']!,
                             style: Theme.of(context).textTheme.bodyLarge,
                           ),
                         );

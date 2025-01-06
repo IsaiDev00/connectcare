@@ -26,14 +26,14 @@ class _UpdateMedicamentScreenState extends State<UpdateMedicamentScreen> {
   TextEditingController brandController = TextEditingController();
   TextEditingController concentrationController = TextEditingController();
   String? selectedMedicamentType;
-  final List<String> medicamentTypes = [
-    'unit',
-    'volume',
-    'weight',
-    'dose',
+  final List<Map<String, String>> medicamentTypes = [
+    {'key': 'unit', 'value': tr('unit')},
+    {'key': 'volume', 'value': tr('volume')},
+    {'key': 'weight', 'value': tr('weight')},
+    {'key': 'dose', 'value': tr('dose')},
   ];
   String? selectedMedicament;
-  List<String> medicamentList = [];
+  List<Map<String, String>> medicamentList = [];
   TextEditingController amountController = TextEditingController();
   TextEditingController stockController = TextEditingController();
 
@@ -41,46 +41,46 @@ class _UpdateMedicamentScreenState extends State<UpdateMedicamentScreen> {
   String? formattedDate;
   final _formKey = GlobalKey<FormState>();
 
-  List<String> medicamentListTypes() {
+  List<Map<String, String>> medicamentListTypes() {
     switch (selectedMedicamentType) {
       case 'unit':
         return [
-          'capsule',
-          'tablet',
-          'dragee',
-          'pill',
-          'suppository',
-          'ovule',
-          'patch',
+          {'key': 'capsule', 'value': tr('capsule')},
+          {'key': 'tablet', 'value': tr('tablet')},
+          {'key': 'dragee', 'value': tr('dragee')},
+          {'key': 'pill', 'value': tr('pill')},
+          {'key': 'suppository', 'value': tr('suppository')},
+          {'key': 'ovule', 'value': tr('ovule')},
+          {'key': 'patch', 'value': tr('patch')},
         ];
       case 'volume':
         return [
-          'syrup',
-          'suspension',
-          'elixir',
-          'drops',
-          'injectable',
-          'aerosol',
+          {'key': 'syrup', 'value': tr('syrup')},
+          {'key': 'suspension', 'value': tr('suspension')},
+          {'key': 'elixir', 'value': tr('elixir')},
+          {'key': 'drops', 'value': tr('drops')},
+          {'key': 'injectable', 'value': tr('injectable')},
+          {'key': 'aerosol', 'value': tr('aerosol')},
         ];
       case 'weight':
         return [
-          'cream',
-          'ointment',
-          'gel',
-          'powder',
+          {'key': 'cream', 'value': tr('cream')},
+          {'key': 'ointment', 'value': tr('ointment')},
+          {'key': 'gel', 'value': tr('gel')},
+          {'key': 'powder', 'value': tr('powder')},
         ];
       case 'dose':
         return [
-          'nebulizer',
-          'inhaler',
+          {'key': 'nebulizer', 'value': tr('nebulizer')},
+          {'key': 'inhaler', 'value': tr('inhaler')},
         ];
       default:
         return [];
     }
   }
 
-  String lookForType() {
-    switch (selectedMedicament) {
+  String lookForType(String? medicamentKey) {
+    switch (medicamentKey) {
       case 'capsule':
       case 'tablet':
       case 'dragee':
@@ -140,8 +140,8 @@ class _UpdateMedicamentScreenState extends State<UpdateMedicamentScreen> {
         }
         break;
       case 'drops':
-        if (valueInt > 200) {
-          return 'max_volume_quantity_200'.tr();
+        if (valueInt > 100) {
+          return 'max_volume_quantity_100'.tr();
         }
         break;
       case 'cream':
@@ -186,9 +186,9 @@ class _UpdateMedicamentScreenState extends State<UpdateMedicamentScreen> {
 
   @override
   void initState() {
-    _loadClues();
-    setMedicamentList();
     super.initState();
+    _loadClues();
+    medicamentInit();
   }
 
   Future<void> _loadClues() async {
@@ -196,50 +196,54 @@ class _UpdateMedicamentScreenState extends State<UpdateMedicamentScreen> {
     _clues = data ?? '';
   }
 
-  Future<void> medicamentInit() async {
-    var url = Uri.parse('$baseUrl/medicamento/${widget.id}');
-    var response = await http.get(url);
-    final Map data = json.decode(response.body);
-
-    setState(() {
-      nameController.text = data['nombre'];
-      brandController.text = data['marca'];
-      concentrationController.text = data['concentracion'];
-      selectedMedicament = data['tipo'];
-      formattedDate = data['caducidad'];
-      amountController.text = data['cantidad_presentacion'].toString();
-      stockController.text = data['cantidad_stock'].toString();
-
-      selectedMedicamentType = lookForType();
-
-      medicamentList = medicamentListTypes();
-    });
-  }
-
   void setMedicamentList() {
     medicamentList = medicamentListTypes();
     setState(() {});
   }
 
+  Future<void> medicamentInit() async {
+    var url = Uri.parse('$baseUrl/medicamento/${widget.id}');
+    var response = await http.get(url);
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = json.decode(response.body);
+      setState(() {
+        nameController.text = data['nombre'] ?? '';
+        brandController.text = data['marca'] ?? '';
+        concentrationController.text = data['concentracion'] ?? '';
+        selectedMedicament = data['tipo'] ?? '';
+        formattedDate = data['caducidad'] ?? '';
+        amountController.text = data['cantidad_presentacion']?.toString() ?? '';
+        stockController.text = data['cantidad_stock']?.toString() ?? '';
+
+        selectedMedicamentType = lookForType(selectedMedicament);
+        setMedicamentList();
+      });
+    } else {
+      _errorLoadingMedicine();
+    }
+  }
+
   Future<void> updateMedicament(
-      String nombre,
-      String marca,
-      String tipo,
-      int cantidadPresentacion,
-      String concentracion,
-      int cantidadStock,
-      String caducidad,
-      String clues) async {
+    String nombre,
+    String marca,
+    String tipo,
+    int cantidadPresentacion,
+    String concentracion,
+    int cantidadStock,
+    String caducidad,
+    String clues,
+  ) async {
     final url = Uri.parse('$baseUrl/medicamento/${widget.id}');
     Medicamento medicamento = Medicamento(
-        nombre: nombre,
-        marca: marca,
-        tipo: tipo,
-        cantidadPresentacion: cantidadPresentacion,
-        concentracion: concentracion,
-        cantidadStock: cantidadStock,
-        caducidad: caducidad,
-        clues: clues);
+      nombre: nombre,
+      marca: marca,
+      tipo: tipo,
+      cantidadPresentacion: cantidadPresentacion,
+      concentracion: concentracion,
+      cantidadStock: cantidadStock,
+      caducidad: caducidad,
+      clues: clues,
+    );
 
     final response = await http.put(
       url,
@@ -250,9 +254,13 @@ class _UpdateMedicamentScreenState extends State<UpdateMedicamentScreen> {
     _responseHandlerPut(response);
   }
 
-  _responseHandlerPut(response) {
-    responseHandlerPut(response, context, 'medicine_updated_successfully'.tr(),
-        'error_updating_medicine'.tr());
+  void _responseHandlerPut(response) {
+    responseHandlerPut(
+      response,
+      context,
+      'medicine_updated_successfully'.tr(),
+      'error_updating_medicine'.tr(),
+    );
   }
 
   @override
@@ -366,11 +374,11 @@ class _UpdateMedicamentScreenState extends State<UpdateMedicamentScreen> {
                         labelText: 'medicament_type'.tr(),
                         border: const OutlineInputBorder(),
                       ),
-                      items: medicamentTypes.map((String type) {
+                      items: medicamentTypes.map((type) {
                         return DropdownMenuItem<String>(
-                          value: type,
+                          value: type['key'],
                           child: Text(
-                            type,
+                            type['value']!,
                             style: Theme.of(context).textTheme.bodyLarge,
                           ),
                         );
@@ -400,11 +408,11 @@ class _UpdateMedicamentScreenState extends State<UpdateMedicamentScreen> {
                         labelText: 'medicament_specific_type'.tr(),
                         border: const OutlineInputBorder(),
                       ),
-                      items: medicamentList.map((String type) {
+                      items: medicamentList.map((type) {
                         return DropdownMenuItem<String>(
-                          value: type,
+                          value: type['key'],
                           child: Text(
-                            type,
+                            type['value']!,
                             style: Theme.of(context).textTheme.bodyLarge,
                           ),
                         );
@@ -536,7 +544,7 @@ class _UpdateMedicamentScreenState extends State<UpdateMedicamentScreen> {
                       if (_formKey.currentState!.validate() &&
                           formattedDate != null) {
                         nav() {
-                          Navigator.pop(context, 'created');
+                          Navigator.pop(context, 'updated');
                         }
 
                         await updateMedicament(
@@ -551,7 +559,7 @@ class _UpdateMedicamentScreenState extends State<UpdateMedicamentScreen> {
                         nav();
                       }
                     },
-                    child: const Text("Aceptar cambios"),
+                    child: Text("Aceptar cambios".tr()),
                   ),
                 ],
               ),
@@ -559,6 +567,12 @@ class _UpdateMedicamentScreenState extends State<UpdateMedicamentScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  void _errorLoadingMedicine() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('error_loading_medicine'.tr())),
     );
   }
 }
