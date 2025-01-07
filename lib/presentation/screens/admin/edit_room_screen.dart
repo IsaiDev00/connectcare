@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:connectcare/data/services/shared_preferences_service.dart';
 
 class EditRoomScreen extends StatefulWidget {
   final int roomId;
@@ -15,6 +16,8 @@ class EditRoomScreen extends StatefulWidget {
 }
 
 class EditRoomScreenState extends State<EditRoomScreen> {
+    final SharedPreferencesService _sharedPreferencesService =
+      SharedPreferencesService();
   final _formKey = GlobalKey<FormState>();
   bool is24_7 = true;
   bool hasVisitingHours = false;
@@ -144,13 +147,14 @@ class EditRoomScreenState extends State<EditRoomScreen> {
 
   Future<void> _fetchServices() async {
     try {
-      final response = await http.get(Uri.parse('$baseUrl/servicio/'));
+      final clues = await _sharedPreferencesService.getClues();
+      final response = await http.get(Uri.parse('$baseUrl/servicio/$clues'));
       if (response.statusCode == 200) {
         List<dynamic> data = json.decode(response.body);
         setState(() {
           services = data
               .map(
-                  (item) => {'id': item['id_servicio'], 'name': item['nombre']})
+                  (item) => {'id': item['id_servicio'], 'name': item['nombre_servicio']})
               .toList();
         });
       } else {
@@ -542,7 +546,7 @@ class EditRoomScreenState extends State<EditRoomScreen> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 SizedBox(
-                                  width: 200,
+                                  width: 100,
                                   child: TextFormField(
                                     controller: startVisitingController,
                                     readOnly: true,
@@ -562,7 +566,7 @@ class EditRoomScreenState extends State<EditRoomScreen> {
                                 ),
                                 const SizedBox(width: 10),
                                 SizedBox(
-                                  width: 200,
+                                  width: 100,
                                   child: TextFormField(
                                     controller: endVisitingController,
                                     readOnly: true,

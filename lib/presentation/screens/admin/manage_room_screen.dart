@@ -132,6 +132,9 @@ class ManageRoomScreenState extends State<ManageRoomScreen> {
               autofocus: false,
             ),
             const SizedBox(height: 20),
+            
+            Text("To program the SAMM devices of a room, just click on the room"),
+            const SizedBox(height:20),
 
             // Lista de salas
             Expanded(
