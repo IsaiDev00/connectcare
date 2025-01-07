@@ -1,3 +1,4 @@
+import 'package:connectcare/presentation/screens/admin/SAMM/wifi_credentials_screen.dart';
 import 'package:connectcare/presentation/screens/admin/add_floors_screen.dart';
 import 'package:connectcare/presentation/screens/admin/admin_start_screen.dart';
 import 'package:connectcare/presentation/screens/admin/create_procedure_screen.dart';
@@ -88,6 +89,7 @@ class MyApp extends StatelessWidget {
         '/adminStartScreen': (context) => AdminStartScreen(),
         '/addFloorsScreen': (context) => AddFloorsScreen(),
         '/shortTutorialScreen': (context) => ShortTutorialScreen(),
+        '/wifiCredentialsScreen': (context) => WifiCredentialsScreen(),
       },
     );
   }
