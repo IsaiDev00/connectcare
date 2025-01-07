@@ -6,7 +6,7 @@ class Medicamento {
   final String concentracion;
   final int cantidadStock;
   final String caducidad;
-  final int idAdministrador;
+  final String clues;
 
   Medicamento({
     required this.nombre,
@@ -16,7 +16,7 @@ class Medicamento {
     required this.concentracion,
     required this.cantidadStock,
     required this.caducidad,
-    required this.idAdministrador,
+    required this.clues,
   });
 
   factory Medicamento.fromMap(Map<String, dynamic> map) {
@@ -28,7 +28,7 @@ class Medicamento {
       concentracion: map['concentracion'],
       cantidadStock: map['cantidad_stock'],
       caducidad: map['caducidad'],
-      idAdministrador: map['id_administrador'],
+      clues: map['clues'],
     );
   }
 
@@ -41,7 +41,7 @@ class Medicamento {
       'concentracion': concentracion,
       'cantidad_stock': cantidadStock,
       'caducidad': caducidad,
-      'id_administrador': idAdministrador,
+      'clues': clues,
     };
   }
 }

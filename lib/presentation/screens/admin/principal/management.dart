@@ -1,3 +1,4 @@
+import 'package:connectcare/presentation/screens/admin/manage_medicaments_screen.dart';
 import 'package:flutter/material.dart';
 
 class Management extends StatefulWidget {
@@ -84,7 +85,10 @@ class ManagementState extends State<Management> {
                       width: MediaQuery.of(context).size.width / 1.7,
                       child: ElevatedButton(
                         onPressed: () {
-                          Navigator.pushNamed(context, '/manageMedications');
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => ManageMedications()));
                         },
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(

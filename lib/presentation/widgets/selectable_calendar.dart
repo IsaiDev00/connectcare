@@ -1,7 +1,7 @@
 import 'package:connectcare/presentation/screens/admin/info_report.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class SelectableCalendar extends StatefulWidget {
@@ -21,7 +21,7 @@ class _SelectableCalendarState extends State<SelectableCalendar> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Crear medicamento"),
+        title: Text("Crear medicamento".tr()),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () {
@@ -67,6 +67,16 @@ class _SelectableCalendarState extends State<SelectableCalendar> {
                 shape: BoxShape.circle,
               ),
             ),
+            headerStyle: HeaderStyle(
+              formatButtonVisible: false,
+              titleCentered: true,
+              decoration: BoxDecoration(
+                color: Colors.transparent,
+              ),
+              titleTextStyle: TextStyle(
+                fontSize: 16,
+              ),
+            ),
           ),
           const SizedBox(
             height: 20,
@@ -79,7 +89,7 @@ class _SelectableCalendarState extends State<SelectableCalendar> {
               padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
               textStyle: const TextStyle(fontSize: 18),
             ),
-            child: const Text('Seleccionar fecha de caducidad'),
+            child: Text('Seleccionar fecha de caducidad'.tr()),
           ),
         ],
       ),
@@ -104,8 +114,8 @@ class _SelectableCalendarPushState extends State<SelectableCalendarPush> {
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         TableCalendar(
-          firstDay: DateTime.now().subtract(Duration(days: 30)),
-          lastDay: DateTime.now(),
+          firstDay: DateTime.now(),
+          lastDay: DateTime.utc(2026, 12, 31),
           focusedDay: _focusedDay,
           selectedDayPredicate: (day) => isSameDay(_selectedDate, day),
           onDaySelected: (selectedDay, focusedDay) {
@@ -122,6 +132,16 @@ class _SelectableCalendarPushState extends State<SelectableCalendarPush> {
             todayDecoration: const BoxDecoration(
               color: Color.fromARGB(255, 200, 92, 184),
               shape: BoxShape.circle,
+            ),
+          ),
+          headerStyle: HeaderStyle(
+            formatButtonVisible: false,
+            titleCentered: true,
+            decoration: BoxDecoration(
+              color: Colors.transparent,
+            ),
+            titleTextStyle: TextStyle(
+              fontSize: 16,
             ),
           ),
         ),
@@ -143,8 +163,11 @@ class _SelectableCalendarPushState extends State<SelectableCalendarPush> {
             padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
             textStyle: const TextStyle(fontSize: 18),
           ),
-          child: Text(
-              'View Daily Report From: ${_selectedDate != null ? DateFormat('dd/MM/yy').format(_selectedDate!) : ''}'),
+          child: Text('View Daily Report From'.tr(args: [
+            _selectedDate != null
+                ? DateFormat('dd/MM/yy').format(_selectedDate!)
+                : ''
+          ])),
         ),
       ],
     );

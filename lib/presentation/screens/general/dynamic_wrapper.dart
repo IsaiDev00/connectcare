@@ -5,6 +5,8 @@ import 'package:connectcare/presentation/screens/admin/hospital_reg/register_hos
 import 'package:connectcare/presentation/screens/admin/manage_staff_users.dart';
 import 'package:connectcare/presentation/screens/admin/principal/management.dart';
 import 'package:connectcare/presentation/screens/doctor/doctor_home_screen.dart';
+import 'package:connectcare/presentation/screens/doctor/documents.dart/hoja_enfermeria_screen.dart';
+import 'package:connectcare/presentation/screens/doctor/documents.dart/patient_reg_screen.dart';
 import 'package:connectcare/presentation/screens/family/main_family/main_family_member_home_screen.dart';
 import 'package:connectcare/presentation/screens/family/patient_link_screen.dart';
 import 'package:connectcare/presentation/screens/family/regular_family/regular_family_member_home_screen.dart';
@@ -30,10 +32,10 @@ class DynamicWrapper extends StatefulWidget {
 
 class _DynamicWrapperState extends State<DynamicWrapper> {
   late int _pageIndex;
-  late String userType;
-  late bool hasClues;
-  late bool hasPatients;
-  late bool isStaff = false;
+  String userType = '';
+  bool hasClues = false;
+  bool hasPatients = false;
+  bool isStaff = false;
 
   final List<Widget> _pages = [];
   final List<TabItem> _navItems = [];
@@ -45,44 +47,59 @@ class _DynamicWrapperState extends State<DynamicWrapper> {
     _loadUserData();
   }
 
-  Future<void> _loadUserData() async {
-    final userData = await UserService().loadUserData();
-    setState(() {
-      userType = userData['userType']?.trim() ?? '';
-      hasClues = (userData['clues'] ?? '').isNotEmpty;
-      hasPatients = (userData['patients'] ?? '').isNotEmpty;
-    });
-
-    if (userType == 'stretcher bearer' ||
-        userType == 'doctor' ||
-        userType == 'nurse' ||
-        userType == 'social worker' ||
-        userType == 'human resources' ||
-        userType == 'administrator') {
-      isStaff = true;
-    }
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     _configurePages();
-    /*print("PRUEBAAS");
-    print('User type: $userType');
-    print('Has clues: $hasClues');
-    print('Has patients: $hasPatients');
-    print('Pages: $_pages');
-    print('Nav items: $_navItems');*/
+  }
+
+  Future<void> _loadUserData() async {
+    try {
+      final userData = await UserService().loadUserData();
+
+      /*print("User data loaded:");
+      print("userType: ${userData['userType']}");
+      print("hasClues: ${userData['clues']}");
+      print("hasPatients: ${userData['patients']}");*/
+
+      setState(() {
+        userType = userData['userType']?.trim() ?? '';
+        hasClues = (userData['clues'] ?? '').isNotEmpty;
+        hasPatients = (userData['patients'] ?? '').isNotEmpty;
+        isStaff = [
+          'stretcher bearer',
+          'doctor',
+          'nurse',
+          'social worker',
+          'human resources',
+          'administrator'
+        ].contains(userType);
+      });
+
+      if (userType.isEmpty) {
+        _navigateToChooseRoleScreen();
+      } else {
+        _configurePages();
+      }
+    } catch (e) {
+      //print("Error loading user data: $e");
+      setState(() {
+        userType = '';
+      });
+      _navigateToChooseRoleScreen();
+    }
   }
 
   void _configurePages() {
     _pages.clear();
     _navItems.clear();
 
+    if (userType.isEmpty) return;
+
     _pages.add(const SettingsScreen());
     _navItems.add(TabItem(icon: Icons.settings, title: 'Settings'.tr()));
 
-    if (userType == '') {
-      Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => ChooseRoleScreen()),
-          (route) => false);
-    } else if (userType == 'administrator' && isStaff && !hasClues) {
+    if (userType == 'administrator' && isStaff && !hasClues) {
       _pages.insert(0, const RegisterHospitalScreen());
       _navItems.insert(
           0, TabItem(icon: Icons.dashboard, title: 'Register'.tr()));
@@ -113,15 +130,24 @@ class _DynamicWrapperState extends State<DynamicWrapper> {
     } else if (userType == 'doctor') {
       _pages.insert(0, const DoctorHomeScreen());
       _pages.insert(1, const MainScreenStaff());
+      _pages.insert(2, const PatientRegScreen());
+      _pages.insert(3, const HojaEnfermeriaScreen());
       _navItems.insert(
           0, TabItem(icon: Icons.medical_services, title: 'Doctor'.tr()));
       _navItems.insert(1, TabItem(icon: Icons.send, title: 'Request'.tr()));
+      _navItems.insert(
+          2, TabItem(icon: Icons.person_add, title: ('Triage'.tr())));
+      _navItems.insert(
+          3, TabItem(icon: Icons.assignment, title: "Nursing".tr()));
     } else if (userType == 'nurse') {
       _pages.insert(0, const NurseHomeScreen());
       _pages.insert(1, const MainScreenStaff());
+      _pages.insert(2, const HojaEnfermeriaScreen());
       _navItems.insert(
           0, TabItem(icon: Icons.local_hospital, title: 'Nurse'.tr()));
       _navItems.insert(1, TabItem(icon: Icons.send, title: 'Request'.tr()));
+      _navItems.insert(
+          2, TabItem(icon: Icons.assignment, title: "Nursing".tr()));
     } else if (userType == 'social worker') {
       _pages.insert(0, const SocialWorkerHomeScreen());
       _pages.insert(1, const MainScreenStaff());
@@ -150,38 +176,48 @@ class _DynamicWrapperState extends State<DynamicWrapper> {
     }
   }
 
+  void _navigateToChooseRoleScreen() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const ChooseRoleScreen()),
+        (route) => false,
+      );
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     var theme = Theme.of(context);
 
-    return Scaffold(
-      body: _pages.isNotEmpty
-          ? Stack(
-              children: [
-                _pages[_pageIndex],
-              ],
-            )
-          : const Center(child: CircularProgressIndicator()),
-      bottomNavigationBar: _navItems.isNotEmpty
-          ? ConvexAppBar(
-              items: _navItems,
-              color: theme.colorScheme.onPrimary,
-              activeColor: theme.colorScheme.onPrimary,
-              backgroundColor: theme.colorScheme.secondary,
-              shadowColor: Colors.black.withOpacity(0.3),
-              height: 70,
-              curveSize: 110,
-              top: -10,
-              elevation: 30,
-              style: TabStyle.reactCircle,
-              initialActiveIndex: _pageIndex,
-              onTap: (index) {
-                setState(() {
-                  _pageIndex = index;
-                });
-              },
-            )
-          : null,
+    return Builder(
+      builder: (context) {
+        return Scaffold(
+          body: _pages.isNotEmpty
+              ? _pages[_pageIndex]
+              : const Center(child: CircularProgressIndicator()),
+          bottomNavigationBar: _navItems.isNotEmpty
+              ? ConvexAppBar(
+                  items: _navItems,
+                  color: theme.colorScheme.onPrimary,
+                  activeColor: theme.colorScheme.onPrimary,
+                  backgroundColor: theme.colorScheme.secondary,
+                  shadowColor: Colors.black.withOpacity(0.3),
+                  height: 70,
+                  curveSize: 110,
+                  top: -10,
+                  elevation: 30,
+                  style: TabStyle.reactCircle,
+                  initialActiveIndex: _pageIndex,
+                  onTap: (index) {
+                    setState(() {
+                      _pageIndex = index;
+                    });
+                  },
+                )
+              : null,
+        );
+      },
     );
   }
 }

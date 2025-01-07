@@ -1,9 +1,12 @@
 import 'dart:convert';
 
 import 'package:connectcare/core/constants/constants.dart';
+import 'package:connectcare/data/services/shared_preferences_service.dart';
+import 'package:connectcare/presentation/screens/admin/create_medicament_screen.dart';
 import 'package:connectcare/presentation/screens/admin/update_medicament.dart';
 import 'package:connectcare/presentation/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:http/http.dart' as http;
 
 class ManageMedications extends StatefulWidget {
@@ -17,6 +20,9 @@ class _ManageMedicationsState extends State<ManageMedications> {
   List<Map<String, dynamic>> medicaments = [];
   List<Map<String, dynamic>> filterMedicaments = [];
   TextEditingController searchController = TextEditingController();
+  String _clues = '';
+  final SharedPreferencesService _sharedPreferencesService =
+      SharedPreferencesService();
 
   @override
   void initState() {
@@ -25,18 +31,32 @@ class _ManageMedicationsState extends State<ManageMedications> {
   }
 
   Future<void> medicamentsInit() async {
-    var url = Uri.parse('$baseUrl/medicamento');
-    var response = await http.get(url);
-    final List<dynamic> data = json.decode(response.body);
+    final data = await _sharedPreferencesService.getClues();
     setState(() {
-      medicaments = data.map((item) {
-        return {
-          'id': item['id_medicamento'].toString(),
-          'nombre': item['nombre'],
-        };
-      }).toList();
-      filterMedicaments = List.from(medicaments);
+      _clues = data ?? '';
     });
+
+    var url = Uri.parse('$baseUrl/medicamento?clues=$_clues');
+    try {
+      var response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        setState(() {
+          medicaments = data.map((item) {
+            return {
+              'id': item['id_medicamento'].toString(),
+              'nombre': item['nombre'],
+            };
+          }).toList();
+          filterMedicaments = List.from(medicaments);
+        });
+      } else {
+        throw Exception('error_fetching_medicines'.tr());
+      }
+    } catch (e) {
+      // print("Error: $e");
+    }
   }
 
   void updateFilter(String query) {
@@ -50,16 +70,15 @@ class _ManageMedicationsState extends State<ManageMedications> {
 
   Future<void> deleteMedicament(String id) async {
     var url = Uri.parse('$baseUrl/medicamento/$id');
-    var response = await http.delete(url);
-    _responseHandlerPost(response);
+    await http.delete(url);
+    _responseHandlerPost();
 
     medicamentsInit();
     setState(() {});
   }
 
-  _responseHandlerPost(response) {
-    responseHandlerDelete(response, context, 'Medicamento creado con exito',
-        'Error al crear medicamento');
+  _responseHandlerPost() {
+    showCustomSnackBar(context, "medicine_deleted_successfully".tr());
   }
 
   @override
@@ -68,7 +87,7 @@ class _ManageMedicationsState extends State<ManageMedications> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Gestionar Medicamentos'),
+        title: Text('manage_medicines'.tr()),
         centerTitle: true,
       ),
       body: Padding(
@@ -83,14 +102,14 @@ class _ManageMedicationsState extends State<ManageMedications> {
                 child: TextFormField(
                   controller: searchController,
                   onChanged: updateFilter,
-                  decoration: const InputDecoration(
-                    labelText: "Search...",
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: "search".tr(),
+                    border: const OutlineInputBorder(),
                   ),
                   autofocus: true,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Por favor ingrese el nombre del medicamento';
+                      return 'enter_medicine_name'.tr();
                     }
                     return null;
                   },
@@ -100,10 +119,10 @@ class _ManageMedicationsState extends State<ManageMedications> {
               filterMedicaments.isEmpty
                   ? SizedBox(
                       height: 450,
-                      child: const Center(
+                      child: Center(
                         child: Text(
-                          'Nada que ver por aquí',
-                          style: TextStyle(fontSize: 18),
+                          'nothing_to_see'.tr(),
+                          style: const TextStyle(fontSize: 18),
                         ),
                       ),
                     )
@@ -126,7 +145,7 @@ class _ManageMedicationsState extends State<ManageMedications> {
                                 Row(
                                   children: [
                                     IconButton(
-                                      icon: Icon(Icons.edit),
+                                      icon: const Icon(Icons.edit),
                                       onPressed: () async {
                                         final result = await Navigator.push(
                                           context,
@@ -144,7 +163,7 @@ class _ManageMedicationsState extends State<ManageMedications> {
                                     ),
                                     const SizedBox(width: 8),
                                     IconButton(
-                                      icon: Icon(Icons.delete),
+                                      icon: const Icon(Icons.delete),
                                       onPressed: () async {
                                         await deleteMedicament(item['id']);
                                         setState(() {});
@@ -163,8 +182,11 @@ class _ManageMedicationsState extends State<ManageMedications> {
                 padding: const EdgeInsets.symmetric(vertical: 10.0),
                 child: ElevatedButton(
                   onPressed: () async {
-                    final result = await Navigator.pushNamed(
-                        context, '/createMedicamentScreen');
+                    final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                const CreateMedicamentScreen()));
                     if (result == 'created') {
                       await medicamentsInit();
                     }
@@ -174,7 +196,7 @@ class _ManageMedicationsState extends State<ManageMedications> {
                         horizontal: 40, vertical: 20),
                     textStyle: const TextStyle(fontSize: 18),
                   ),
-                  child: const Text('Agregar medicamento'),
+                  child: Text('add_medicine'.tr()),
                 ),
               ),
             ],

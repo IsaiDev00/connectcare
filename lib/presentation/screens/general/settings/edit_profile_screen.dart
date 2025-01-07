@@ -31,6 +31,7 @@ class EditProfileScreenState extends State<EditProfileScreen> {
   String userApellidoMaterno = '';
   String userTipo = '';
   String? userId;
+  String authProvider = '';
 
   @override
   void initState() {
@@ -76,6 +77,7 @@ class EditProfileScreenState extends State<EditProfileScreen> {
             userApellidoPaterno = userData['apellido_paterno'] ?? '';
             userApellidoMaterno = userData['apellido_materno'] ?? '';
             userTipo = userData['tipo'] ?? '';
+            authProvider = userData['auth_provider'] ?? '';
           });
         } else {
           throw Exception('User information could not be loaded.'.tr());
@@ -152,6 +154,9 @@ class EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Widget _buildEditableCard(String label, String value, bool isEditable) {
+    final bool canEditEmail =
+        !(authProvider == 'google.com' || authProvider == 'facebook.com');
+
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8.0),
       elevation: 3,
@@ -160,22 +165,44 @@ class EditProfileScreenState extends State<EditProfileScreen> {
           label,
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
-        subtitle: Text(
-          label == 'password'.tr() ? '********' : value,
-          style: const TextStyle(color: Colors.grey),
-        ),
-        trailing: isEditable
-            ? IconButton(
-                icon: const Icon(Icons.edit, color: Colors.grey),
-                onPressed: () {
-                  if (label == 'phone'.tr() || label == 'email'.tr()) {
-                    _showEditFieldDialog(context, label, value);
-                  } else if (label == 'password'.tr()) {
-                    _showPasswordVerificationDialog();
-                  }
-                },
+        subtitle: label == 'email'.tr() && !canEditEmail
+            ? Text(
+                'email_edit_error'.tr(args: [
+                  authProvider == 'google.com' ? 'Google' : 'Facebook'
+                ]),
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Theme.of(context).colorScheme.error,
+                ),
               )
-            : null,
+            : Text(
+                label == 'password'.tr() ? '********' : value,
+                style: const TextStyle(color: Colors.grey),
+              ),
+        trailing: label == 'email'.tr() && !canEditEmail
+            ? null
+            : isEditable
+                ? IconButton(
+                    icon: const Icon(Icons.edit, color: Colors.grey),
+                    onPressed: () {
+                      if (label == 'phone'.tr() || label == 'email'.tr()) {
+                        _showEditFieldDialog(context, label, value);
+                      } else if (label == 'password'.tr() && value.isEmpty) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ChangePassword(
+                              purpose: 'set',
+                              userId: userEmail,
+                            ),
+                          ),
+                        );
+                      } else if (label == 'password'.tr()) {
+                        _showPasswordVerificationDialog();
+                      }
+                    },
+                  )
+                : null,
       ),
     );
   }
@@ -266,7 +293,7 @@ class EditProfileScreenState extends State<EditProfileScreen> {
                   return;
                 }
 
-                if (label == 'phone') {
+                if (label == 'phone'.tr()) {
                   if (!RegExp(r'^\d{10}$').hasMatch(input)) {
                     Navigator.of(context).pop();
                     showCustomSnackBar(context,
