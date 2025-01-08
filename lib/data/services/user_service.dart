@@ -9,17 +9,27 @@ class UserService {
     final userType = await _sharedPreferencesService.getUserType();
     final clues = await _sharedPreferencesService.getClues();
     final patients = await _sharedPreferencesService.getPatients();
+    final status = await _sharedPreferencesService.getStatus();
+    final schedule = await _sharedPreferencesService.getSchedule();
+    final services = await _sharedPreferencesService.getServices();
 
     return {
       'userId': userId,
       'userType': userType,
       'clues': clues?.isEmpty ?? true ? null : clues,
       'hasPatients': patients?.isEmpty ?? true ? null : patients,
+      'status': status?.isEmpty ?? true ? null : status,
+      'schedule': schedule?.isEmpty ?? true ? null : schedule,
+      'services': services?.isEmpty ?? true ? null : services,
     };
   }
 
   Future<void> saveUserSession(String userId, String userType,
-      {String? clues, String? patients}) async {
+      {String? clues,
+      String? patients,
+      String? status,
+      String? schedule,
+      String? services}) async {
     await _sharedPreferencesService.saveUserId(userId);
     await _sharedPreferencesService.saveUserType(userType);
     if (clues != null) {
@@ -28,6 +38,15 @@ class UserService {
     if (patients != null) {
       await _sharedPreferencesService.savePatients(patients);
     }
+    if (status != null) {
+      await _sharedPreferencesService.saveStatus(status);
+    }
+    if (schedule != null) {
+      await _sharedPreferencesService.saveSchedule(schedule);
+    }
+    if (services != null) {
+      await _sharedPreferencesService.saveServices(services);
+    }
   }
 
   Future<void> clearUserSession() async {
@@ -35,5 +54,8 @@ class UserService {
     await _sharedPreferencesService.clearUserType();
     await _sharedPreferencesService.clearClues();
     await _sharedPreferencesService.clearPatients();
+    await _sharedPreferencesService.clearStatus();
+    await _sharedPreferencesService.clearSchedule();
+    await _sharedPreferencesService.clearServices();
   }
 }

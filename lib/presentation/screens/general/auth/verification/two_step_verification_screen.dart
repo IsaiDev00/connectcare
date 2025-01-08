@@ -22,6 +22,9 @@ class TwoStepVerificationScreen extends StatefulWidget {
   final String? email;
   final String? clues;
   final String? patients;
+  final String? schedule;
+  final String? status;
+  final String? services;
   final bool isStaff;
   final bool isSmsVerification;
 
@@ -36,6 +39,9 @@ class TwoStepVerificationScreen extends StatefulWidget {
     this.phoneNumber,
     this.email,
     this.patients,
+    this.schedule,
+    this.status,
+    this.services,
     this.clues,
     this.password,
     this.isStaff = false,
@@ -326,6 +332,9 @@ class _TwoStepVerificationScreenState extends State<TwoStepVerificationScreen> {
         widget.userType!,
         clues: widget.clues,
         patients: widget.patients,
+        status: widget.status,
+        schedule: widget.schedule,
+        services: widget.services,
       );
       if (mounted) {
         Navigator.pushAndRemoveUntil(

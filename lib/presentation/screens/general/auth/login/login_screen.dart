@@ -28,6 +28,9 @@ class LoginScreenState extends State<LoginScreen> {
   String? clues;
   String? patients;
   String? userType;
+  String? status;
+  String? schedule;
+  String? services;
   bool isStaff = false;
 
   final TextEditingController _emailOrPhoneController = TextEditingController();
@@ -67,6 +70,9 @@ class LoginScreenState extends State<LoginScreen> {
         userType = userData['tipo'];
         clues = userData['clues'];
         patients = userData['patients'];
+        status = userData['status'];
+        schedule = userData['schedule'];
+        services = userData['services'];
         if (userData['source'] == 'familiar') {
           isStaff = true;
         }
@@ -84,6 +90,9 @@ class LoginScreenState extends State<LoginScreen> {
                 purpose: 'login',
                 identifier: email,
                 isSmsVerification: false,
+                status: status,
+                schedule: schedule,
+                services: services,
               ),
             ),
           );
@@ -112,6 +121,9 @@ class LoginScreenState extends State<LoginScreen> {
         userType = userData['tipo'];
         clues = userData['clues'];
         patients = userData['patients'];
+        status = userData['status'];
+        schedule = userData['schedule'];
+        services = userData['services'];
         if (userData['source'] == 'familiar') {
           isStaff = true;
         }
@@ -128,6 +140,9 @@ class LoginScreenState extends State<LoginScreen> {
                 isStaff: isStaff,
                 identifier: phone,
                 isSmsVerification: true,
+                status: status,
+                schedule: schedule,
+                services: services,
               ),
             ),
           );

@@ -17,7 +17,7 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class SettingsScreenState extends State<SettingsScreen> {
-  final userService = UserService();
+  final UserService userService = UserService();
   String userType = '';
 
   @override

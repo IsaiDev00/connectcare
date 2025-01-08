@@ -12,7 +12,8 @@ import 'package:connectcare/presentation/screens/family/patient_link_screen.dart
 import 'package:connectcare/presentation/screens/family/regular_family/regular_family_member_home_screen.dart';
 import 'package:connectcare/presentation/screens/general/auth/register/choose_role_screen.dart';
 import 'package:connectcare/presentation/screens/general/main_screen_staff.dart';
-import 'package:connectcare/presentation/screens/human_resources/human_resources_home_screen.dart';
+import 'package:connectcare/presentation/screens/human_resources/manage_chiefs.dart';
+import 'package:connectcare/presentation/screens/human_resources/manage_shifts.dart';
 import 'package:connectcare/presentation/screens/nurse/nurse_home_screen.dart';
 import 'package:connectcare/presentation/screens/social_worker/social_worker_home_screen.dart';
 import 'package:connectcare/presentation/screens/stretcher_bearer/stretcher_bearer_home_screen.dart';
@@ -36,6 +37,9 @@ class _DynamicWrapperState extends State<DynamicWrapper> {
   bool hasClues = false;
   bool hasPatients = false;
   bool isStaff = false;
+  String? userStatus;
+  String? userSchedule;
+  bool isWithinSchedule = true;
 
   final List<Widget> _pages = [];
   final List<TabItem> _navItems = [];
@@ -57,13 +61,19 @@ class _DynamicWrapperState extends State<DynamicWrapper> {
     try {
       final userData = await UserService().loadUserData();
 
-      /*print("User data loaded:");
+      print("USER DATA");
+      print("userId: ${userData['userId']}");
       print("userType: ${userData['userType']}");
-      print("hasClues: ${userData['clues']}");
-      print("hasPatients: ${userData['patients']}");*/
+      print("clues: ${userData['clues']}");
+      print("patients: ${userData['patients']}");
+      print("status: ${userData['status']}");
+      print("services: ${userData['services']}");
+      print("schedule: ${userData['schedule']}");
 
       setState(() {
         userType = userData['userType']?.trim() ?? '';
+        userStatus = userData['status']?.trim();
+        userSchedule = userData['schedule']?.trim();
         hasClues = (userData['clues'] ?? '').isNotEmpty;
         hasPatients = (userData['patients'] ?? '').isNotEmpty;
         isStaff = [
@@ -75,6 +85,9 @@ class _DynamicWrapperState extends State<DynamicWrapper> {
           'administrator'
         ].contains(userType);
       });
+
+      _validateUserStatus();
+      _validateUserSchedule();
 
       if (userType.isEmpty) {
         _navigateToChooseRoleScreen();
@@ -90,11 +103,78 @@ class _DynamicWrapperState extends State<DynamicWrapper> {
     }
   }
 
+  void _validateUserStatus() {
+    if (userStatus == 'inactive' ||
+        userStatus == 'suspended' ||
+        userStatus == 'deleted') {
+      _showErrorAndExit(tr('user_not_active'));
+    }
+  }
+
+  void _showErrorAndExit(String message) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(tr('access_denied')),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const ChooseRoleScreen()),
+                  (route) => false,
+                );
+              },
+              child: Text(tr('ok')),
+            ),
+          ],
+        ),
+      );
+    });
+  }
+
+  void _validateUserSchedule() {
+    if (userSchedule != null && userSchedule!.isNotEmpty) {
+      final now = DateTime.now();
+      final currentHour = now.hour;
+
+      switch (userSchedule) {
+        case 'morning':
+          isWithinSchedule = currentHour >= 7 && currentHour < 13;
+          break;
+        case 'afternoon':
+          isWithinSchedule = currentHour >= 13 && currentHour < 23;
+          break;
+        case 'night':
+          isWithinSchedule = currentHour >= 23 || currentHour < 7;
+          break;
+        case 'fulltime':
+          isWithinSchedule = true;
+          break;
+        default:
+          isWithinSchedule = true;
+      }
+    }
+
+    if (!isWithinSchedule) {
+      _showErrorAndExit(tr('user_not_in_schedule'));
+    }
+  }
+
   void _configurePages() {
     _pages.clear();
     _navItems.clear();
 
-    if (userType.isEmpty) return;
+    if (userType.isEmpty ||
+        !isWithinSchedule ||
+        userStatus == 'inactive' ||
+        userStatus == 'suspended' ||
+        userStatus == 'deleted') {
+      return;
+    }
 
     _pages.add(const SettingsScreen());
     _navItems.add(TabItem(icon: Icons.settings, title: 'Settings'.tr()));
@@ -155,10 +235,13 @@ class _DynamicWrapperState extends State<DynamicWrapper> {
           0, TabItem(icon: Icons.people, title: 'Social Worker'.tr()));
       _navItems.insert(1, TabItem(icon: Icons.send, title: 'Request'.tr()));
     } else if (userType == 'human resources') {
-      _pages.insert(0, const HumanResourcesHomeScreen());
-      _pages.insert(1, const MainScreenStaff());
-      _navItems.insert(0, TabItem(icon: Icons.people_alt, title: 'HR'.tr()));
-      _navItems.insert(1, TabItem(icon: Icons.send, title: 'Request'.tr()));
+      _pages.insert(0, const ManageShifts());
+      _pages.insert(1, const ManageChiefs());
+      _pages.insert(2, const MainScreenStaff());
+      _navItems.insert(
+          0, TabItem(icon: Icons.people_alt, title: 'Shifts'.tr()));
+      _navItems.insert(1, TabItem(icon: Icons.people, title: 'Chiefs'.tr()));
+      _navItems.insert(2, TabItem(icon: Icons.send, title: 'Request'.tr()));
     } else if (userType == 'administrator') {
       _pages.insert(0, const AdminHomeScreen());
       _pages.insert(1, const Management());

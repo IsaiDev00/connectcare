@@ -98,12 +98,18 @@ class FacebookAuthService {
           String userType = userDataQuery['tipo'];
           String? clues = userDataQuery['clues'];
           String? patients = userDataQuery['patients'];
+          String? status = userDataQuery['status'];
+          String? schedule = userDataQuery['schedule'];
+          String? services = userDataQuery['services'];
 
           await userService.saveUserSession(
             userId,
             userType,
             clues: clues,
             patients: patients,
+            status: status,
+            schedule: schedule,
+            services: services,
           );
 
           if (context.mounted) {

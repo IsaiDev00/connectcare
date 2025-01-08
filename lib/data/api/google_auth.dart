@@ -84,12 +84,18 @@ class GoogleAuthService {
       String userType = userData['tipo'];
       String? clues = userData['clues'];
       String? patients = userData['patients'];
+      String? status = userData['status'];
+      String? schedule = userData['schedule'];
+      String? services = userData['services'];
 
       await userService.saveUserSession(
         userId,
         userType,
         clues: clues,
         patients: patients,
+        status: status,
+        schedule: schedule,
+        services: services,
       );
       if (context.mounted) {
         Navigator.pushAndRemoveUntil(
