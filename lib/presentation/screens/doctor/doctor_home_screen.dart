@@ -1,4 +1,5 @@
 import 'package:connectcare/data/services/user_service.dart';
+import 'package:connectcare/presentation/screens/patient/nfc_bracelet_screen.dart';
 import 'package:flutter/material.dart';
 
 class DoctorHomeScreen extends StatefulWidget {
@@ -32,14 +33,33 @@ class DoctorHomeScreenState extends State<DoctorHomeScreen> {
       appBar: AppBar(
         title: const Text('Doctor Home'),
       ),
-      body: Center(
-        child: userId == null
-            ? const CircularProgressIndicator()
-            : Text(
-                'Welcome $userId, you are logged in as a $userType.',
-                style: const TextStyle(fontSize: 16),
-                textAlign: TextAlign.center,
-              ),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            userId == null
+                ? const CircularProgressIndicator()
+                : Center(
+                  child: Text(
+                      'Welcome $userId\nYou are logged in as a $userType.',
+                      style: const TextStyle(fontSize: 16),
+                      textAlign: TextAlign.center,
+                    ),
+                ),
+            SizedBox(height: 20),
+            ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          NfcBraceletScreen(user: userId.toString()),
+                    ),
+                  );
+                },
+                child: Text("Program NFC bracelet"))
+          ],
+        ),
       ),
     );
   }

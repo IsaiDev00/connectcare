@@ -1,5 +1,6 @@
 import 'package:connectcare/core/constants/constants.dart';
 import 'package:connectcare/data/services/shared_preferences_service.dart';
+import 'package:connectcare/presentation/screens/admin/SAMM/wifi_credentials_screen.dart';
 import 'package:connectcare/presentation/screens/admin/edit_room_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -133,6 +134,10 @@ class ManageRoomScreenState extends State<ManageRoomScreen> {
             ),
             const SizedBox(height: 20),
 
+            Text(
+                "To program the SAMM devices of a room, just click on the room"),
+            const SizedBox(height: 20),
+
             // Lista de salas
             Expanded(
               child: filteredRooms.isEmpty
@@ -146,36 +151,48 @@ class ManageRoomScreenState extends State<ManageRoomScreen> {
                       itemCount: filteredRooms.length,
                       itemBuilder: (context, index) {
                         final room = filteredRooms[index];
-                        return Card(
-                          margin: const EdgeInsets.symmetric(vertical: 8),
-                          child: ListTile(
-                            title: Text(
-                              room['nombre'],
-                              style: theme.textTheme.bodyLarge,
-                            ),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                IconButton(
-                                  icon: const Icon(Icons.edit),
-                                  onPressed: () {
-                                    // Navegar a la pantalla de edición de la sala con roomId
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => EditRoomScreen(
-                                            roomId: room['id_sala']),
-                                      ),
-                                    );
-                                  },
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.delete),
-                                  onPressed: () {
-                                    _confirmDeleteRoom(room['id_sala']);
-                                  },
-                                ),
-                              ],
+                        return InkWell(
+                          onTap: () {
+                            // Navegar a la pantalla deseada
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    WifiCredentialsScreen(roomID: room['id_sala'].toString()),
+                              ),
+                            );
+                          },
+                          child: Card(
+                            margin: const EdgeInsets.symmetric(vertical: 8),
+                            child: ListTile(
+                              title: Text(
+                                room['nombre'],
+                                style: theme.textTheme.bodyLarge,
+                              ),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.edit),
+                                    onPressed: () {
+                                      // Navegar a la pantalla de edición de la sala con roomId
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => EditRoomScreen(
+                                              roomId: room['id_sala']),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.delete),
+                                    onPressed: () {
+                                      _confirmDeleteRoom(room['id_sala']);
+                                    },
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         );
