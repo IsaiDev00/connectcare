@@ -39,11 +39,13 @@ class DoctorHomeScreenState extends State<DoctorHomeScreen> {
           children: [
             userId == null
                 ? const CircularProgressIndicator()
-                : Text(
-                    'Welcome $userId\nYou are logged in as a $userType.',
-                    style: const TextStyle(fontSize: 16),
-                    textAlign: TextAlign.center,
-                  ),
+                : Center(
+                  child: Text(
+                      'Welcome $userId\nYou are logged in as a $userType.',
+                      style: const TextStyle(fontSize: 16),
+                      textAlign: TextAlign.center,
+                    ),
+                ),
             SizedBox(height: 20),
             ElevatedButton(
                 onPressed: () {
