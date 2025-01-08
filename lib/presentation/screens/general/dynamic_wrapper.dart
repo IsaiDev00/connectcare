@@ -57,10 +57,10 @@ class _DynamicWrapperState extends State<DynamicWrapper> {
     try {
       final userData = await UserService().loadUserData();
 
-      /*print("User data loaded:");
+      print("User data loaded:");
       print("userType: ${userData['userType']}");
       print("hasClues: ${userData['clues']}");
-      print("hasPatients: ${userData['patients']}");*/
+      print("hasPatients: ${userData['patients']}");
 
       setState(() {
         userType = userData['userType']?.trim() ?? '';

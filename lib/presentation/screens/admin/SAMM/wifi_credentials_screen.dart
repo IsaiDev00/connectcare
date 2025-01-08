@@ -6,7 +6,8 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 
 class WifiCredentialsScreen extends StatefulWidget {
-  const WifiCredentialsScreen({super.key});
+  final String roomID;
+  const WifiCredentialsScreen({super.key, required this.roomID});
 
   @override
   _WifiCredentialsScreen createState() => _WifiCredentialsScreen();
@@ -34,65 +35,11 @@ class _WifiCredentialsScreen extends State<WifiCredentialsScreen> {
   void initState() {
     super.initState();
     _initializeData();
-    _fetchServices();
+    _fetchBeds(widget.roomID);
   }
 
   Future<void> _initializeData() async {
     setState(() {});
-  }
-
-  Future<void> _fetchServices() async {
-    try {
-      final clues = await _sharedPreferencesService.getClues();
-      final response = await http.get(Uri.parse('$baseUrl/servicio/$clues'));
-      if (response.statusCode == 200) {
-        List<dynamic> data = json.decode(response.body);
-        setState(() {
-          services = data
-              .map((item) => {
-                    'id': item['id_servicio'],
-                    'service_name': item['nombre_servicio']
-                  })
-              .toList();
-        });
-      } else {
-        throw Exception('Failed to load services');
-      }
-    } catch (e) {
-      print('Error fetching services: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error loading services: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
-  }
-
-  Future<void> _fetchRooms(String serviceId) async {
-    try {
-      final response =
-          await http.get(Uri.parse('$baseUrl/sala/sala_servicio/$serviceId'));
-      if (response.statusCode == 200) {
-        List<dynamic> data = json.decode(response.body);
-        setState(() {
-          rooms = data
-              .map((item) =>
-                  {'id': item['id_sala'], 'name': item['nombre_sala']})
-              .toList();
-        });
-      } else {
-        throw Exception('Failed to load rooms');
-      }
-    } catch (e) {
-      print('Error fetching rooms: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error loading rooms: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
   }
 
   Future<void> _fetchBeds(String roomId) async {
@@ -153,8 +100,8 @@ class _WifiCredentialsScreen extends State<WifiCredentialsScreen> {
   Future<void> _writeToNFC() async {
     if (_formKey.currentState!.validate() && _selectedBed != null) {
       // Quitamos espacios en SSID y password
-      final ssidNoSpaces = _ssid.text.replaceAll(' ', '');
-      final passwordNoSpaces = _password.text.replaceAll(' ', '');
+      final ssidNoSpaces = _ssid.text.trim();
+      final passwordNoSpaces = _password.text.trim();
 
       final wifiData = {
         'ssid': ssidNoSpaces,
@@ -298,89 +245,29 @@ class _WifiCredentialsScreen extends State<WifiCredentialsScreen> {
               SizedBox(height: 30),
               DropdownButtonFormField<String>(
                 decoration: InputDecoration(
-                  labelText: 'Area',
+                  labelText: 'Bed',
                   border: OutlineInputBorder(),
                 ),
-                value: _selectedArea,
-                items: services
-                    .map((service) => DropdownMenuItem(
-                          value: service['id'].toString(),
+                value: _selectedBed,
+                items: beds
+                    .map((bed) => DropdownMenuItem(
+                          value: bed['id'].toString(),
                           child: Text(
-                            service['service_name'],
+                            bed['name'],
                             style: TextStyle(
                               fontSize: 10,
                             ),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ))
                     .toList(),
                 onChanged: (value) {
                   setState(() {
-                    _selectedArea = value;
-                    _selectedRoom = null;
-                    _selectedBed = null;
-                    rooms = [];
-                    beds = [];
-                    _fetchRooms(value!);
+                    _selectedBed = value;
                   });
                 },
-                validator: (value) => _validateSelection(value, 'Area'),
+                validator: (value) => _validateSelection(value, "Bed"),
               ),
-              SizedBox(height: 20),
-              if (rooms.isNotEmpty)
-                DropdownButtonFormField<String>(
-                  decoration: InputDecoration(
-                    labelText: 'Room',
-                    border: OutlineInputBorder(),
-                  ),
-                  value: _selectedRoom,
-                  items: rooms
-                      .map((room) => DropdownMenuItem(
-                            value: room['id'].toString(),
-                            child: Text(
-                              room['name'],
-                              style: TextStyle(
-                                fontSize: 10,
-                              ),
-                            ),
-                          ))
-                      .toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedRoom = value;
-                      _selectedBed = null;
-                      beds = [];
-                      _fetchBeds(value!);
-                    });
-                  },
-                  validator: (value) => _validateSelection(value, 'Room'),
-                ),
-              SizedBox(height: 20),
-              if (beds.isNotEmpty)
-                DropdownButtonFormField<String>(
-                  decoration: InputDecoration(
-                    labelText: 'Bed',
-                    border: OutlineInputBorder(),
-                  ),
-                  value: _selectedBed,
-                  items: beds
-                      .map((bed) => DropdownMenuItem(
-                            value: bed['id'].toString(),
-                            child: Text(
-                              bed['name'],
-                              style: TextStyle(
-                                fontSize: 10,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ))
-                      .toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedBed = value;
-                    });
-                  },
-                  validator: (value) => _validateSelection(value, "Bed"),
-                ),
               SizedBox(height: 40),
               ElevatedButton(
                 onPressed: _writeToNFC,
