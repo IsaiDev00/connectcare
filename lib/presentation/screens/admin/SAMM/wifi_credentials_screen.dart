@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:connectcare/core/constants/constants.dart';
-import 'package:connectcare/data/services/shared_preferences_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
@@ -18,17 +17,11 @@ class _WifiCredentialsScreen extends State<WifiCredentialsScreen> {
   String _status = "Acerque una tarjeta NFC para interactuar...";
   final _formKey = GlobalKey<FormState>();
 
-  final SharedPreferencesService _sharedPreferencesService =
-      SharedPreferencesService();
-
   final TextEditingController _ssid = TextEditingController();
   final TextEditingController _password = TextEditingController();
   List<Map<String, dynamic>> services = [];
   List<Map<String, dynamic>> rooms = [];
   List<Map<String, dynamic>> beds = [];
-
-  String? _selectedArea;
-  String? _selectedRoom;
   String? _selectedBed;
 
   @override
