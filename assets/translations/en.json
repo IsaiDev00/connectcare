@@ -359,6 +359,25 @@
   "patient_link": "Link Patient",
   "administrator": "Administrator",
   "main_family_member": "Main Family Member",
-  "regular_family_member": "Regular Family Member"
+  "regular_family_member": "Regular Family Member",
+  "assign_tasks": "Tasks",
+  "No employees found.": "No employees found.",
+  "Error loading employees.": "Error loading employees.",
+  "Error updating patients.": "Error updating patients.",
+  "Patients updated successfully.": "Patients updated successfully.",
+  "Role": "Role: {}",
+  "Assign Tasks": "Assign Tasks",
+  "chief_role": "Chief",
+  "member_role": "Member",
+  "Assign": "Assign",
+  "Cama:": "{} (Bed:{})",
+  "Error loading patients.": "Error loading patients",
+  "Error fetching patients.": "Error fetching patients",
+  "No patients assigned.": "No patients assigned",
+  "info_patient": "Bed: {} | Age: {} | NSS: {}",
+  "Search Patients": "Search Patients",
+  "Medical Instructions Sheet": "Medical Instructions",
+  "Nursing Sheet": "Nursing Sheet",
+  "Options for": "Options for {}"
 }
   

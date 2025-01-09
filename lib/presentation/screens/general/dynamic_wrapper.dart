@@ -4,9 +4,8 @@ import 'package:connectcare/presentation/screens/admin/daily_reports.dart';
 import 'package:connectcare/presentation/screens/admin/hospital_reg/register_hospital_screen.dart';
 import 'package:connectcare/presentation/screens/admin/manage_staff_users.dart';
 import 'package:connectcare/presentation/screens/admin/principal/management.dart';
+import 'package:connectcare/presentation/screens/chiefs/assign_tasks_screen.dart';
 import 'package:connectcare/presentation/screens/doctor/doctor_home_screen.dart';
-import 'package:connectcare/presentation/screens/doctor/documents.dart/hoja_enfermeria_screen.dart';
-import 'package:connectcare/presentation/screens/doctor/documents.dart/patient_reg_screen.dart';
 import 'package:connectcare/presentation/screens/family/main_family/main_family_member_home_screen.dart';
 import 'package:connectcare/presentation/screens/family/patient_link_screen.dart';
 import 'package:connectcare/presentation/screens/family/regular_family/regular_family_member_home_screen.dart';
@@ -15,6 +14,7 @@ import 'package:connectcare/presentation/screens/general/main_screen_staff.dart'
 import 'package:connectcare/presentation/screens/human_resources/manage_chiefs.dart';
 import 'package:connectcare/presentation/screens/human_resources/manage_shifts.dart';
 import 'package:connectcare/presentation/screens/nurse/nurse_home_screen.dart';
+import 'package:connectcare/presentation/screens/patient/nfc_bracelet_screen.dart';
 import 'package:connectcare/presentation/screens/social_worker/social_worker_home_screen.dart';
 import 'package:connectcare/presentation/screens/stretcher_bearer/stretcher_bearer_home_screen.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -40,6 +40,7 @@ class _DynamicWrapperState extends State<DynamicWrapper> {
   String? userStatus;
   String? userSchedule;
   bool isWithinSchedule = true;
+  bool hasServices = false;
 
   final List<Widget> _pages = [];
   final List<TabItem> _navItems = [];
@@ -76,6 +77,8 @@ class _DynamicWrapperState extends State<DynamicWrapper> {
         userSchedule = userData['schedule']?.trim();
         hasClues = (userData['clues'] ?? '').isNotEmpty;
         hasPatients = (userData['patients'] ?? '').isNotEmpty;
+        hasServices = (userData['services'] ?? '').isNotEmpty;
+
         isStaff = [
           'stretcher bearer',
           'doctor',
@@ -181,8 +184,10 @@ class _DynamicWrapperState extends State<DynamicWrapper> {
 
     if (userType == 'administrator' && isStaff && !hasClues) {
       _pages.insert(0, const RegisterHospitalScreen());
+      _pages.insert(1, const MainScreenStaff());
       _navItems.insert(
           0, TabItem(icon: Icons.dashboard, title: 'Register'.tr()));
+      _navItems.insert(1, TabItem(icon: Icons.send, title: 'Request'.tr()));
     } else if (isStaff && !hasClues) {
       _pages.insert(0, const MainScreenStaff());
       _navItems.insert(0, TabItem(icon: Icons.send, title: 'Request'.tr()));
@@ -199,61 +204,66 @@ class _DynamicWrapperState extends State<DynamicWrapper> {
       _pages.insert(1, const PatientLinkScreen());
       _navItems.insert(0, TabItem(icon: Icons.home, title: 'Home'.tr()));
       _navItems.insert(1, TabItem(icon: Icons.link, title: 'Link'.tr()));
+    } else if (userType == 'stretcher bearer' && hasServices) {
+      _pages.insert(0, const StretcherBearerHomeScreen());
+      _pages.insert(1, const AssignTasksScreen());
+      _navItems.insert(0,
+          TabItem(icon: Icons.transfer_within_a_station, title: 'Home'.tr()));
+      _navItems.insert(
+          1, TabItem(icon: Icons.task, title: 'assign_tasks'.tr()));
     } else if (userType == 'stretcher bearer') {
       _pages.insert(0, const StretcherBearerHomeScreen());
-      _pages.insert(1, const MainScreenStaff());
+      _navItems.insert(0,
+          TabItem(icon: Icons.transfer_within_a_station, title: 'Home'.tr()));
+    } else if (userType == 'doctor' && hasServices) {
+      _pages.insert(0, const DoctorHomeScreen());
+      _pages.insert(1, const AssignTasksScreen());
+      _pages.insert(2, const NfcBraceletScreen());
       _navItems.insert(
-          0,
-          TabItem(
-              icon: Icons.transfer_within_a_station, title: 'Stretcher'.tr()));
-      _navItems.insert(1, TabItem(icon: Icons.send, title: 'Request'.tr()));
+          0, TabItem(icon: Icons.medical_services, title: 'Home'.tr()));
+      _navItems.insert(
+          1, TabItem(icon: Icons.task, title: 'assign_tasks'.tr()));
+      _navItems.insert(2, TabItem(icon: Icons.nfc, title: 'NFC'));
     } else if (userType == 'doctor') {
       _pages.insert(0, const DoctorHomeScreen());
-      _pages.insert(1, const MainScreenStaff());
-      _pages.insert(2, const PatientRegScreen());
-      _pages.insert(3, const HojaEnfermeriaScreen());
+      _pages.insert(1, const NfcBraceletScreen());
       _navItems.insert(
-          0, TabItem(icon: Icons.medical_services, title: 'Doctor'.tr()));
-      _navItems.insert(1, TabItem(icon: Icons.send, title: 'Request'.tr()));
+          0, TabItem(icon: Icons.medical_services, title: 'Home'.tr()));
+      _navItems.insert(1, TabItem(icon: Icons.nfc, title: 'NFC'));
+    } else if (userType == 'nurse' && hasServices) {
+      _pages.insert(0, const NurseHomeScreen());
+      _pages.insert(1, const AssignTasksScreen());
+      _pages.insert(2, const NfcBraceletScreen());
       _navItems.insert(
-          2, TabItem(icon: Icons.person_add, title: ('Triage'.tr())));
+          0, TabItem(icon: Icons.local_hospital, title: 'Home'.tr()));
       _navItems.insert(
-          3, TabItem(icon: Icons.assignment, title: "Nursing".tr()));
+          1, TabItem(icon: Icons.task, title: 'assign_tasks'.tr()));
+      _navItems.insert(2, TabItem(icon: Icons.nfc, title: 'NFC'));
     } else if (userType == 'nurse') {
       _pages.insert(0, const NurseHomeScreen());
-      _pages.insert(1, const MainScreenStaff());
-      _pages.insert(2, const HojaEnfermeriaScreen());
+      _pages.insert(1, const NfcBraceletScreen());
       _navItems.insert(
-          0, TabItem(icon: Icons.local_hospital, title: 'Nurse'.tr()));
-      _navItems.insert(1, TabItem(icon: Icons.send, title: 'Request'.tr()));
-      _navItems.insert(
-          2, TabItem(icon: Icons.assignment, title: "Nursing".tr()));
+          0, TabItem(icon: Icons.local_hospital, title: 'Home'.tr()));
+      _navItems.insert(1, TabItem(icon: Icons.nfc, title: 'NFC'));
     } else if (userType == 'social worker') {
       _pages.insert(0, const SocialWorkerHomeScreen());
-      _pages.insert(1, const MainScreenStaff());
-      _navItems.insert(
-          0, TabItem(icon: Icons.people, title: 'Social Worker'.tr()));
-      _navItems.insert(1, TabItem(icon: Icons.send, title: 'Request'.tr()));
+      _navItems.insert(0, TabItem(icon: Icons.people, title: 'Home'.tr()));
     } else if (userType == 'human resources') {
       _pages.insert(0, const ManageShifts());
       _pages.insert(1, const ManageChiefs());
-      _pages.insert(2, const MainScreenStaff());
       _navItems.insert(
           0, TabItem(icon: Icons.people_alt, title: 'Shifts'.tr()));
       _navItems.insert(1, TabItem(icon: Icons.people, title: 'Chiefs'.tr()));
-      _navItems.insert(2, TabItem(icon: Icons.send, title: 'Request'.tr()));
     } else if (userType == 'administrator') {
-      _pages.insert(0, const AdminHomeScreen());
-      _pages.insert(1, const Management());
-      _pages.insert(2, const ManageStaffUsers());
-      _pages.insert(3, const DailyReports());
-      _navItems.insert(0, TabItem(icon: Icons.home, title: 'Home'.tr()));
+      _pages.insert(0, const Management());
+      _pages.insert(1, const ManageStaffUsers());
+      _pages.insert(2, const DailyReports());
       _navItems.insert(
-          1, TabItem(icon: Icons.business_center, title: 'Control'.tr()));
+          0, TabItem(icon: Icons.business_center, title: 'Control'.tr()));
       _navItems.insert(
-          2, TabItem(icon: Icons.business_center, title: 'Staff'.tr()));
+          1, TabItem(icon: Icons.business_center, title: 'Staff'.tr()));
       _navItems.insert(
-          3,
+          2,
           TabItem(
               icon: Icons.stacked_bar_chart_rounded, title: 'Reports'.tr()));
     }

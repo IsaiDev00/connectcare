@@ -7,9 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/services.dart';
 
 class NfcBraceletScreen extends StatefulWidget {
-  final String user;
-
-  const NfcBraceletScreen({super.key, required this.user});
+  const NfcBraceletScreen({super.key});
 
   @override
   _NfcBraceletScreen createState() => _NfcBraceletScreen();
@@ -25,6 +23,7 @@ class _NfcBraceletScreen extends State<NfcBraceletScreen> {
   String? idMedico;
   List<dynamic> _patientsList = [];
   String _errorMessage = '';
+  String idPersonal = '';
 
   @override
   void initState() {
@@ -33,8 +32,13 @@ class _NfcBraceletScreen extends State<NfcBraceletScreen> {
   }
 
   Future<void> _getID() async {
+    final data = await _sharedPreferencesService.getUserId();
+    if (data != null) {
+      setState(() {
+        idPersonal = data;
+      });
+    }
     try {
-      final String idPersonal = widget.user;
       final url = Uri.parse('$baseUrl/medico/id/$idPersonal');
       final response = await http.get(url);
       if (response.statusCode == 200) {
