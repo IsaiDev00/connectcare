@@ -354,7 +354,6 @@
   "stretcher": "Stretcher",
   "triage": "Triage",
   "nursing": "Nursing",
-  "fulltime": "Full Time",
   "choose_role": "Choose Role",
   "patient_link": "Link Patient",
   "administrator": "Administrator",
@@ -378,6 +377,11 @@
   "Search Patients": "Search Patients",
   "Medical Instructions Sheet": "Medical Instructions",
   "Nursing Sheet": "Nursing Sheet",
-  "Options for": "Options for {}"
+  "Options for": "Options for {}",
+  "social worker": "Social Worker",
+  "human resources": "Human Resources",
+  "fulltime": "Fulltime",
+  "Turno completo: 00:00 a 00:00": "Fulltime: 00:00 to 00:00",
+  "Hospital Dashboard": "Hospital Dashboard"
 }
   

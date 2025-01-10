@@ -1,5 +1,6 @@
 import 'package:connectcare/data/services/user_service.dart';
 import 'package:connectcare/presentation/screens/general/auth/register/choose_role_screen.dart';
+import 'package:connectcare/presentation/screens/general/main_screen_staff.dart';
 import 'package:connectcare/presentation/screens/general/settings/about_us_screen.dart';
 import 'package:connectcare/presentation/screens/general/settings/edit_profile_screen.dart';
 import 'package:connectcare/presentation/screens/general/settings/feedback_list_screen.dart';
@@ -32,6 +33,19 @@ class SettingsScreenState extends State<SettingsScreen> {
       setState(() {
         userType = (userData['userType'] ?? '');
       });
+      if (userType != 'administrator' &&
+          userType != 'doctor' &&
+          userType != 'nurse' &&
+          userType != 'stretcher bearer' &&
+          userType != 'human resources' &&
+          userType != 'social worker') {
+        return;
+      }
+
+      final clues = userData['clues'] ?? '';
+      if (clues.isEmpty) {
+        return;
+      }
     } catch (e) {
       _userErrorResponse();
     }
@@ -71,6 +85,26 @@ class SettingsScreenState extends State<SettingsScreen> {
                                 MaterialPageRoute(
                                     builder: (context) =>
                                         EditProfileScreen()))),
+                        if (userType == 'doctor' ||
+                            userType == 'nurse' ||
+                            userType == 'stretcher bearer' ||
+                            userType == 'human resources' ||
+                            userType == 'social worker')
+                          _buildOption(
+                            context,
+                            icon: Icons.dashboard,
+                            text: 'Hospital Dashboard'.tr(),
+                            iconColor: colorScheme.onSurface,
+                            textColor: colorScheme.onSurface,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => MainScreenStaff(),
+                                ),
+                              );
+                            },
+                          ),
                       ],
                     ),
                     _buildSettingsCard(

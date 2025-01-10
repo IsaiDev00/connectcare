@@ -21,6 +21,7 @@ class _ManageShiftsState extends State<ManageShifts> {
     {'key': 'morning', 'value': tr('Turno de la mañana: 7:00 a 15:00')},
     {'key': 'afternoon', 'value': tr('Turno de la tarde: 15:00 a 23:00')},
     {'key': 'night', 'value': tr('Turno de la noche: 23:00 a 7:00')},
+    {'key': 'fulltime', 'value': tr('Turno completo: 00:00 a 00:00')},
   ];
   final SharedPreferencesService _sharedPreferencesService =
       SharedPreferencesService();
@@ -115,7 +116,7 @@ class _ManageShiftsState extends State<ManageShifts> {
   }
 
   Future<void> toggleStatus(
-      String employeeId, String currentStatus, String? schedule) async {
+      String employeeId, String? currentStatus, String? schedule) async {
     if (schedule == null || schedule.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(tr('cannot_activate_no_schedule'))),
@@ -124,7 +125,9 @@ class _ManageShiftsState extends State<ManageShifts> {
     }
 
     final url = Uri.parse('$baseUrl/shifts/$employeeId/status');
-    final newStatus = currentStatus == 'active' ? 'inactive' : 'active';
+    final newStatus = (currentStatus == null || currentStatus == 'inactive')
+        ? 'active'
+        : 'inactive';
     try {
       final response = await http.patch(
         url,
@@ -146,6 +149,7 @@ class _ManageShiftsState extends State<ManageShifts> {
     'morning': 'morning'.tr(),
     'afternoon': 'afternoon'.tr(),
     'night': 'night'.tr(),
+    'fulltime': 'fulltime'.tr(),
     'none': 'none'.tr(),
   };
 
@@ -176,6 +180,7 @@ class _ManageShiftsState extends State<ManageShifts> {
                       itemCount: filteredEmployees.length,
                       itemBuilder: (context, index) {
                         final employee = filteredEmployees[index];
+                        final employeeStatus = employee['status'] ?? 'inactive';
                         return ListTile(
                           title: Text(employee['name']),
                           subtitle: Column(
@@ -191,9 +196,9 @@ class _ManageShiftsState extends State<ManageShifts> {
                                 ],
                               )),
                               Text('status'.tr(args: [
-                                employee['status'] == 'active'
+                                employeeStatus == 'active'
                                     ? 'active'.tr()
-                                    : 'inactive'.tr()
+                                    : 'inactive'.tr(),
                               ])),
                             ],
                           ),
@@ -202,19 +207,18 @@ class _ManageShiftsState extends State<ManageShifts> {
                             children: [
                               IconButton(
                                 icon: Icon(
-                                  employee['status'] == 'active'
+                                  employeeStatus == 'active'
                                       ? Icons.toggle_on
                                       : Icons.toggle_off,
-                                  color: employee['status'] == 'active'
+                                  color: employeeStatus == 'active'
                                       ? Colors.green
                                       : Colors.grey,
                                 ),
                                 onPressed: () async {
                                   await toggleStatus(
                                     employee['id'].toString(),
-                                    employee['status'],
-                                    employee[
-                                        'schedule'], // Pasar el horario actual
+                                    employeeStatus,
+                                    employee['schedule'],
                                   );
                                 },
                               ),

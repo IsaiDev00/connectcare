@@ -107,22 +107,24 @@ class _ManageStaffUsersState extends State<ManageStaffUsers> {
         dataStaff.add(responseData);
       }
     }
-    setState(() {
-      staff = dataStaff.map((item) {
-        return {
-          'id_personal': item['id_personal'],
-          'nombre': item['nombre'] ?? 'Unknown'.tr(),
-          'apellido_paterno': item['apellido_paterno'] ?? 'Unknown'.tr(),
-          'apellido_materno': item['apellido_materno'] ?? 'Unknown'.tr(),
-          'tipo': item['tipo'] ?? 'Unknown',
-          'correo_electronico': item['correo_electronico'] ?? 'Unknown'.tr(),
-          'telefono': item['telefono'] ?? 'Unknown'.tr(),
-          'estatus': item['estatus'] ?? 'Unknown'.tr(),
-          'clues': item['clues'] ?? 'Unknown'.tr(),
-        };
-      }).toList();
-      filterStaff = List.from(staff);
-    });
+    if (mounted) {
+      setState(() {
+        staff = dataStaff.map((item) {
+          return {
+            'id_personal': item['id_personal'],
+            'nombre': item['nombre'] ?? 'Unknown'.tr(),
+            'apellido_paterno': item['apellido_paterno'] ?? 'Unknown'.tr(),
+            'apellido_materno': item['apellido_materno'] ?? 'Unknown'.tr(),
+            'tipo': item['tipo'] ?? 'Unknown',
+            'correo_electronico': item['correo_electronico'] ?? 'Unknown'.tr(),
+            'telefono': item['telefono'] ?? 'Unknown'.tr(),
+            'estatus': item['estatus'] ?? 'Unknown'.tr(),
+            'clues': item['clues'] ?? 'Unknown'.tr(),
+          };
+        }).toList();
+        filterStaff = List.from(staff);
+      });
+    }
   }
 
   void confirmDelete(String id) {
@@ -477,7 +479,7 @@ class _ManageStaffUsersState extends State<ManageStaffUsers> {
                                     .tr(args: [filterToLang(filter, false)]),
                                 border: OutlineInputBorder(),
                               ),
-                              autofocus: true,
+                              autofocus: false,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
                                   return 'Please enter the name of the hospital'

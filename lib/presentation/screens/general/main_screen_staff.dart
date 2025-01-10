@@ -294,14 +294,16 @@ class MainScreenState extends State<MainScreenStaff> {
     var theme = Theme.of(context);
 
     return SafeArea(
+      top: false,
       child: Scaffold(
+        appBar: AppBar(),
         body: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10.0),
+              padding: const EdgeInsets.symmetric(),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   _buildMenuItem('Request'.tr(), 0),
                   _buildMenuItem('Registered'.tr(), 1),
@@ -340,7 +342,7 @@ class MainScreenState extends State<MainScreenStaff> {
                                 labelText: "Search...".tr(),
                                 border: OutlineInputBorder(),
                               ),
-                              autofocus: true,
+                              autofocus: false,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
                                   return 'Please enter the name of the hospital'
