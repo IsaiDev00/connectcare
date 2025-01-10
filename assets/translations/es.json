@@ -135,7 +135,7 @@
   "Link": "Enlace",
   "Home": "Inicio",
   "Stretcher": "Camilla",
-  "Doctor": "Doctor",
+  "Doctor": "Medico",
   "Nurse": "Enfermero",
   "Social Worker": "Trabajador Social",
   "HR": "Recursos Humanos",
@@ -354,7 +354,6 @@
   "stretcher": "Camillero",
   "triage": "Triaje",
   "nursing": "Enfermería",
-  "fulltime": "Tiempo Completo",
   "choose_role": "Elegir Rol",
   "patient_link": "Vincular paciente",
   "administrator": "Administrador",
@@ -378,6 +377,11 @@
   "Search Patients": "Buscar Pacientes",
   "Medical Instructions Sheet": "Indicaciones Médicas",
   "Nursing Sheet": "Hoja de Enfermería",
-  "Options for": "Opciones para {}"
+  "Options for": "Opciones para {}",
+  "social worker": "Trabajador social",
+  "human resources": "Recursos humanos",
+  "fulltime": "Tiempo completo",
+  "Turno completo: 00:00 a 00:00": "Turno completo: 00:00 to 00:00",
+  "Hospital Dashboard": "Panel de Hospitales"
 }
   

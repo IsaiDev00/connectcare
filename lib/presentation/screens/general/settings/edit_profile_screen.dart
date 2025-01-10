@@ -145,7 +145,17 @@ class EditProfileScreenState extends State<EditProfileScreen> {
           ),
           const SizedBox(height: 8.0),
           Text(
-            userTipo.isNotEmpty ? userTipo : "Type not available".tr(),
+            userTipo.isNotEmpty
+                ? {
+                      'nurse': 'Nurse'.tr(),
+                      'administrator': 'Administrator'.tr(),
+                      'doctor': 'Doctor'.tr(),
+                      'stretcher bearer': 'Stretcher Bearer'.tr(),
+                      'social worker': 'Social Worker'.tr(),
+                      'human resources': 'Human Resources'.tr(),
+                    }[userTipo] ??
+                    "Type not available".tr()
+                : "Type not available".tr(),
             style: Theme.of(context).textTheme.bodySmall,
           ),
         ],

@@ -1,11 +1,11 @@
 import 'package:connectcare/data/services/user_service.dart';
-import 'package:connectcare/presentation/screens/admin/admin_home_screen.dart';
 import 'package:connectcare/presentation/screens/admin/daily_reports.dart';
 import 'package:connectcare/presentation/screens/admin/hospital_reg/register_hospital_screen.dart';
 import 'package:connectcare/presentation/screens/admin/manage_staff_users.dart';
 import 'package:connectcare/presentation/screens/admin/principal/management.dart';
 import 'package:connectcare/presentation/screens/chiefs/assign_tasks_screen.dart';
 import 'package:connectcare/presentation/screens/doctor/doctor_home_screen.dart';
+import 'package:connectcare/presentation/screens/doctor/documents.dart/patient_reg_screen.dart';
 import 'package:connectcare/presentation/screens/family/main_family/main_family_member_home_screen.dart';
 import 'package:connectcare/presentation/screens/family/patient_link_screen.dart';
 import 'package:connectcare/presentation/screens/family/regular_family/regular_family_member_home_screen.dart';
@@ -62,14 +62,14 @@ class _DynamicWrapperState extends State<DynamicWrapper> {
     try {
       final userData = await UserService().loadUserData();
 
-      print("USER DATA");
+      /*print("USER DATA");
       print("userId: ${userData['userId']}");
       print("userType: ${userData['userType']}");
       print("clues: ${userData['clues']}");
       print("patients: ${userData['patients']}");
       print("status: ${userData['status']}");
       print("services: ${userData['services']}");
-      print("schedule: ${userData['schedule']}");
+      print("schedule: ${userData['schedule']}");*/
 
       setState(() {
         userType = userData['userType']?.trim() ?? '';
@@ -218,18 +218,24 @@ class _DynamicWrapperState extends State<DynamicWrapper> {
     } else if (userType == 'doctor' && hasServices) {
       _pages.insert(0, const DoctorHomeScreen());
       _pages.insert(1, const AssignTasksScreen());
-      _pages.insert(2, const NfcBraceletScreen());
+      _pages.insert(2, const PatientRegScreen());
+      _pages.insert(3, const NfcBraceletScreen());
       _navItems.insert(
           0, TabItem(icon: Icons.medical_services, title: 'Home'.tr()));
       _navItems.insert(
           1, TabItem(icon: Icons.task, title: 'assign_tasks'.tr()));
-      _navItems.insert(2, TabItem(icon: Icons.nfc, title: 'NFC'));
+      _navItems.insert(
+          2, TabItem(icon: Icons.assignment, title: 'Triage'.tr()));
+      _navItems.insert(3, TabItem(icon: Icons.nfc, title: 'NFC'));
     } else if (userType == 'doctor') {
       _pages.insert(0, const DoctorHomeScreen());
-      _pages.insert(1, const NfcBraceletScreen());
+      _pages.insert(1, const PatientRegScreen());
+      _pages.insert(2, const NfcBraceletScreen());
       _navItems.insert(
           0, TabItem(icon: Icons.medical_services, title: 'Home'.tr()));
-      _navItems.insert(1, TabItem(icon: Icons.nfc, title: 'NFC'));
+      _navItems.insert(
+          1, TabItem(icon: Icons.assignment, title: 'Triage'.tr()));
+      _navItems.insert(2, TabItem(icon: Icons.nfc, title: 'NFC'));
     } else if (userType == 'nurse' && hasServices) {
       _pages.insert(0, const NurseHomeScreen());
       _pages.insert(1, const AssignTasksScreen());
