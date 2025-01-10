@@ -81,9 +81,11 @@ class _NfcBraceletScreen extends State<NfcBraceletScreen> {
         });
       }
     } catch (e) {
-      setState(() {
-        _errorMessage = 'Ha ocurrido un error: $e';
-      });
+      if (mounted) {
+        setState(() {
+          _errorMessage = 'Ha ocurrido un error: $e';
+        });
+      }
     }
   }
 

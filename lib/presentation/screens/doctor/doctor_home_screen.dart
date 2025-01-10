@@ -23,6 +23,8 @@ class DoctorHomeScreenState extends State<DoctorHomeScreen> {
   TextEditingController searchController = TextEditingController();
   List<Map<String, dynamic>> filteredPatients = [];
 
+  
+
   @override
   void initState() {
     super.initState();
@@ -65,9 +67,12 @@ class DoctorHomeScreenState extends State<DoctorHomeScreen> {
     } catch (e) {
       _errorFetchingPatients();
     } finally {
-      setState(() {
+      if (mounted) {
+        setState(() {
         isLoading = false;
       });
+      }
+      
     }
   }
 
