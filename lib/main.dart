@@ -30,7 +30,6 @@ import 'package:connectcare/presentation/screens/admin/hospital_reg/register_hos
 import 'package:connectcare/presentation/screens/admin/hospital_reg/submit_clues_screen.dart';
 import 'package:connectcare/presentation/screens/admin/hospital_reg/verification_code_screen.dart';
 import 'package:connectcare/presentation/screens/admin/principal/profile_screen.dart';
-import 'package:connectcare/presentation/screens/doctor/documents.dart/hoja_enfermeria_screen.dart';
 import 'package:connectcare/core/constants/constants.dart';
 
 // Instancia global de FlutterLocalNotificationsPlugin
@@ -84,8 +83,8 @@ void main() async {
         'Notificación en Foreground: ${message.notification?.title}, ${message.notification?.body}');
 
     // Preparar datos para la notificación local
-    final String? notiTitle = message.notification?.title ?? 'Sin título';
-    final String? notiBody = message.notification?.body ?? 'Sin contenido';
+    final String notiTitle = message.notification?.title ?? 'Sin título';
+    final String notiBody = message.notification?.body ?? 'Sin contenido';
 
     // Configuramos el canal de notificación (Android)
     const AndroidNotificationDetails androidPlatformChannelSpecifics =
@@ -211,7 +210,6 @@ class MyApp extends StatelessWidget {
         '/createRoomScreen': (context) => CreateRoomScreen(),
         '/createProcedureScreen': (context) => CreateProcedureScreen(),
         '/pacientReg': (context) => PatientRegScreen(),
-        '/hojaEnfermeriaScreen': (context) => HojaEnfermeriaScreen(),
         '/createServiceScreen': (context) => CreateServiceScreen(),
         '/adminStartScreen': (context) => AdminStartScreen(),
         '/addFloorsScreen': (context) => AddFloorsScreen(),

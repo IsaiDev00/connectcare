@@ -105,7 +105,7 @@ class NurseHomeScreenState extends State<NurseHomeScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => HojaEnfermeriaScreen(),
+                      builder: (context) => HojaEnfermeriaScreen(nssPaciente: patient['id'].toString()),
                     ),
                   );
                 },
