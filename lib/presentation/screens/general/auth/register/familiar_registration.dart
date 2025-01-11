@@ -436,7 +436,6 @@ class FamiliarRegistrationState extends State<FamiliarRegistration> {
                   lastNameMaternal: _lastNameMaternalController.text.trim(),
                   email: _emailOrPhoneController.text.trim().toLowerCase(),
                   password: _passwordController.text,
-                  userType: 'regular',
                   isStaff: false,
                   purpose: 'registration',
                 )));
@@ -455,7 +454,6 @@ class FamiliarRegistrationState extends State<FamiliarRegistration> {
                   lastNamePaternal: _lastNamePaternalController.text.trim(),
                   lastNameMaternal: _lastNameMaternalController.text.trim(),
                   password: _passwordController.text,
-                  userType: 'regular',
                   isStaff: false,
                 )));
   }

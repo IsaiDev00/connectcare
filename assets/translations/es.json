@@ -382,6 +382,24 @@
   "human resources": "Recursos humanos",
   "fulltime": "Tiempo completo",
   "Turno completo: 00:00 a 00:00": "Turno completo: 00:00 to 00:00",
-  "Hospital Dashboard": "Panel de Hospitales"
+  "Hospital Dashboard": "Panel de Hospitales",
+  "Error fetching linked patients": "Error al obtener los pacientes vinculados",
+  "El código debe tener exactamente 8 caracteres.": "El código debe tener exactamente 8 caracteres",
+  "Code validated successfully": "Código validado con éxito",
+  "Error validating code": "Error al validar el código",
+  "Paciente desvinculado con éxito": "Paciente desvinculado con éxito",
+  "Error al desvincular paciente": "Error al desvincular paciente",
+  "Family Link": "Vinculación Familiar",
+  "Ingrese el código para vincular un paciente:": "Ingrese el código para vincular un paciente:",
+  "Enter Code": "Introducir Código",
+  "El código debe tener exactamente 8 caracteres": "El código debe tener exactamente 8 caracteres",
+  "Validate Code": "Validar Código",
+  "Pacientes vinculados:": "Pacientes vinculados:",
+  "No hay pacientes vinculados.": "No hay pacientes vinculados.",
+  "Edad:": "Edad: {}",
+  "Confirmar acción": "Confirmar acción",
+  "¿Estás seguro de que quieres desvincularte de este paciente?": "¿Estás seguro de que quieres desvincularte de este paciente?",
+  "Cancelar": "Cancelar",
+  "Desvincular": "Desvincular"
 }
   

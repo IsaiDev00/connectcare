@@ -274,7 +274,7 @@ class _TwoStepVerificationScreenState extends State<TwoStepVerificationScreen> {
         'nombre': widget.firstName,
         'apellido_paterno': widget.lastNamePaternal,
         'apellido_materno': widget.lastNameMaternal,
-        'tipo': widget.userType,
+        if (widget.isStaff) 'tipo': widget.userType,
         'contrasena': widget.password,
         'auth_provider': widget.isSmsVerification ? 'phone' : 'email',
         if (widget.isSmsVerification) 'telefono': widget.phoneNumber,
@@ -303,9 +303,13 @@ class _TwoStepVerificationScreenState extends State<TwoStepVerificationScreen> {
         final userId = widget.isStaff
             ? responseData['id_personal'].toString()
             : responseData['id_familiar'].toString();
-        final userType = responseData['tipo'];
 
-        await userService.saveUserSession(userId, userType);
+        if (widget.isStaff) {
+          final userType = responseData['tipo'];
+          await userService.saveUserSession(userId, userType);
+        } else {
+          await userService.saveUserSession(userId, '');
+        }
 
         if (mounted) {
           Navigator.pushAndRemoveUntil(

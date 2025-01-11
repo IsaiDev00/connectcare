@@ -195,9 +195,11 @@ class _AssignTasksScreenState extends State<AssignTasksScreen> {
   }
 
   void _errorLoadingEmployees() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Error loading employees'.tr())),
-    );
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error loading employees'.tr())),
+      );
+    }
   }
 
   void _noEmployeesFound() {

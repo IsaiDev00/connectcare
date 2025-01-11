@@ -17,7 +17,7 @@ class UserService {
       'userId': userId,
       'userType': userType,
       'clues': clues?.isEmpty ?? true ? null : clues,
-      'hasPatients': patients?.isEmpty ?? true ? null : patients,
+      'patients': patients?.isEmpty ?? true ? null : patients,
       'status': status?.isEmpty ?? true ? null : status,
       'schedule': schedule?.isEmpty ?? true ? null : schedule,
       'services': services?.isEmpty ?? true ? null : services,

@@ -7,7 +7,7 @@ import 'package:connectcare/presentation/screens/chiefs/assign_tasks_screen.dart
 import 'package:connectcare/presentation/screens/doctor/doctor_home_screen.dart';
 import 'package:connectcare/presentation/screens/doctor/documents.dart/patient_reg_screen.dart';
 import 'package:connectcare/presentation/screens/family/main_family/main_family_member_home_screen.dart';
-import 'package:connectcare/presentation/screens/family/patient_link_screen.dart';
+import 'package:connectcare/presentation/screens/family/family_link_screen.dart';
 import 'package:connectcare/presentation/screens/family/regular_family/regular_family_member_home_screen.dart';
 import 'package:connectcare/presentation/screens/general/auth/register/choose_role_screen.dart';
 import 'package:connectcare/presentation/screens/general/main_screen_staff.dart';
@@ -92,11 +92,7 @@ class _DynamicWrapperState extends State<DynamicWrapper> {
       _validateUserStatus();
       _validateUserSchedule();
 
-      if (userType.isEmpty) {
-        _navigateToChooseRoleScreen();
-      } else {
-        _configurePages();
-      }
+      _configurePages();
     } catch (e) {
       //print("Error loading user data: $e");
       setState(() {
@@ -170,9 +166,7 @@ class _DynamicWrapperState extends State<DynamicWrapper> {
   void _configurePages() {
     _pages.clear();
     _navItems.clear();
-
-    if (userType.isEmpty ||
-        !isWithinSchedule ||
+    if (!isWithinSchedule ||
         userStatus == 'inactive' ||
         userStatus == 'suspended' ||
         userStatus == 'deleted') {
@@ -192,16 +186,16 @@ class _DynamicWrapperState extends State<DynamicWrapper> {
       _pages.insert(0, const MainScreenStaff());
       _navItems.insert(0, TabItem(icon: Icons.send, title: 'Request'.tr()));
     } else if (!isStaff && !hasPatients) {
-      _pages.insert(0, const PatientLinkScreen());
+      _pages.insert(0, const FamilyLinkScreen());
       _navItems.insert(0, TabItem(icon: Icons.add_link, title: 'Link'.tr()));
     } else if (userType == 'main') {
       _pages.insert(0, const MainFamilyMemberHomeScreen());
-      _pages.insert(1, const PatientLinkScreen());
+      _pages.insert(1, const FamilyLinkScreen());
       _navItems.insert(0, TabItem(icon: Icons.home, title: 'Home'.tr()));
       _navItems.insert(1, TabItem(icon: Icons.link, title: 'Link'.tr()));
     } else if (userType == 'regular') {
       _pages.insert(0, const RegularFamilyMemberHomeScreen());
-      _pages.insert(1, const PatientLinkScreen());
+      _pages.insert(1, const FamilyLinkScreen());
       _navItems.insert(0, TabItem(icon: Icons.home, title: 'Home'.tr()));
       _navItems.insert(1, TabItem(icon: Icons.link, title: 'Link'.tr()));
     } else if (userType == 'stretcher bearer' && hasServices) {

@@ -67,13 +67,14 @@ class LoginScreenState extends State<LoginScreen> {
         final userData = jsonDecode(response.body);
 
         userId = userData['id'].toString();
-        userType = userData['tipo'];
+        userType = userData['user_type'];
         clues = userData['clues'];
         patients = userData['patients'];
         status = userData['status'];
         schedule = userData['schedule'];
         services = userData['services'];
-        if (userData['source'] == 'familiar') {
+
+        if (userData['source'] == 'personal') {
           isStaff = true;
         }
 
@@ -124,7 +125,7 @@ class LoginScreenState extends State<LoginScreen> {
         status = userData['status'];
         schedule = userData['schedule'];
         services = userData['services'];
-        if (userData['source'] == 'familiar') {
+        if (userData['source'] == 'personal') {
           isStaff = true;
         }
         if (mounted) {

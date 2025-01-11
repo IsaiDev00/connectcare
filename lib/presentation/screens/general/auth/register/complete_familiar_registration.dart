@@ -118,7 +118,6 @@ class CompleteFamiliarRegistrationState
         'nombre': firstNameController.text.trim(),
         'apellido_paterno': lastNamePaternalController.text.trim(),
         'apellido_materno': lastNameMaternalController.text.trim(),
-        'tipo': "regular",
         'correo_electronico': firebaseUser.email!.trim().toLowerCase(),
         'firebase_uid': firebaseUser.uid,
         'auth_provider': firebaseUser.providerData[0].providerId,
@@ -135,9 +134,8 @@ class CompleteFamiliarRegistrationState
         final responseData = jsonDecode(response.body);
 
         final userId = responseData['id_familiar'].toString();
-        final userType = responseData['tipo'];
 
-        await userService.saveUserSession(userId, userType);
+        await userService.saveUserSession(userId, '');
 
         if (mounted) {
           Navigator.pushAndRemoveUntil(
