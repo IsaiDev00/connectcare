@@ -306,9 +306,9 @@ class _TwoStepVerificationScreenState extends State<TwoStepVerificationScreen> {
 
         if (widget.isStaff) {
           final userType = responseData['tipo'];
-          await userService.saveUserSession(userId, userType);
+          await userService.saveUserSession(userId, userType: userType);
         } else {
-          await userService.saveUserSession(userId, '');
+          await userService.saveUserSession(userId, userType: '');
         }
 
         if (mounted) {
@@ -328,18 +328,27 @@ class _TwoStepVerificationScreenState extends State<TwoStepVerificationScreen> {
 
   Future<void> _login() async {
     try {
-      if (widget.userId == null || widget.userType == null) {
-        throw Exception('userId y userType no pueden ser nulos.'.tr());
+      if (widget.userType == null || widget.userType == '') {
+        await userService.saveUserSession(
+          widget.userId!,
+          clues: widget.clues,
+          patients: widget.patients,
+          status: widget.status,
+          schedule: widget.schedule,
+          services: widget.services,
+        );
+      } else {
+        await userService.saveUserSession(
+          widget.userId!,
+          userType: widget.userType!,
+          clues: widget.clues,
+          patients: widget.patients,
+          status: widget.status,
+          schedule: widget.schedule,
+          services: widget.services,
+        );
       }
-      await userService.saveUserSession(
-        widget.userId!,
-        widget.userType!,
-        clues: widget.clues,
-        patients: widget.patients,
-        status: widget.status,
-        schedule: widget.schedule,
-        services: widget.services,
-      );
+
       if (mounted) {
         Navigator.pushAndRemoveUntil(
             context,

@@ -29,18 +29,17 @@ class UserService {
     };
   }
 
-  /// Guarda datos de sesión del usuario en SharedPreferences
-  Future<void> saveUserSession(
-    String userId,
-    String userType, {
-    String? clues,
-    String? patients,
-    String? status,
-    String? schedule,
-    String? services,
-  }) async {
+  Future<void> saveUserSession(String userId,
+      {String? userType,
+      String? clues,
+      String? patients,
+      String? status,
+      String? schedule,
+      String? services}) async {
     await _sharedPreferencesService.saveUserId(userId);
-    await _sharedPreferencesService.saveUserType(userType);
+    if (userType != null) {
+      await _sharedPreferencesService.saveUserType(userType);
+    }
     if (clues != null) {
       await _sharedPreferencesService.saveClues(clues);
     }
