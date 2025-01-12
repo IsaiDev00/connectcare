@@ -1,4 +1,5 @@
 import 'package:connectcare/core/constants/constants.dart';
+import 'package:connectcare/data/services/shared_preferences_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
@@ -38,7 +39,8 @@ class Medicamento {
       concentracion: json['concentracion'],
       cantidadStock: json['cantidad_stock'],
       caducidad: json['caducidad'],
-      idAdministrador: json['id_administrador'],
+      // Si 'id_administrador' no existe o es null, usamos 0 por defecto.
+      idAdministrador: json['id_administrador'] ?? 0,
     );
   }
 }
@@ -52,7 +54,8 @@ class AddedMedication {
 }
 
 class HojaEnfermeriaScreen extends StatefulWidget {
-  const HojaEnfermeriaScreen({super.key});
+  final String nssPaciente;
+  const HojaEnfermeriaScreen({super.key, required this.nssPaciente});
 
   @override
   _HojaEnfermeriaScreen createState() => _HojaEnfermeriaScreen();
@@ -60,6 +63,33 @@ class HojaEnfermeriaScreen extends StatefulWidget {
 
 class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
   final _formKey = GlobalKey<FormState>();
+
+  final SharedPreferencesService _sharedPreferencesService =
+      SharedPreferencesService();
+
+  String? idMedico;
+  String idPersonal = '';
+  // PATIENT INFORMATION
+  String? nombrePaciente;
+  double? edad;
+  int? diasInterno;
+  String? servicio;
+  int? camaNum;
+  String nss = '';
+  String? fechaIngreso;
+  String? sexo;
+  String? gpo_rh;
+  String? fechaNacimiento;
+  String? fechaHoy;
+  List<String>? estudiosLaboRealizados;
+  List<String>? estuiosLaboProgramados;
+  List<String>? estudiosGabRealizados;
+  List<String>? estudiosGabProgramados;
+  List<String>? intervencionQuirRealizadas;
+  List<String>? intervencionQuirProgramadas;
+  List<String>? idEnfermeros;
+  List<String>? nombreEnfermeros;
+
   // GENERAL INFORMATION
   final TextEditingController alergiasController = TextEditingController();
   final TextEditingController pesoController = TextEditingController();
@@ -87,9 +117,6 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
 
   List<String> codigoTempOpciones = ['FR', 'AX', 'OR', 'RE'];
   String? codigoTemp;
-
-  String nss = "987654321";
-  int id_medico = 19;
 
   // VITAL SIGNS
   List<TextEditingController> fcControllers = [];
@@ -139,6 +166,8 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
   @override
   void initState() {
     super.initState();
+    _getID();
+    nss = widget.nssPaciente.toString();
     // Initialize controllers with one field
     fcControllers.add(TextEditingController());
     tiControllers.add(TextEditingController());
@@ -178,6 +207,33 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
     _loadData();
   }
 
+  Future<void> _getID() async {
+    final data = await _sharedPreferencesService.getUserId();
+    if (data != null) {
+      setState(() {
+        idPersonal = data;
+      });
+    }
+    try {
+      final url = Uri.parse('$baseUrl/medico/id/$idPersonal');
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        if (data.isNotEmpty) {
+          setState(() {
+            idMedico = data[0]['id_medico'].toString();
+          });
+        }
+      } else if (response.statusCode == 404) {
+        debugPrint('El médico con idPersonal: $idPersonal no existe');
+      } else {
+        debugPrint('Error inesperado. Código: ${response.statusCode}');
+      }
+    } catch (e) {
+      debugPrint('Ha ocurrido un error al obtener el idMedico: $e');
+    }
+  }
+
   Future<Map<String, dynamic>> obtenerDiagnostico(String nssPaciente) async {
     final response =
         await http.get(Uri.parse('$baseUrl/triage/diagnostico/$nssPaciente'));
@@ -186,6 +242,43 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
     } else {
       throw Exception('Error al obtener diagnóstico: ${response.body}');
     }
+  }
+
+  Future<bool> removeMedicationWithConfirmation(
+    BuildContext context,
+    AddedMedication medicationToRemove,
+  ) async {
+    final bool? shouldRemove = await showDialog<bool>(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          title: Text('Eliminar medicamento'),
+          content: Text(
+            '¿Estás seguro de que deseas eliminar "${medicationToRemove.medicamento.nombre}"?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(true),
+              child: Text('Eliminar'),
+            ),
+          ],
+        );
+      },
+    );
+
+    // Si el usuario presionó "Eliminar" (true), removemos el medicamento
+    if (shouldRemove == true) {
+      setState(() {
+        addedMedicamentos.remove(medicationToRemove);
+      });
+      return true; // Se eliminó exitosamente
+    }
+
+    return false; // No se eliminó
   }
 
   Future<Map<String, dynamic>> obtenerHojaEnfermeria(String nssPaciente) async {
@@ -752,7 +845,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
 
   void removeMedicamentoField() async {
     if (addedMedicamentos.isNotEmpty) {
-      final AddedMedication? removed = await showDialog<AddedMedication>(
+      await showDialog<AddedMedication>(
         context: context,
         builder: (context) {
           return AlertDialog(
@@ -767,8 +860,16 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                     title: Text(addedMedicamentos[index].medicamento.nombre),
                     subtitle: Text(
                         'Quantity: ${addedMedicamentos[index].cajas} boxes'),
-                    onTap: () {
-                      Navigator.of(context).pop(addedMedicamentos[index]);
+                    onTap: () async {
+                      // 1) Llamas a la confirmación
+                      bool removed = await removeMedicationWithConfirmation(
+                        context,
+                        addedMedicamentos[index],
+                      );
+                      // 2) Si realmente se eliminó, cierras la alerta de la lista
+                      if (removed) {
+                        Navigator.of(context).pop();
+                      }
                     },
                   );
                 },
@@ -784,11 +885,8 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
         },
       );
 
-      if (removed != null) {
-        setState(() {
-          addedMedicamentos.remove(removed);
-        });
-      }
+      // Llamar a setState fuera del diálogo, por si acaso:
+      setState(() {});
     }
   }
 
@@ -929,13 +1027,18 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
   }
 
   Future<List<Medicamento>> fetchMedicamentos() async {
-    final response = await http.get(Uri.parse('$baseUrl/medicamento/'));
+    final clues = await _sharedPreferencesService.getClues();
+    final response =
+        await http.get(Uri.parse('$baseUrl/medicamento/?clues=$clues'));
+
+    print('Status code: ${response.statusCode}');
+    print('Response body: ${response.body}');
 
     if (response.statusCode == 200) {
       List<dynamic> data = json.decode(response.body);
       return data.map((item) => Medicamento.fromJson(item)).toList();
     } else {
-      throw Exception('Error loading medications');
+      throw Exception('Error loading medications: ${response.body}');
     }
   }
 
@@ -1138,7 +1241,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
         "riesgo_ulceras_pres": riesgoUlcerasPresCon,
         "riesgo_caidas": riesgoCaidasCon,
         "estado": estado,
-        "id_medico": id_medico,
+        "id_medico": idMedico,
         "tc": tc,
         // CAMPOS NUEVOS DE INFUSIÓN INTRAVENOSA
         "formula_inf": formula,
@@ -1188,6 +1291,8 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                 ),
               ),
               const SizedBox(height: 40),
+
+              Text("Name:  "),
 
               Text(
                 "Actual Medical Diagnosis:",
