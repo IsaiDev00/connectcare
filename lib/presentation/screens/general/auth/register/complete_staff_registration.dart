@@ -206,7 +206,7 @@ class CompleteStaffRegistrationState extends State<CompleteStaffRegistration> {
         final userId = responseData['id_personal'].toString();
         final userType = responseData['tipo'];
 
-        await userService.saveUserSession(userId, userType);
+        await userService.saveUserSession(userId, userType: userType);
 
         if (mounted) {
           Navigator.pushAndRemoveUntil(

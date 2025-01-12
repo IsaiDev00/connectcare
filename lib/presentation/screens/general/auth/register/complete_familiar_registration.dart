@@ -135,7 +135,7 @@ class CompleteFamiliarRegistrationState
 
         final userId = responseData['id_familiar'].toString();
 
-        await userService.saveUserSession(userId, '');
+        await userService.saveUserSession(userId, userType: '');
 
         if (mounted) {
           Navigator.pushAndRemoveUntil(

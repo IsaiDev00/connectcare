@@ -81,22 +81,33 @@ class GoogleAuthService {
 
       final userData = jsonDecode(response.body);
       String userId = userData['id'].toString();
-      String userType = userData['tipo'];
+      String? userType = userData['tipo'];
       String? clues = userData['clues'];
       String? patients = userData['patients'];
       String? status = userData['status'];
       String? schedule = userData['schedule'];
       String? services = userData['services'];
 
-      await userService.saveUserSession(
-        userId,
-        userType,
-        clues: clues,
-        patients: patients,
-        status: status,
-        schedule: schedule,
-        services: services,
-      );
+      if (userType == null || userType == '') {
+        await userService.saveUserSession(
+          userId,
+          clues: clues,
+          patients: patients,
+          status: status,
+          schedule: schedule,
+          services: services,
+        );
+      } else {
+        await userService.saveUserSession(
+          userId,
+          userType: userType,
+          clues: clues,
+          patients: patients,
+          status: status,
+          schedule: schedule,
+          services: services,
+        );
+      }
       if (context.mounted) {
         Navigator.pushAndRemoveUntil(
           context,

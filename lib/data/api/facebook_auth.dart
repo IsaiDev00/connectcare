@@ -95,22 +95,33 @@ class FacebookAuthService {
 
           final userDataQuery = jsonDecode(response.body);
           String userId = userDataQuery['id'].toString();
-          String userType = userDataQuery['tipo'];
+          String? userType = userDataQuery['tipo'];
           String? clues = userDataQuery['clues'];
           String? patients = userDataQuery['patients'];
           String? status = userDataQuery['status'];
           String? schedule = userDataQuery['schedule'];
           String? services = userDataQuery['services'];
 
-          await userService.saveUserSession(
-            userId,
-            userType,
-            clues: clues,
-            patients: patients,
-            status: status,
-            schedule: schedule,
-            services: services,
-          );
+          if (userType == null || userType == '') {
+            await userService.saveUserSession(
+              userId,
+              clues: clues,
+              patients: patients,
+              status: status,
+              schedule: schedule,
+              services: services,
+            );
+          } else {
+            await userService.saveUserSession(
+              userId,
+              userType: userType,
+              clues: clues,
+              patients: patients,
+              status: status,
+              schedule: schedule,
+              services: services,
+            );
+          }
 
           if (context.mounted) {
             Navigator.pushAndRemoveUntil(

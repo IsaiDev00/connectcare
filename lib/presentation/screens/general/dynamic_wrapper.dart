@@ -34,6 +34,7 @@ class DynamicWrapper extends StatefulWidget {
 class _DynamicWrapperState extends State<DynamicWrapper> {
   late int _pageIndex;
   String userType = '';
+  String userId = '';
   bool hasClues = false;
   bool hasPatients = false;
   bool isStaff = false;
@@ -49,13 +50,12 @@ class _DynamicWrapperState extends State<DynamicWrapper> {
   void initState() {
     super.initState();
     _pageIndex = widget.index ?? 0;
-    _loadUserData();
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _configurePages();
+    _loadUserData();
   }
 
   Future<void> _loadUserData() async {
@@ -72,6 +72,7 @@ class _DynamicWrapperState extends State<DynamicWrapper> {
       print("schedule: ${userData['schedule']}");*/
 
       setState(() {
+        userId = userData['userId']?.trim() ?? '';
         userType = userData['userType']?.trim() ?? '';
         userStatus = userData['status']?.trim();
         userSchedule = userData['schedule']?.trim();
@@ -176,7 +177,9 @@ class _DynamicWrapperState extends State<DynamicWrapper> {
     _pages.add(const SettingsScreen());
     _navItems.add(TabItem(icon: Icons.settings, title: 'Settings'.tr()));
 
-    if (userType == 'administrator' && isStaff && !hasClues) {
+    if (userId.isEmpty) {
+      _navigateToChooseRoleScreen();
+    } else if (userType == 'administrator' && isStaff && !hasClues) {
       _pages.insert(0, const RegisterHospitalScreen());
       _pages.insert(1, const MainScreenStaff());
       _navItems.insert(
@@ -194,6 +197,11 @@ class _DynamicWrapperState extends State<DynamicWrapper> {
       _navItems.insert(0, TabItem(icon: Icons.home, title: 'Home'.tr()));
       _navItems.insert(1, TabItem(icon: Icons.link, title: 'Link'.tr()));
     } else if (userType == 'regular') {
+      _pages.insert(0, const RegularFamilyMemberHomeScreen());
+      _pages.insert(1, const FamilyLinkScreen());
+      _navItems.insert(0, TabItem(icon: Icons.home, title: 'Home'.tr()));
+      _navItems.insert(1, TabItem(icon: Icons.link, title: 'Link'.tr()));
+    } else if (userType == 'ocassional') {
       _pages.insert(0, const RegularFamilyMemberHomeScreen());
       _pages.insert(1, const FamilyLinkScreen());
       _navItems.insert(0, TabItem(icon: Icons.home, title: 'Home'.tr()));
