@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:connectcare/core/constants/constants.dart';
 import 'package:connectcare/data/services/shared_preferences_service.dart';
+import 'package:connectcare/data/services/user_service.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -12,8 +13,7 @@ class AdminHomeScreen extends StatefulWidget {
 }
 
 class AdminHomeScreenState extends State<AdminHomeScreen> {
-  //String cluesdoc = "ASIST000115";
-  //String id = "21100286";
+  
   final SharedPreferencesService _sharedPreferencesService =
       SharedPreferencesService();
 
@@ -25,6 +25,8 @@ class AdminHomeScreenState extends State<AdminHomeScreen> {
 
   Future<void> _initializeData() async {
     // await _saveData(cluesdoc, id); // Guarda los valores iniciales
+    final userService = UserService();
+    await userService.updateFirebaseTokenAndSendNotification();
     setState(() {}); // Fuerza la reconstrucción para sincronizar UI
   }
 

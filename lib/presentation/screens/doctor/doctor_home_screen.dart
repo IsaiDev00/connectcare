@@ -23,12 +23,15 @@ class DoctorHomeScreenState extends State<DoctorHomeScreen> {
   TextEditingController searchController = TextEditingController();
   List<Map<String, dynamic>> filteredPatients = [];
 
-  
-
   @override
   void initState() {
     super.initState();
-    _loadDoctorData();
+    _initEverything();
+  }
+
+  Future<void> _initEverything() async {
+    await _loadDoctorData();
+    await _updateTokenIfUserLogged();
   }
 
   Future<void> _loadDoctorData() async {
@@ -40,7 +43,17 @@ class DoctorHomeScreenState extends State<DoctorHomeScreen> {
       await _fetchPatients();
     }
   }
+  Future<void> _updateTokenIfUserLogged() async {
+    if (doctorId == null || doctorId!.isEmpty) {
+      print("No se puede actualizar token. El doctorId es nulo o está vacío.");
+      return;
+    }
 
+    final userService = UserService();
+    await userService.updateFirebaseTokenAndSendNotification();
+  }
+
+  /// Obtiene la lista de pacientes del backend, usando el doctorId.
   Future<void> _fetchPatients() async {
     setState(() {
       isLoading = true;
@@ -69,10 +82,9 @@ class DoctorHomeScreenState extends State<DoctorHomeScreen> {
     } finally {
       if (mounted) {
         setState(() {
-        isLoading = false;
-      });
+          isLoading = false;
+        });
       }
-      
     }
   }
 
@@ -112,7 +124,8 @@ class DoctorHomeScreenState extends State<DoctorHomeScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => HojaEnfermeriaScreen(nssPaciente: patient['id']),
+                      builder: (context) =>
+                          HojaEnfermeriaScreen(nssPaciente: patient['id']),
                     ),
                   );
                 },

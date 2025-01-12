@@ -1,3 +1,4 @@
+import 'package:connectcare/data/services/user_service.dart';
 import 'package:connectcare/presentation/screens/admin/manage_medicaments_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -9,6 +10,16 @@ class Management extends StatefulWidget {
 }
 
 class ManagementState extends State<Management> {
+
+  void initState(){
+    super.initState();
+    _notifications();
+  }
+
+  Future<void> _notifications() async{
+    final userService = UserService();
+    await userService.updateFirebaseTokenAndSendNotification();
+  }
   @override
   Widget build(BuildContext context) {
     var theme = Theme.of(context);

@@ -1,15 +1,17 @@
-import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:http/http.dart' as http;
 
 // Import para notificaciones locales
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
 import 'core/theme/app_theme.dart';
 import 'firebase_options.dart';
+
+// Screens y services
 import 'package:connectcare/presentation/screens/general/dynamic_wrapper.dart';
 import 'package:connectcare/data/services/navigation_service.dart';
 import 'package:connectcare/presentation/screens/admin/add_floors_screen.dart';
@@ -30,13 +32,11 @@ import 'package:connectcare/presentation/screens/admin/hospital_reg/register_hos
 import 'package:connectcare/presentation/screens/admin/hospital_reg/submit_clues_screen.dart';
 import 'package:connectcare/presentation/screens/admin/hospital_reg/verification_code_screen.dart';
 import 'package:connectcare/presentation/screens/admin/principal/profile_screen.dart';
-import 'package:connectcare/core/constants/constants.dart';
-
 // Instancia global de FlutterLocalNotificationsPlugin
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
 
@@ -52,7 +52,8 @@ void main() async {
   // Inicializamos local notifications (Android / iOS si deseas)
   const AndroidInitializationSettings initializationSettingsAndroid =
       AndroidInitializationSettings('@mipmap/ic_launcher');
-  // Si quieres iOS, añade iOSInitializationSettings(...)
+
+  // Si quieres iOS, añade iOSInitializationSettings(...) aquí
   const InitializationSettings initializationSettings = InitializationSettings(
     android: initializationSettingsAndroid,
   );
@@ -61,14 +62,7 @@ void main() async {
     initializationSettings,
   );
 
-  // Instancia de Firebase Messaging
-  FirebaseMessaging messaging = FirebaseMessaging.instance;
-
-  // Obtenemos el token
-  String? token = await messaging.getToken();
-  print("TOKEN FIREBASE :D $token");
-
-  // PEDIMOS PERMISOS (iOS + Android 13+)
+  // Opcional: Pedir permisos de notificación para iOS / Android 13+
   NotificationSettings settings =
       await FirebaseMessaging.instance.requestPermission(
     alert: true,
@@ -77,7 +71,7 @@ void main() async {
   );
   print('User granted permission: ${settings.authorizationStatus}');
 
-  // Escuchar cuando la notificación llega con la app en foreground
+  // Listeners para notificaciones en Foreground
   FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
     print(
         'Notificación en Foreground: ${message.notification?.title}, ${message.notification?.body}');
@@ -108,13 +102,7 @@ void main() async {
     );
   });
 
-  // Enviamos token al backend si no es nulo
-  if (token != null) {
-    await _sendTokenAndNotification(token);
-  } else {
-    print("Error: El token es nulo, no se puede enviar al backend");
-  }
-
+  // Arrancamos la app
   runApp(
     EasyLocalization(
       supportedLocales: const [Locale('en'), Locale('es')],
@@ -123,57 +111,6 @@ void main() async {
       child: const MyApp(initialRoute: '/'),
     ),
   );
-}
-
-// Función para llamar al backend
-Future<void> _sendTokenAndNotification(String token) async {
-  try {
-    // 1. Actualizamos el token en la base de datos
-    final responseUpdateToken = await http.post(
-      Uri.parse('$baseUrl/firebase_notification/update-token'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'userId': '99999991',
-        'fcmToken': token,
-      }),
-    );
-
-    if (responseUpdateToken.statusCode == 200) {
-      print("Token actualizado correctamente en el servidor");
-    } else {
-      print(
-        "Error al actualizar el token. Código: ${responseUpdateToken.statusCode}. "
-        "Mensaje: ${responseUpdateToken.body}",
-      );
-    }
-  } catch (error) {
-    print("Error de conexión al enviar el token: $error");
-  }
-
-  try {
-    // 2. Enviamos la notificación
-    final responseSendNotification = await http.post(
-      Uri.parse('$baseUrl/firebase_notification/send-notification'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'userId': '99999991',
-        'title': 'titulo ejemplo',
-        'body': 'mensaje ejemplo',
-      }),
-    );
-
-    if (responseSendNotification.statusCode == 200) {
-      print("Notificación enviada correctamente");
-    } else {
-      print(
-        "Error al enviar la notificación. Código: "
-        "${responseSendNotification.statusCode}. "
-        "Mensaje: ${responseSendNotification.body}",
-      );
-    }
-  } catch (error) {
-    print("Error de conexión al enviar la notificación: $error");
-  }
 }
 
 class MyApp extends StatelessWidget {
