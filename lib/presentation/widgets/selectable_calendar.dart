@@ -21,7 +21,6 @@ class _SelectableCalendarState extends State<SelectableCalendar> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Crear medicamento".tr()),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () {
@@ -89,7 +88,7 @@ class _SelectableCalendarState extends State<SelectableCalendar> {
               padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
               textStyle: const TextStyle(fontSize: 18),
             ),
-            child: Text('Seleccionar fecha de caducidad'.tr()),
+            child: Text('Seleccionar fecha'.tr()),
           ),
         ],
       ),

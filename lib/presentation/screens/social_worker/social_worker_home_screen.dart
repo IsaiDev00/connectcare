@@ -114,67 +114,88 @@ class SocialWorkerHomeScreenState extends State<SocialWorkerHomeScreen> {
     }
   }
 
-  void _showCodeDialog(String nss) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(
-            "Generate Link Code",
-            style: Theme.of(context).textTheme.headlineSmall,
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                leading: Icon(
-                  Icons.star,
-                  color: Theme.of(context).colorScheme.primary,
+  void _showCodeDialog(String nss) async {
+    final url = Uri.parse('$baseUrl/family_link/linked-family-check/$nss');
+    bool hasLinkedFamily = false;
+
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        hasLinkedFamily = json.decode(response.body)['hasLinkedFamily'];
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Error checking linked family members')),
+        );
+      }
+      return;
+    }
+    if (mounted) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text(
+              "Generate Link Code",
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (!hasLinkedFamily)
+                  ListTile(
+                    leading: Icon(
+                      Icons.star,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    title: Text(
+                      "Principal",
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    onTap: () => _generateCode(nss, 'main'),
+                  ),
+                if (hasLinkedFamily) ...[
+                  ListTile(
+                    leading: Icon(
+                      Icons.person,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    title: Text(
+                      "Regular",
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    onTap: () => _generateCode(nss, 'regular'),
+                  ),
+                  Divider(color: Theme.of(context).dividerColor),
+                  ListTile(
+                    leading: Icon(
+                      Icons.link,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    title: Text(
+                      "Occasional Connection",
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    onTap: () => _generateCode(nss, 'occasional'),
+                  ),
+                ],
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(
+                  "Cancel",
+                  style:
+                      TextStyle(color: Theme.of(context).colorScheme.primary),
                 ),
-                title: Text(
-                  "Principal",
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-                onTap: () => _generateCode(nss, 'main'),
-              ),
-              Divider(color: Theme.of(context).dividerColor),
-              ListTile(
-                leading: Icon(
-                  Icons.person,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                title: Text(
-                  "Regular",
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-                onTap: () => _generateCode(nss, 'regular'),
-              ),
-              Divider(color: Theme.of(context).dividerColor),
-              ListTile(
-                leading: Icon(
-                  Icons.link,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                title: Text(
-                  "Occasional Connection",
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-                onTap: () => _generateCode(nss, 'occasional'),
               ),
             ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(
-                "Cancel",
-                style: TextStyle(color: Theme.of(context).colorScheme.primary),
-              ),
-            ),
-          ],
-        );
-      },
-    );
+          );
+        },
+      );
+    }
   }
 
   Future<void> _generateCode(String nss, String relacion) async {

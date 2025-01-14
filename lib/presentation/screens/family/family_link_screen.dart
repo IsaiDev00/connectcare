@@ -132,8 +132,21 @@ class FamilyLinkScreenState extends State<FamilyLinkScreen> {
           );
         }
       } else {
-        final errorMessage = json.decode(response.body)['message'] ??
-            'Invalid or expired code'.tr();
+        String errorMessage = '';
+        final responseBody = json.decode(response.body);
+
+        if (responseBody.containsKey('message') &&
+            responseBody['message'] != null) {
+          if (responseBody['message'] ==
+              'Ya existe un enlace entre este paciente y el familiar.') {
+            errorMessage = 'existing link'.tr();
+          } else {
+            errorMessage = responseBody['message'].tr();
+          }
+        } else {
+          errorMessage = 'Invalid or expired code'.tr();
+        }
+
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(errorMessage)),
@@ -251,8 +264,8 @@ class FamilyLinkScreenState extends State<FamilyLinkScreen> {
                             final patient = linkedPatients[index];
                             return ListTile(
                               title: Text(patient['nombre']),
-                              subtitle:
-                                  Text("Edad:".tr(args: [patient['edad']])),
+                              subtitle: Text("Edad:"
+                                  .tr(args: [patient['edad'].toString()])),
                               trailing: IconButton(
                                 icon:
                                     const Icon(Icons.delete, color: Colors.red),

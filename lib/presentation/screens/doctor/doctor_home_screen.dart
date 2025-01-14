@@ -18,6 +18,7 @@ class DoctorHomeScreen extends StatefulWidget {
 
 class DoctorHomeScreenState extends State<DoctorHomeScreen> {
   String? doctorId;
+  String services = '';
   List<Map<String, dynamic>> patients = [];
   bool isLoading = true;
   TextEditingController searchController = TextEditingController();
@@ -38,14 +39,16 @@ class DoctorHomeScreenState extends State<DoctorHomeScreen> {
     final userData = await UserService().loadUserData();
     setState(() {
       doctorId = userData['userId'];
+      services = userData['services'] ?? '';
     });
     if (doctorId != null) {
       await _fetchPatients();
     }
   }
+
   Future<void> _updateTokenIfUserLogged() async {
     if (doctorId == null || doctorId!.isEmpty) {
-      print("No se puede actualizar token. El doctorId es nulo o está vacío.");
+      //print("No se puede actualizar token. El doctorId es nulo o está vacío.");
       return;
     }
 
@@ -53,7 +56,6 @@ class DoctorHomeScreenState extends State<DoctorHomeScreen> {
     await userService.updateFirebaseTokenAndSendNotification();
   }
 
-  /// Obtiene la lista de pacientes del backend, usando el doctorId.
   Future<void> _fetchPatients() async {
     setState(() {
       isLoading = true;
@@ -185,7 +187,11 @@ class DoctorHomeScreenState extends State<DoctorHomeScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ProgressNote(),
+                      builder: (context) => ProgressNote(
+                        nssPaciente: patient['id'].toString(),
+                        patientName: patient['name'].toString(),
+                        services: services,
+                      ),
                     ),
                   );
                 },
