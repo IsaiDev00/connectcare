@@ -1,5 +1,6 @@
 import 'package:connectcare/core/constants/constants.dart';
 import 'package:connectcare/data/services/shared_preferences_service.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
@@ -69,24 +70,19 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
 
   String? idMedico;
   String idPersonal = '';
+  String nss = '';
   // PATIENT INFORMATION
   String? nombrePaciente;
   double? edad;
   int? diasInterno;
   String? servicio;
+  String? sala;
   int? camaNum;
-  String nss = '';
   String? fechaIngreso;
   String? sexo;
   String? gpo_rh;
   String? fechaNacimiento;
   String? fechaHoy;
-  List<String>? estudiosLaboRealizados;
-  List<String>? estuiosLaboProgramados;
-  List<String>? estudiosGabRealizados;
-  List<String>? estudiosGabProgramados;
-  List<String>? intervencionQuirRealizadas;
-  List<String>? intervencionQuirProgramadas;
   List<String>? idEnfermeros;
   List<String>? nombreEnfermeros;
 
@@ -167,7 +163,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
   void initState() {
     super.initState();
     _getID();
-    nss = widget.nssPaciente.toString();
+    nss = widget.nssPaciente;
     // Initialize controllers with one field
     fcControllers.add(TextEditingController());
     tiControllers.add(TextEditingController());
@@ -297,15 +293,81 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
       final hojaEnfermeria = await obtenerHojaEnfermeria(nss);
 
       setState(() {
+        final hoy = DateTime.now();
+        // Formato amigable de la fecha de hoy (opcional).
+        fechaHoy = DateFormat('yyyy-MM-dd').format(hoy);
+
+        // Desglosamos la respuesta
+        final pacienteData = hojaEnfermeria['paciente'] ?? {};
+        final camaData = hojaEnfermeria['cama'] ?? {};
+        final salaData = hojaEnfermeria['sala'] ?? {};
+        final servicioData = hojaEnfermeria['servicio'] ?? {};
+        final enfermerosRaw = hojaEnfermeria['enfermeros'] ?? [];
+
+        // Nombre completo
+        nombrePaciente = ((pacienteData['nombre'] ?? '') +
+                ' ' +
+                (pacienteData['apellido_paterno'] ?? '') +
+                ' ' +
+                (pacienteData['apellido_materno'] ?? ''))
+            .trim();
+
+        // Fecha de nacimiento y edad
+        if (pacienteData['fecha_nacimiento'] != null) {
+          final fechaNacDT = DateTime.parse(pacienteData['fecha_nacimiento']);
+          // Guardamos con formato yyyy-MM-dd
+          fechaNacimiento = DateFormat('yyyy-MM-dd').format(fechaNacDT);
+
+          int years = hoy.year - fechaNacDT.year;
+          if (hoy.month < fechaNacDT.month ||
+              (hoy.month == fechaNacDT.month && hoy.day < fechaNacDT.day)) {
+            years--;
+          }
+          edad = years.toDouble();
+        }
+
+        // Fecha de ingreso y días interno
+        if (pacienteData['fecha_entrada'] != null) {
+          final fechaIngDT = DateTime.parse(pacienteData['fecha_entrada']);
+          fechaIngreso = DateFormat('yyyy-MM-dd').format(fechaIngDT);
+          diasInterno = hoy.difference(fechaIngDT).inDays;
+        }
+
+        // Sala (concatenamos nombre + número)
+        sala = '${salaData['nombre'] ?? ''} ${salaData['numero'] ?? ''}'.trim();
+
+        // Servicio
+        servicio = servicioData['nombre'] ?? '';
+
+        // Cama: si viene como int, lo asignamos; si no, null
+        camaNum =
+            (camaData['numero_cama'] is int) ? camaData['numero_cama'] : null;
+
+        // Sexo, grupo y rh
+        sexo = pacienteData['sexo']?.toString() ?? '';
+        gpo_rh = pacienteData['gpo_y_rh']?.toString() ?? '';
+
+        // ENFERMEROS
+        final List<Map<String, dynamic>> enfermerosList =
+            List<Map<String, dynamic>>.from(enfermerosRaw);
+        idEnfermeros = enfermerosList
+            .map((e) => e['id_enfermero']?.toString() ?? '')
+            .toList();
+        nombreEnfermeros = enfermerosList
+            .map((e) => e['nombre_completo']?.toString() ?? '')
+            .toList();
+
+        // Lógica Original
         dxMedicoController.text = diagnostico['diagnostico'] ?? '';
-        alergiasController.text = hojaEnfermeria['alergias'] ?? '';
-        pesoController.text = hojaEnfermeria['peso'] != null
-            ? hojaEnfermeria['peso'].toString()
-            : '';
-        estaturaController.text = hojaEnfermeria['estatura'] != null
-            ? hojaEnfermeria['estatura'].toString()
-            : '';
-        estado = hojaEnfermeria['estado'] ?? '';
+        alergiasController.text = pacienteData['alergias']?.toString() ?? '';
+
+        // Si en la BD estos campos son DECIMAL, el backend los envía como string ("76.00", "1.81").
+        // Simplemente los mostramos como string en los TextFields.
+        pesoController.text = pacienteData['peso']?.toString() ?? '';
+        estaturaController.text = pacienteData['estatura']?.toString() ?? '';
+
+        // Estado (string)
+        estado = pacienteData['estado']?.toString() ?? '';
       });
     } catch (e) {
       print('Error: $e');
@@ -1283,16 +1345,63 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
         child: Form(
           key: _formKey,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                "General Information",
-                style: TextStyle(
-                  fontSize: 30,
+              Center(
+                child: Text(
+                  "General Information",
+                  style: TextStyle(
+                    fontSize: 30,
+                  ),
                 ),
               ),
               const SizedBox(height: 40),
 
-              Text("Name:  "),
+              Text("Name:  $nombrePaciente"),
+              const SizedBox(height: 10),
+              Text("Age: $edad"),
+              const SizedBox(height: 10),
+              Text("Current days interned: $diasInterno"),
+              const SizedBox(height: 10),
+              Text("Service: $servicio"),
+              const SizedBox(height: 10),
+              Text("Room: $sala"),
+              const SizedBox(height: 10),
+              Text("Bed number $camaNum"),
+              const SizedBox(height: 10),
+              Text("NSS: $nss"),
+              const SizedBox(height: 10),
+              Text("Entry date: $fechaIngreso"),
+              const SizedBox(height: 10),
+              Text("Sex: $sexo"),
+              const SizedBox(height: 10),
+              Text("Doctor dx: $idMedico"),
+              const SizedBox(height: 10),
+              Text("Gpo and RH: $gpo_rh"),
+              const SizedBox(height: 10),
+              Text("Date of birth: $fechaNacimiento"),
+              const SizedBox(height: 10),
+              Text("Today's date: $fechaHoy"),
+              const SizedBox(height: 10),
+
+              Text("Actual nurse/s:"),
+              const SizedBox(height: 10),
+
+              ListView.builder(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                itemCount: idEnfermeros?.length ?? 0,
+                itemBuilder: (context, index) {
+                  return Card(
+                    child: ListTile(
+                      title: Text('ID: ${idEnfermeros![index]}'),
+                      subtitle: Text('Nombre: ${nombreEnfermeros![index]}'),
+                    ),
+                  );
+                },
+              ),
+
+              const SizedBox(height: 20),
 
               Text(
                 "Actual Medical Diagnosis:",
@@ -3096,9 +3205,11 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
               ),
 
               const SizedBox(height: 30),
-              ElevatedButton(
-                onPressed: submitForm,
-                child: Text('Submit'),
+              Center(
+                child: ElevatedButton(
+                  onPressed: submitForm,
+                  child: Text('Submit'),
+                ),
               ),
             ],
           ),
