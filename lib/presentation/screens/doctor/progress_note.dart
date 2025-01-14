@@ -11,11 +11,12 @@ class ProgressNote extends StatefulWidget {
   final String patientName;
   final String services;
 
-  const ProgressNote(
-      {super.key,
-      required this.nssPaciente,
-      required this.services,
-      required this.patientName});
+  const ProgressNote({
+    super.key,
+    required this.nssPaciente,
+    required this.services,
+    required this.patientName,
+  });
 
   @override
   ProgressNoteState createState() => ProgressNoteState();
@@ -95,37 +96,8 @@ class ProgressNoteState extends State<ProgressNote> {
     }
   }
 
-  Widget _buildPatientInfo() {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'NSS'.tr(args: [widget.nssPaciente]),
-            style: const TextStyle(fontSize: 14),
-          ),
-          Text(
-            'Patient'.tr(args: [widget.patientName]),
-            style: const TextStyle(fontSize: 14),
-          ),
-          Text(
-            'Service'.tr(args: [widget.services.tr()]),
-            style: const TextStyle(fontSize: 14),
-          ),
-          Text(
-            'Date/Time'.tr(args: [_currentDateTime]),
-            style: const TextStyle(fontSize: 14),
-          ),
-        ],
-      ),
-    );
-  }
-
   Future<void> _submitProgressNote() async {
-    // Valida todos los campos.
     if (_formKey.currentState?.validate() ?? false) {
-      // Si no hay problemas de validación, procede con el envío.
       final url = Uri.parse('$baseUrl/nota_de_evolucion');
       try {
         final response = await http.post(
@@ -169,7 +141,6 @@ class ProgressNoteState extends State<ProgressNote> {
         }
       }
     } else {
-      // Si hay errores, asegúrate de que el formulario se redibuje para mostrar los errores.
       setState(() {});
     }
   }
@@ -183,12 +154,84 @@ class ProgressNoteState extends State<ProgressNote> {
     super.dispose();
   }
 
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text("Evolution Note".tr()),
+        ),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              _buildPatientInfo(),
+              _buildSectionTitle('Vital Signs', Icons.monitor_heart),
+              _buildFields([
+                {'field': 'ta_sistolica', 'icon': Icons.speed},
+                {'field': 'ta_diastolica', 'icon': Icons.favorite},
+                {'field': 'frecuencia_cardiaca', 'icon': Icons.favorite_border},
+                {'field': 'frecuencia_respiratoria', 'icon': Icons.air},
+                {'field': 'temperatura', 'icon': Icons.thermostat},
+                {'field': 'saturacion_oxigeno', 'icon': Icons.cloud},
+              ]),
+              _buildDivider(),
+              _buildSectionTitle('Medical Procedures', Icons.medical_services),
+              _buildDateButton('fecha_intubacion', fechaIntubacion,
+                  'Select Intubation Date'),
+              _buildDateButton(
+                  'fecha_cateter', fechaCateter, 'Select Catheter Date'),
+              _buildDateButton('fecha_solicitud_cultivo', fechaSolicitudCultivo,
+                  'Select Culture Request Date'),
+              _buildDivider(),
+              _buildSectionTitle('Observations & Diagnosis', Icons.notes),
+              _buildFields([
+                {'field': 'infeccion_nosocomial', 'icon': Icons.bug_report},
+                {'field': 'resultado_cultivo', 'icon': Icons.science},
+                {'field': 'nota_medica', 'icon': Icons.edit_note},
+                {'field': 'evolucion_actual', 'icon': Icons.timeline},
+                {'field': 'somatometria', 'icon': Icons.accessibility},
+                {'field': 'exploracion_fisica', 'icon': Icons.search},
+                {'field': 'laboratorio', 'icon': Icons.analytics},
+                {'field': 'imagen', 'icon': Icons.image},
+                {'field': 'plan_y_comentario', 'icon': Icons.comment},
+                {'field': 'diagnostico', 'icon': Icons.assignment},
+                {'field': 'pronostico', 'icon': Icons.query_stats},
+              ]),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: _submitProgressNote,
+                child: Text('Save Note'.tr()),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPatientInfo() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('NSS'.tr(args: [widget.nssPaciente])),
+        Text('Patient'.tr(args: [widget.patientName])),
+        Text('Service'.tr(args: [widget.services])),
+        Text('Date/Time'.tr(args: [_currentDateTime])),
+      ],
+    );
+  }
+
   Widget _buildSectionTitle(String title, IconData icon) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16.0),
       child: Row(
         children: [
-          Icon(icon, color: Color(0xFF00A0A6)),
+          Icon(icon, color: const Color(0xFF00A0A6)),
           const SizedBox(width: 8),
           Text(
             title,
@@ -238,7 +281,7 @@ class ProgressNoteState extends State<ProgressNote> {
                   ? DateFormat('dd/MM/yyyy').format(selectedDate)
                   : label,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontSize: 11,
+                    fontSize: 12,
                   ),
             ),
           ],
@@ -247,65 +290,11 @@ class ProgressNoteState extends State<ProgressNote> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: FittedBox(
-          fit: BoxFit.scaleDown,
-          child: Text("Evolution Note".tr()),
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
-              _buildPatientInfo(),
-              _buildSectionTitle('Vital Signs', Icons.monitor_heart),
-              ...[
-                {'field': 'ta_sistolica', 'icon': Icons.speed},
-                {'field': 'ta_diastolica', 'icon': Icons.favorite},
-                {'field': 'frecuencia_cardiaca', 'icon': Icons.favorite_border},
-                {'field': 'frecuencia_respiratoria', 'icon': Icons.air},
-                {'field': 'temperatura', 'icon': Icons.thermostat},
-                {'field': 'saturacion_oxigeno', 'icon': Icons.cloud},
-              ].map((item) => _buildTextField(
-                  item['field'] as String, item['icon'] as IconData)),
-              _buildDivider(),
-              _buildSectionTitle('Medical Procedures', Icons.medical_services),
-              _buildDateButton('fecha_intubacion', fechaIntubacion,
-                  'Select Intubation Date'),
-              _buildDateButton(
-                  'fecha_cateter', fechaCateter, 'Select Catheter Date'),
-              _buildDateButton('fecha_solicitud_cultivo', fechaSolicitudCultivo,
-                  'Select Culture Request Date'),
-              _buildDivider(),
-              _buildSectionTitle('Observations & Diagnosis', Icons.notes),
-              ...[
-                {'field': 'infeccion_nosocomial', 'icon': Icons.bug_report},
-                {'field': 'resultado_cultivo', 'icon': Icons.science},
-                {'field': 'nota_medica', 'icon': Icons.edit_note},
-                {'field': 'evolucion_actual', 'icon': Icons.timeline},
-                {'field': 'somatometria', 'icon': Icons.accessibility},
-                {'field': 'exploracion_fisica', 'icon': Icons.search},
-                {'field': 'laboratorio', 'icon': Icons.analytics},
-                {'field': 'imagen', 'icon': Icons.image},
-                {'field': 'plan_y_comentario', 'icon': Icons.comment},
-                {'field': 'diagnostico', 'icon': Icons.assignment},
-                {'field': 'pronostico', 'icon': Icons.query_stats},
-              ].map((item) => _buildTextField(
-                  item['field'] as String, item['icon'] as IconData)),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _submitProgressNote,
-                child: Text('Save Note'.tr()),
-              ),
-            ],
-          ),
-        ),
-      ),
+  Widget _buildFields(List<Map<String, dynamic>> fields) {
+    return Column(
+      children: fields
+          .map((item) => _buildTextField(item['field'], item['icon']))
+          .toList(),
     );
   }
 
@@ -351,7 +340,7 @@ class ProgressNoteState extends State<ProgressNote> {
         ),
         validator: (value) {
           if ((value ?? '').isEmpty && !optionalFields.contains(fieldName)) {
-            return 'This field is required.'.tr();
+            return 'Field is required.'.tr();
           }
           if (fieldsWithCounter.contains(fieldName) &&
               (value?.length ?? 0) > 500) {

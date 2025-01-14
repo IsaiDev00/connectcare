@@ -438,6 +438,8 @@
   "Patient": "Paciente: {}",
   "Service": "Servicio: {}",
   "Date/Time": "Fecha y Hora: {}",
-  "Evolution Note": "Nota de Evolución"
+  "Evolution Note": "Nota de Evolución",
+  "confirm_delete": "Confirmar Eliminación",
+  "are_you_sure_delete": "¿Estás seguro de que deseas eliminar este medicamento?"
 }
   

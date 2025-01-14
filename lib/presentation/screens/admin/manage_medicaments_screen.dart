@@ -81,6 +81,33 @@ class _ManageMedicationsState extends State<ManageMedications> {
     showCustomSnackBar(context, "medicine_deleted_successfully".tr());
   }
 
+  void _showDeleteConfirmationDialog(String id) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('confirm_delete'.tr()),
+          content: Text('are_you_sure_delete'.tr()),
+          actions: <Widget>[
+            TextButton(
+              child: Text('cancel'.tr()),
+              onPressed: () {
+                Navigator.of(context).pop(); // Cierra el diálogo
+              },
+            ),
+            ElevatedButton(
+              child: Text('Confirm'.tr()),
+              onPressed: () async {
+                Navigator.of(context).pop(); // Cierra el diálogo
+                await deleteMedicament(id); // Llama a la función de eliminación
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     var theme = Theme.of(context);
@@ -164,9 +191,9 @@ class _ManageMedicationsState extends State<ManageMedications> {
                                     const SizedBox(width: 8),
                                     IconButton(
                                       icon: const Icon(Icons.delete),
-                                      onPressed: () async {
-                                        await deleteMedicament(item['id']);
-                                        setState(() {});
+                                      onPressed: () {
+                                        _showDeleteConfirmationDialog(
+                                            item['id']);
                                       },
                                     ),
                                   ],

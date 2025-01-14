@@ -122,13 +122,12 @@ class DoctorHomeScreenState extends State<DoctorHomeScreen> {
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 onTap: () {
-                  print("nss: ${patient['id']}");
                   Navigator.pop(context);
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) =>
-                          HojaEnfermeriaScreen(nssPaciente: patient['id'].toString()),
+                      builder: (context) => HojaEnfermeriaScreen(
+                          nssPaciente: patient['id'].toString()),
                     ),
                   );
                 },
