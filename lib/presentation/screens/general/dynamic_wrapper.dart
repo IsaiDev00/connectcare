@@ -6,6 +6,7 @@ import 'package:connectcare/presentation/screens/admin/principal/management.dart
 import 'package:connectcare/presentation/screens/chiefs/assign_tasks_screen.dart';
 import 'package:connectcare/presentation/screens/doctor/doctor_home_screen.dart';
 import 'package:connectcare/presentation/screens/doctor/documents.dart/patient_reg_screen.dart';
+import 'package:connectcare/presentation/screens/doctor/schedule_procedures.dart';
 import 'package:connectcare/presentation/screens/family/main_family/main_family_member_home_screen.dart';
 import 'package:connectcare/presentation/screens/family/family_link_screen.dart';
 import 'package:connectcare/presentation/screens/family/regular_family/regular_family_member_home_screen.dart';
@@ -233,11 +234,13 @@ class _DynamicWrapperState extends State<DynamicWrapper> {
       _pages.insert(0, const DoctorHomeScreen());
       _pages.insert(1, const PatientRegScreen());
       _pages.insert(2, const NfcBraceletScreen());
+      _pages.insert(3, const ProcedureScheduleScreen());
       _navItems.insert(
           0, TabItem(icon: Icons.medical_services, title: 'Home'.tr()));
       _navItems.insert(
           1, TabItem(icon: Icons.assignment, title: 'Triage'.tr()));
       _navItems.insert(2, TabItem(icon: Icons.nfc, title: 'NFC'));
+      _navItems.insert(3, TabItem(icon: Icons.access_time_filled_sharp, title: 'Procedures'));
     } else if (userType == 'nurse' && hasServices) {
       _pages.insert(0, const NurseHomeScreen());
       _pages.insert(1, const AssignTasksScreen());

@@ -10,59 +10,87 @@ class NfcBraceletScreen extends StatefulWidget {
   const NfcBraceletScreen({super.key});
 
   @override
-  _NfcBraceletScreen createState() => _NfcBraceletScreen();
+  _NfcBraceletScreenState createState() => _NfcBraceletScreenState();
 }
 
-class _NfcBraceletScreen extends State<NfcBraceletScreen> {
+class _NfcBraceletScreenState extends State<NfcBraceletScreen> {
   final SharedPreferencesService _sharedPreferencesService =
       SharedPreferencesService();
+
   final _formKey = GlobalKey<FormState>();
   static const platform = MethodChannel('com.tu_paquete/nfc');
+
   String _status = "";
 
-  String? idMedico;
+  // Aquí guardamos el idPersonal (común para médico o enfermero)
+  String personalId = '';
+
+  // Aquí guardaremos el rol que nos devuelva el backend ("medico" o "enfermero")
+  String? specialistRole;
+
+  // Este será el id_medico o id_enfermero
+  String? specialistId;
+
+  // Lista de pacientes
   List<dynamic> _patientsList = [];
+
+  // Posibles errores en la UI
   String _errorMessage = '';
-  String idPersonal = '';
 
   @override
   void initState() {
     super.initState();
-    _getID();
+    _getSpecialistRoleAndId();
   }
 
-  Future<void> _getID() async {
+  /// Obtiene el rol (médico/enfermero) y el ID respectivo según el idPersonal
+  Future<void> _getSpecialistRoleAndId() async {
     final data = await _sharedPreferencesService.getUserId();
     if (data != null) {
       setState(() {
-        idPersonal = data;
+        personalId = data;
       });
     }
+
     try {
-      final url = Uri.parse('$baseUrl/medico/id/$idPersonal');
+      final url = Uri.parse('$baseUrl/samm/obtenerId/$personalId');
       final response = await http.get(url);
+
       if (response.statusCode == 200) {
-        final List<dynamic> data = json.decode(response.body);
-        if (data.isNotEmpty) {
-          setState(() {
-            idMedico = data[0]['id_medico'].toString();
-          });
-          _fetchpatients();
-        }
+        final Map<String, dynamic> responseData = json.decode(response.body);
+
+        // Guardamos rol e id
+        setState(() {
+          specialistRole = responseData['rol'];
+          specialistId = responseData['id'].toString();
+        });
+
+        // Ahora que ya sabemos su rol e id, buscamos sus pacientes
+        _fetchPatients();
       } else if (response.statusCode == 404) {
-        debugPrint('El médico con idPersonal: $idPersonal no existe');
+        debugPrint(
+          'No se encontró un médico o enfermero con idPersonal: $personalId',
+        );
       } else {
         debugPrint('Error inesperado. Código: ${response.statusCode}');
       }
     } catch (e) {
-      debugPrint('Ha ocurrido un error al obtener el idMedico: $e');
+      debugPrint('Ha ocurrido un error al obtener el rol e id: $e');
     }
   }
 
-  Future<void> _fetchpatients() async {
+  /// Busca la lista de pacientes para el rol actual (médico o enfermero)
+  Future<void> _fetchPatients() async {
+    if (specialistRole == null || specialistId == null) {
+      // Si no tenemos rol o id aún, no hacemos nada
+      return;
+    }
+
     try {
-      final url = Uri.parse('$baseUrl/medico/medicoPaciente/$idMedico');
+      final url =
+          Uri.parse('$baseUrl/samm/personalPaciente/$specialistRole/$specialistId');
       final response = await http.get(url);
+
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
         setState(() {
@@ -72,7 +100,7 @@ class _NfcBraceletScreen extends State<NfcBraceletScreen> {
       } else if (response.statusCode == 404) {
         setState(() {
           _patientsList = [];
-          _errorMessage = 'El médico no tiene pacientes aún';
+          _errorMessage = 'Este $specialistRole no tiene pacientes aún';
         });
       } else {
         setState(() {
@@ -89,21 +117,28 @@ class _NfcBraceletScreen extends State<NfcBraceletScreen> {
     }
   }
 
+  /// Función auxiliar para partir en chunks de 16 bytes
   List<String> splitIntoChunks(String text, int chunkSize) {
     List<String> chunks = [];
     for (int i = 0; i < text.length; i += chunkSize) {
-      chunks.add(text.substring(
-          i, i + chunkSize > text.length ? text.length : i + chunkSize));
+      chunks.add(
+        text.substring(
+            i, i + chunkSize > text.length ? text.length : i + chunkSize),
+      );
     }
     return chunks;
   }
 
+  /// Escribe el NSS en el brazalete NFC
   Future<void> _writeNssToCard(String nss) async {
     final dataString = 'nss:$nss|e';
     List<String> chunks = splitIntoChunks(dataString, 16);
+
     List<Map<String, String>> blocksToWrite = [];
-    int block = 8;
+    int block = 8; // Bloque inicial donde quieres empezar a escribir
+
     for (String chunk in chunks) {
+      // Saltar bloques de control (ej: cada sector 3 es de control)
       while (block % 4 == 3) {
         block++;
       }
@@ -113,6 +148,7 @@ class _NfcBraceletScreen extends State<NfcBraceletScreen> {
       });
       block++;
     }
+
     try {
       final bool allSuccess = await platform.invokeMethod(
         'writeMultipleNFCBlocks',
@@ -120,14 +156,14 @@ class _NfcBraceletScreen extends State<NfcBraceletScreen> {
       );
       if (allSuccess) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('¡Información escrita exitosamente en la tarjeta!'),
             backgroundColor: Colors.green,
           ),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('Error al escribir en la tarjeta.'),
             backgroundColor: Colors.red,
           ),
@@ -143,6 +179,7 @@ class _NfcBraceletScreen extends State<NfcBraceletScreen> {
     }
   }
 
+  /// Lee toda la información del brazalete NFC
   Future<void> readNFC() async {
     setState(() {
       _status = "Esperando tarjeta NFC para leer...";
@@ -174,33 +211,36 @@ class _NfcBraceletScreen extends State<NfcBraceletScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Bracelet NFC'),
+        title: const Text('Bracelet NFC'),
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: Column(
             children: [
-              SizedBox(height: 30),
-              Center(child: Text("Please choose one patient")),
-              SizedBox(height: 20),
-              ElevatedButton(onPressed: readNFC, child: Text("READ NFC")),
-              SizedBox(height: 10),
+              const SizedBox(height: 30),
+              const Center(child: Text("Please choose one patient")),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: readNFC,
+                child: const Text("READ NFC"),
+              ),
+              const SizedBox(height: 10),
               Text(_status),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               if (_errorMessage.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.only(top: 16),
                   child: Text(
                     _errorMessage,
-                    style: TextStyle(color: Colors.red),
+                    style: const TextStyle(color: Colors.red),
                   ),
                 ),
               if (_patientsList.isNotEmpty)
                 ListView.builder(
                   shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
+                  physics: const NeverScrollableScrollPhysics(),
                   itemCount: _patientsList.length,
                   itemBuilder: (context, index) {
                     final patient = _patientsList[index];
