@@ -11,6 +11,7 @@ class Management extends StatefulWidget {
 
 class ManagementState extends State<Management> {
 
+  @override
   void initState(){
     super.initState();
     _notifications();
