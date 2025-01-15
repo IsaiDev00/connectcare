@@ -124,10 +124,17 @@ class _AssignTasksScreenState extends State<AssignTasksScreen> {
                             title: Text(
                               employee['name'],
                               style: TextStyle(
-                                fontWeight: FontWeight.normal,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
-                            subtitle: Text("Role".tr(args: [employee['role']])),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text("Role".tr(args: [employee['role']])),
+                                Divider(color: Theme.of(context).dividerColor),
+                              ],
+                            ),
                             trailing: const Icon(Icons.arrow_forward),
                             onTap: () async {
                               final result =

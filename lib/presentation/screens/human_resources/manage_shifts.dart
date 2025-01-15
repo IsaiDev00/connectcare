@@ -97,21 +97,47 @@ class _ManageShiftsState extends State<ManageShifts> {
   }
 
   Future<void> deleteShift(String employeeId) async {
-    final url = Uri.parse('$baseUrl/shifts/$employeeId/delete-shift');
-    try {
-      final response = await http.patch(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({'schedule': null, 'estatus': 'inactive'}),
-      );
-      if (response.statusCode == 200) {
-        _shiftDelatedSuccessfully();
-        fetchEmployees();
-      } else {
-        throw Exception('Error deleting shift');
+    final confirmed = await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(tr('confirm_delete')),
+          content: Text(tr('are_you_sure_delete_shift')),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context, false); // Cancelar
+              },
+              child: Text(tr('cancel')),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context, true); // Confirmar
+              },
+              child: Text(tr('confirm')),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed == true) {
+      final url = Uri.parse('$baseUrl/shifts/$employeeId/delete-shift');
+      try {
+        final response = await http.patch(
+          url,
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({'schedule': null, 'estatus': 'inactive'}),
+        );
+        if (response.statusCode == 200) {
+          _shiftDelatedSuccessfully();
+          fetchEmployees();
+        } else {
+          throw Exception('Error deleting shift');
+        }
+      } catch (e) {
+        _errorDeletingShift();
       }
-    } catch (e) {
-      _errorDeletingShift();
     }
   }
 
@@ -182,7 +208,11 @@ class _ManageShiftsState extends State<ManageShifts> {
                         final employee = filteredEmployees[index];
                         final employeeStatus = employee['status'] ?? 'inactive';
                         return ListTile(
-                          title: Text(employee['name']),
+                          title: Text(
+                            employee['name'],
+                            style: TextStyle(
+                                fontSize: 14, fontWeight: FontWeight.w500),
+                          ),
                           subtitle: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -200,6 +230,7 @@ class _ManageShiftsState extends State<ManageShifts> {
                                     ? 'active'.tr()
                                     : 'inactive'.tr(),
                               ])),
+                              Divider(color: Theme.of(context).dividerColor),
                             ],
                           ),
                           trailing: Row(

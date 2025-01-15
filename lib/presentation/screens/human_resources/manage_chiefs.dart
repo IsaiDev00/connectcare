@@ -123,21 +123,47 @@ class _ManageChiefsState extends State<ManageChiefs> {
   }
 
   Future<void> deleteRole(String employeeId) async {
-    final url = Uri.parse('$baseUrl/chiefs/delete-role');
-    try {
-      final response = await http.patch(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({'id_personal': employeeId}),
-      );
-      if (response.statusCode == 200) {
-        showSuccess(tr('role_deleted_successfully'));
-        fetchEmployees();
-      } else {
+    final confirmed = await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(tr('confirm_delete')),
+          content: Text(tr('are_you_sure_delete_role')),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context, false); // Cancelar
+              },
+              child: Text(tr('cancel')),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context, true); // Confirmar
+              },
+              child: Text(tr('confirm')),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed == true) {
+      final url = Uri.parse('$baseUrl/chiefs/delete-role');
+      try {
+        final response = await http.patch(
+          url,
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({'id_personal': employeeId}),
+        );
+        if (response.statusCode == 200) {
+          showSuccess(tr('role_deleted_successfully'));
+          fetchEmployees();
+        } else {
+          showError(tr('error_deleting_role'));
+        }
+      } catch (e) {
         showError(tr('error_deleting_role'));
       }
-    } catch (e) {
-      showError(tr('error_deleting_role'));
     }
   }
 
@@ -196,7 +222,9 @@ class _ManageChiefsState extends State<ManageChiefs> {
                       itemBuilder: (context, index) {
                         final employee = filteredEmployees[index];
                         return ListTile(
-                          title: Text(employee['name']),
+                          title: Text(employee['name'],
+                              style: TextStyle(
+                                  fontSize: 14, fontWeight: FontWeight.w500)),
                           subtitle: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -225,6 +253,7 @@ class _ManageChiefsState extends State<ManageChiefs> {
                                       : 'none'.tr(),
                                 ],
                               )),
+                              Divider(color: Theme.of(context).dividerColor),
                             ],
                           ),
                           trailing: Row(

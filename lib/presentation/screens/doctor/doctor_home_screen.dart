@@ -238,12 +238,20 @@ class DoctorHomeScreenState extends State<DoctorHomeScreen> {
                             itemBuilder: (context, index) {
                               final patient = filteredPatients[index];
                               return ListTile(
-                                title: Text(patient['name']),
-                                subtitle: Text("info_patient".tr(args: [
-                                  patient['bed_number'].toString(),
-                                  patient['age'].toString(),
-                                  patient['id'].toString()
-                                ])),
+                                title: Text(patient['name'],
+                                    style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500)),
+                                subtitle: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text("info_patient".tr(args: [
+                                        patient['bed_number'].toString(),
+                                        patient['age'].toString(),
+                                        patient['id'].toString()
+                                      ])),
+                                    ]),
                                 onTap: () {
                                   _showPatientOptionsDialog(context, patient);
                                 },

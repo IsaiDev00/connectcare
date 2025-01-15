@@ -440,6 +440,10 @@
   "Date/Time": "Fecha y Hora: {}",
   "Evolution Note": "Nota de Evolución",
   "confirm_delete": "Confirmar Eliminación",
-  "are_you_sure_delete": "¿Estás seguro de que deseas eliminar este medicamento?"
+  "are_you_sure_delete": "¿Estás seguro de que deseas eliminar este medicamento?",
+  "Who is your feedback for?": "¿A quién va dirigido?",
+  "are_you_sure_delete_shift": "¿Estás seguro de que deseas eliminar este turno?",
+  "confirm": "Confirmar",
+  "are_you_sure_delete_role": "¿Estás seguro de que deseas eliminar este rol?"
 }
   
