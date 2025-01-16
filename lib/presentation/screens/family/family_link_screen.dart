@@ -58,7 +58,7 @@ class FamilyLinkScreenState extends State<FamilyLinkScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error loading user data')),
+          SnackBar(content: Text('Error loading user data'.tr())),
         );
       }
     }
@@ -263,7 +263,10 @@ class FamilyLinkScreenState extends State<FamilyLinkScreen> {
                           itemBuilder: (context, index) {
                             final patient = linkedPatients[index];
                             return ListTile(
-                              title: Text(patient['nombre']),
+                              title: Text(patient['nombre'],
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500)),
                               subtitle: Text("Edad:"
                                   .tr(args: [patient['edad'].toString()])),
                               trailing: IconButton(

@@ -444,6 +444,23 @@
   "Who is your feedback for?": "Who is your feedback for?",
   "are_you_sure_delete_shift": "Are you sure you want to delete this shift?",
   "confirm": "Confirm",
-  "are_you_sure_delete_role": "Are you sure you want to delete this role?"
+  "are_you_sure_delete_role": "Are you sure you want to delete this role?",
+  "Yellow: Assigned to another personal": "Yellow: Assigned to another personal",
+  "Green: Assigned to current personal": "Green: Assigned to current personal",
+  "Black: Unassigned": "Black: Unassigned",
+  "Error loading patients": "Error loading patients",
+  "Error reassigning patient": "Error reassigning patient",
+  "Error checking linked family members": "Error checking linked family members",
+  "Generate Link Code": "Generate Link Code",
+  "Principal": "Main",
+  "Occasional Connection": "Occasional Connection",
+  "Code Generated": "Code Generated",
+  "Code:": "Code: {}",
+  "Error generating code": "Error generating code",
+  "No patients found": "No patients found",
+  "info_patient2": "Age: {} | NSS: {}",
+  "Previous": "Previous",
+  "Next": "Next",
+  "page": "Page {} of {}"
 }
   

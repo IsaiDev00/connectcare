@@ -24,9 +24,12 @@ class AssignPatientsDialog extends StatefulWidget {
 
 class _AssignPatientsDialogState extends State<AssignPatientsDialog> {
   List<Map<String, dynamic>> patients = [];
+  List<Map<String, dynamic>> filteredPatients = [];
   List<int> selectedPatients = [];
   List<int> deselectedPatients = [];
+  List<Map<String, dynamic>> reassignmentQueue = [];
   bool isLoading = true;
+  TextEditingController searchController = TextEditingController();
 
   @override
   void initState() {
@@ -49,21 +52,46 @@ class _AssignPatientsDialogState extends State<AssignPatientsDialog> {
                     'name': item['name'],
                     'bed_number': item['bed_number'],
                     'related_to_employee': item['related_to_employee'],
+                    'currentEmployeeId': item['currentEmployeeId'] != null
+                        ? int.tryParse(item['currentEmployeeId'].toString())
+                        : null,
+                    'currentPersonalId': item['currentPersonalId'] != null
+                        ? int.tryParse(item['currentPersonalId'].toString())
+                        : null,
                   })
               .toList();
+          filteredPatients = List.from(patients);
           selectedPatients = patients
-              .where((patient) => patient['related_to_employee'] == 1)
+              .where((patient) =>
+                  patient['related_to_employee'] == 'assigned_to_this')
               .map((patient) => patient['id'] as int)
               .toList();
         });
-      } else {
-        _errorLoadingPatients();
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error loading patients'.tr())),
+        );
       }
     } catch (e) {
-      _errorLoadingPatients();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error loading patients'.tr())),
+        );
+      }
     } finally {
       setState(() => isLoading = false);
     }
+  }
+
+  void filterPatients(String query) {
+    setState(() {
+      filteredPatients = patients
+          .where((patient) => patient['name']
+              .toString()
+              .toLowerCase()
+              .contains(query.toLowerCase()))
+          .toList();
+    });
   }
 
   @override
@@ -74,13 +102,59 @@ class _AssignPatientsDialogState extends State<AssignPatientsDialog> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
+            TextField(
+              controller: searchController,
+              onChanged: filterPatients,
+              decoration: InputDecoration(
+                labelText: "Search Patients".tr(),
+                border: const OutlineInputBorder(),
+                prefixIcon: const Icon(Icons.search),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.all(8.0),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.circle, color: Colors.orange, size: 12),
+                      const SizedBox(width: 8),
+                      Text("Yellow: Assigned to another personal".tr(),
+                          style: TextStyle(fontSize: 14)),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      const Icon(Icons.circle, color: Colors.green, size: 12),
+                      const SizedBox(width: 8),
+                      Text("Green: Assigned to current personal".tr(),
+                          style: TextStyle(fontSize: 14)),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      const Icon(Icons.circle, color: Colors.black, size: 12),
+                      const SizedBox(width: 8),
+                      Text("Black: Unassigned".tr(),
+                          style: TextStyle(fontSize: 14)),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
             isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : Expanded(
                     child: ListView.builder(
-                      itemCount: patients.length,
+                      itemCount: filteredPatients.length,
                       itemBuilder: (context, index) {
-                        final patient = patients[index];
+                        final patient = filteredPatients[index];
                         final relatedStatus = patient['related_to_employee'];
 
                         return CheckboxListTile(
@@ -90,30 +164,45 @@ class _AssignPatientsDialogState extends State<AssignPatientsDialog> {
                               patient['bed_number'].toString()
                             ]),
                             style: TextStyle(
-                              color: relatedStatus == 0
-                                  ? Colors.grey
-                                  : Colors.black,
-                              fontStyle: relatedStatus == 0
+                              color: relatedStatus == 'assigned_to_other'
+                                  ? Colors.orange
+                                  : relatedStatus == 'assigned_to_this'
+                                      ? Colors.green
+                                      : Colors.black,
+                              fontStyle: relatedStatus == 'unassigned'
                                   ? FontStyle.italic
                                   : FontStyle.normal,
                             ),
                           ),
                           value: selectedPatients.contains(patient['id']),
-                          onChanged: relatedStatus == 0
-                              ? null
-                              : (isSelected) {
-                                  setState(() {
-                                    if (isSelected == true) {
-                                      selectedPatients.add(patient['id']);
-                                      deselectedPatients.remove(patient['id']);
-                                    } else {
-                                      selectedPatients.remove(patient['id']);
-                                      if (relatedStatus == 1) {
-                                        deselectedPatients.add(patient['id']);
-                                      }
-                                    }
+                          onChanged: (isSelected) {
+                            setState(() {
+                              if (relatedStatus == 'assigned_to_other') {
+                                if (isSelected == true) {
+                                  reassignmentQueue.add({
+                                    'patientId': patient['id'],
+                                    'currentPersonalId':
+                                        patient['currentPersonalId']
                                   });
-                                },
+                                  selectedPatients.add(patient['id']);
+                                } else {
+                                  reassignmentQueue.removeWhere((item) =>
+                                      item['patientId'] == patient['id']);
+                                  selectedPatients.remove(patient['id']);
+                                }
+                              } else {
+                                if (isSelected == true) {
+                                  selectedPatients.add(patient['id']);
+                                  deselectedPatients.remove(patient['id']);
+                                } else {
+                                  selectedPatients.remove(patient['id']);
+                                  if (relatedStatus == 'assigned_to_this') {
+                                    deselectedPatients.add(patient['id']);
+                                  }
+                                }
+                              }
+                            });
+                          },
                         );
                       },
                     ),
@@ -126,10 +215,10 @@ class _AssignPatientsDialogState extends State<AssignPatientsDialog> {
                   child: Text('Cancel'.tr()),
                 ),
                 TextButton(
-                  onPressed: () => Navigator.pop(context, {
-                    'selected': selectedPatients,
-                    'deselected': deselectedPatients,
-                  }),
+                  onPressed: () async {
+                    await applyChanges();
+                    _navigator();
+                  },
                   child: Text('Assign'.tr()),
                 ),
               ],
@@ -140,9 +229,48 @@ class _AssignPatientsDialogState extends State<AssignPatientsDialog> {
     );
   }
 
-  void _errorLoadingPatients() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Error loading patients'.tr())),
-    );
+  Future<void> applyChanges() async {
+    for (final reassignment in reassignmentQueue) {
+      await reassignPatient(
+          reassignment['patientId'], reassignment['currentPersonalId']);
+    }
+  }
+
+  Future<void> reassignPatient(int patientId, int currentPersonalId) async {
+    final url = Uri.parse('$baseUrl/assign_tasks/reassign_patient');
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'patientId': patientId,
+          'currentEmployeeId': currentPersonalId,
+          'newEmployeeId': widget.employeeId,
+          'userType': widget.userType,
+        }),
+      );
+
+      if (response.statusCode != 200 && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error reassigning patient'.tr())),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error reassigning patient'.tr())),
+        );
+      }
+    }
+  }
+
+  void _navigator() {
+    if (mounted) {
+      Navigator.pop(context, {
+        'selected': selectedPatients,
+        'deselected': deselectedPatients,
+      });
+    }
   }
 }

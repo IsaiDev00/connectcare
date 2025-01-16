@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:connectcare/core/constants/constants.dart';
 import 'package:connectcare/data/services/user_service.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -56,14 +57,14 @@ class SocialWorkerHomeScreenState extends State<SocialWorkerHomeScreen> {
       } else {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Error fetching patients')),
+            SnackBar(content: Text('Error fetching patients'.tr())),
           );
         }
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error fetching patients')),
+          SnackBar(content: Text('Error fetching patients'.tr())),
         );
       }
     } finally {
@@ -79,7 +80,7 @@ class SocialWorkerHomeScreenState extends State<SocialWorkerHomeScreen> {
           .where((patient) =>
               patient['name'].toLowerCase().contains(query.toLowerCase()))
           .toList();
-      currentPage = 0; // Reinicia a la primera página al filtrar
+      currentPage = 0;
       _updatePagination();
     });
   }
@@ -126,7 +127,7 @@ class SocialWorkerHomeScreenState extends State<SocialWorkerHomeScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error checking linked family members')),
+          SnackBar(content: Text('Error checking linked family members'.tr())),
         );
       }
       return;
@@ -137,7 +138,7 @@ class SocialWorkerHomeScreenState extends State<SocialWorkerHomeScreen> {
         builder: (context) {
           return AlertDialog(
             title: Text(
-              "Generate Link Code",
+              "Generate Link Code".tr(),
               style: Theme.of(context).textTheme.headlineSmall,
             ),
             content: Column(
@@ -150,7 +151,7 @@ class SocialWorkerHomeScreenState extends State<SocialWorkerHomeScreen> {
                       color: Theme.of(context).colorScheme.primary,
                     ),
                     title: Text(
-                      "Principal",
+                      "Principal".tr(),
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     onTap: () => _generateCode(nss, 'main'),
@@ -174,7 +175,7 @@ class SocialWorkerHomeScreenState extends State<SocialWorkerHomeScreen> {
                       color: Theme.of(context).colorScheme.primary,
                     ),
                     title: Text(
-                      "Occasional Connection",
+                      "Occasional Connection".tr(),
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     onTap: () => _generateCode(nss, 'occasional'),
@@ -186,7 +187,7 @@ class SocialWorkerHomeScreenState extends State<SocialWorkerHomeScreen> {
               TextButton(
                 onPressed: () => Navigator.pop(context),
                 child: Text(
-                  "Cancel",
+                  "Cancel".tr(),
                   style:
                       TextStyle(color: Theme.of(context).colorScheme.primary),
                 ),
@@ -218,12 +219,12 @@ class SocialWorkerHomeScreenState extends State<SocialWorkerHomeScreen> {
             context: context,
             builder: (context) {
               return AlertDialog(
-                title: const Text("Code Generated"),
-                content: Text("Code: ${data['code']}"),
+                title: Text("Code Generated".tr()),
+                content: Text("Code:".tr(args: [data['code']])),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.pop(context),
-                    child: const Text("Close"),
+                    child: Text("close".tr()),
                   ),
                 ],
               );
@@ -233,14 +234,14 @@ class SocialWorkerHomeScreenState extends State<SocialWorkerHomeScreen> {
       } else {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Error generating code')),
+            SnackBar(content: Text('Error generating code'.tr())),
           );
         }
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error generating code')),
+          SnackBar(content: Text('Error generating code'.tr())),
         );
       }
     }
@@ -249,7 +250,7 @@ class SocialWorkerHomeScreenState extends State<SocialWorkerHomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Social Worker')),
+      appBar: AppBar(title: Text('Family Link'.tr())),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -257,8 +258,8 @@ class SocialWorkerHomeScreenState extends State<SocialWorkerHomeScreen> {
             TextField(
               controller: searchController,
               onChanged: _filterPatients,
-              decoration: const InputDecoration(
-                labelText: "Search Patients",
+              decoration: InputDecoration(
+                labelText: "Search Patients".tr(),
                 border: OutlineInputBorder(),
               ),
             ),
@@ -270,15 +271,17 @@ class SocialWorkerHomeScreenState extends State<SocialWorkerHomeScreen> {
                       children: [
                         Expanded(
                           child: paginatedPatients.isEmpty
-                              ? const Center(child: Text("No patients found"))
+                              ? Center(child: Text("No patients found".tr()))
                               : ListView.builder(
                                   itemCount: paginatedPatients.length,
                                   itemBuilder: (context, index) {
                                     final patient = paginatedPatients[index];
                                     return ListTile(
                                       title: Text(patient['name']),
-                                      subtitle: Text(
-                                          "Age: ${patient['age']} | NSS: ${patient['nss']}"),
+                                      subtitle: Text("info_patient2".tr(args: [
+                                        patient['age'].toString(),
+                                        patient['nss'].toString()
+                                      ])),
                                       onTap: () => _showCodeDialog(
                                           patient['nss'].toString()),
                                     );
@@ -290,14 +293,19 @@ class SocialWorkerHomeScreenState extends State<SocialWorkerHomeScreen> {
                           children: [
                             TextButton(
                               onPressed: _previousPage,
-                              child: const Text("Previous"),
+                              child: Text("Previous".tr()),
                             ),
                             Text(
-                              "Page ${currentPage + 1} of ${(filteredPatients.length / itemsPerPage).ceil()}",
+                              "page".tr(args: [
+                                (currentPage + 1).toString(),
+                                ((filteredPatients.length / itemsPerPage)
+                                        .ceil())
+                                    .toString()
+                              ]),
                             ),
                             TextButton(
                               onPressed: _nextPage,
-                              child: const Text("Next"),
+                              child: Text("Next").tr(),
                             ),
                           ],
                         ),
