@@ -1375,17 +1375,14 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
               const SizedBox(height: 10),
               Text("Sex: $sexo"),
               const SizedBox(height: 10),
-              Text("Doctor dx: $idMedico"),
-              const SizedBox(height: 10),
               Text("Gpo and RH: $gpo_rh"),
               const SizedBox(height: 10),
               Text("Date of birth: $fechaNacimiento"),
               const SizedBox(height: 10),
               Text("Today's date: $fechaHoy"),
-              const SizedBox(height: 10),
+              const SizedBox(height: 20),
 
               Text("Actual nurse/s:"),
-              const SizedBox(height: 10),
 
               ListView.builder(
                 shrinkWrap: true,
@@ -1394,8 +1391,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                 itemBuilder: (context, index) {
                   return Card(
                     child: ListTile(
-                      title: Text('ID: ${idEnfermeros![index]}'),
-                      subtitle: Text('Nombre: ${nombreEnfermeros![index]}'),
+                      subtitle: Text('Name: ${nombreEnfermeros![index]}'),
                     ),
                   );
                 },

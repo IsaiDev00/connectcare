@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class ProcedureScheduleScreen extends StatefulWidget {
-  const ProcedureScheduleScreen({Key? key}) : super(key: key);
+  const ProcedureScheduleScreen({super.key});
 
   @override
   State<ProcedureScheduleScreen> createState() =>
