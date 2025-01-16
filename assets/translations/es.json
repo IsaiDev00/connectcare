@@ -461,6 +461,17 @@
   "info_patient2": "Edad: {} | NSS: {}",
   "Previous": "Anterior",
   "Next": "Siguiente",
-  "page": "Página {} of {}"
+  "page": "Página {} of {}",
+  "Discharge Patient": "Dar de alta al paciente",
+  "Confirm Discharge": "Confirmar alta",
+  "Are you sure you want to discharge patient {0}?": "¿Estás seguro de que quieres dar de alta al paciente {}?",
+  "Patient discharged successfully": "Paciente dado de alta exitosamente",
+  "Failed to discharge patient": "Error al dar de alta al paciente",
+  "Error discharging patient": "Error al dar de alta al paciente",
+  "Please provide a reason for discharging patient {0}:": "Por favor, proporcione una razón para dar de alta al paciente {}:",
+  "Enter reason here...": "Ingrese la razón aquí...",
+  "Pacientes dados de alta": "Pacientes dados de alta",
+  "No hay pacientes dados de alta.": "No hay pacientes dados de alta.",
+  "patients_discharged": "Fecha de alta: {}\nRazón: {}\nMédico: {}"
 }
   

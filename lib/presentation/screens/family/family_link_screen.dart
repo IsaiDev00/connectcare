@@ -20,6 +20,8 @@ class FamilyLinkScreenState extends State<FamilyLinkScreen> {
   bool isCodeValid = true;
   String errorMessage = '';
   bool isLoadingPatients = true;
+  List<Map<String, dynamic>> dischargedPatients = [];
+  bool isLoadingDischargedPatients = false;
 
   @override
   void initState() {
@@ -194,6 +196,90 @@ class FamilyLinkScreenState extends State<FamilyLinkScreen> {
     }
   }
 
+  Future<void> _fetchDischargedPatients() async {
+    setState(() {
+      isLoadingDischargedPatients = true;
+    });
+
+    final url = Uri.parse('$baseUrl/family_link/discharged-patients/$userId');
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        setState(() {
+          dischargedPatients = data
+              .map((item) => {
+                    'nss': item['nss'],
+                    'nombre': item['nombre'],
+                    'fecha_alta': DateFormat('dd/MM/yyyy hh:mm a')
+                        .format(DateTime.parse(item['fecha_alta'])),
+                    'razon_alta': item['razon_alta'],
+                    'medico': item['medico'],
+                  })
+              .toList();
+        });
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error fetching discharged patients'.tr())),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error fetching discharged patients'.tr())),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoadingDischargedPatients = false;
+        });
+      }
+    }
+  }
+
+  void _showDischargedPatientsDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Pacientes dados de alta'.tr()),
+          content: isLoadingDischargedPatients
+              ? const Center(child: CircularProgressIndicator())
+              : dischargedPatients.isEmpty
+                  ? Text('No hay pacientes dados de alta.'.tr())
+                  : SizedBox(
+                      width: double.maxFinite,
+                      child: ListView.builder(
+                        itemCount: dischargedPatients.length,
+                        itemBuilder: (context, index) {
+                          final patient = dischargedPatients[index];
+                          return ListTile(
+                            title: Text(patient['nombre'],
+                                style: TextStyle(
+                                    fontSize: 14, fontWeight: FontWeight.w500)),
+                            subtitle: Text('patients_discharged'.tr(args: [
+                              patient['fecha_alta'],
+                              patient['razon_alta'],
+                              patient['medico']
+                            ])),
+                          );
+                        },
+                      ),
+                    ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('close'.tr()),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -304,6 +390,13 @@ class FamilyLinkScreenState extends State<FamilyLinkScreen> {
                             );
                           },
                         ),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                await _fetchDischargedPatients();
+                _showDischargedPatientsDialog();
+              },
+              child: Text('Ver pacientes dados de alta'.tr()),
             )
           ],
         ),

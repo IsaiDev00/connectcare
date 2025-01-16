@@ -52,8 +52,8 @@ class DoctorHomeScreenState extends State<DoctorHomeScreen> {
       return;
     }
 
-    final userService = UserService();
-    await userService.updateFirebaseTokenAndSendNotification();
+    //final userService = UserService();
+    //await userService.updateFirebaseTokenAndSendNotification();
   }
 
   Future<void> _fetchPatients() async {
@@ -97,6 +97,120 @@ class DoctorHomeScreenState extends State<DoctorHomeScreen> {
               patient['name'].toLowerCase().contains(query.toLowerCase()))
           .toList();
     });
+  }
+
+  void _showDischargeReasonDialog(Map<String, dynamic> patient) {
+    TextEditingController reasonController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(
+            "Discharge Patient".tr(),
+            style: Theme.of(context).textTheme.headlineSmall,
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                "Please provide a reason for discharging patient {0}:"
+                    .tr(args: [patient['name']]),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                  controller: reasonController,
+                  maxLines: 3,
+                  decoration: InputDecoration(
+                    hintText: "Enter reason here...".tr(),
+                    border: const OutlineInputBorder(),
+                  ),
+                  style: TextStyle(fontSize: 12)),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text("Cancel".tr()),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                _showDischargeConfirmationDialog(
+                    patient, reasonController.text);
+              },
+              child: Text("Next".tr()),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showDischargeConfirmationDialog(
+      Map<String, dynamic> patient, String reason) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(
+            "Confirm Discharge".tr(),
+            style: Theme.of(context).textTheme.headlineSmall,
+          ),
+          content: Text(
+            "Are you sure you want to discharge patient {0}?"
+                .tr(args: [patient['name']]),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text("Cancel".tr()),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.pop(context);
+                await _dischargePatientWithReason(patient['id'], reason);
+              },
+              child: Text(
+                "Confirm".tr(),
+                style: const TextStyle(color: Colors.red),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _dischargePatientWithReason(int patientId, String reason) async {
+    final url = Uri.parse('$baseUrl/paciente/discharge_with_reason/$patientId');
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'dischargeReason': reason,
+          'doctorId': doctorId,
+        }),
+      );
+
+      if (response.statusCode == 200 && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Patient discharged successfully".tr())),
+        );
+        await _fetchPatients(); // Actualizar lista de pacientes
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Failed to discharge patient".tr())),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error discharging patient".tr())),
+        );
+      }
+    }
   }
 
   void _showPatientOptionsDialog(
@@ -194,6 +308,23 @@ class DoctorHomeScreenState extends State<DoctorHomeScreen> {
                       ),
                     ),
                   );
+                },
+              ),
+              Divider(color: Theme.of(context).dividerColor),
+              ListTile(
+                leading: Icon(
+                  Icons.person_remove,
+                  color: Colors.red,
+                ),
+                title: Text(
+                  "Discharge Patient".tr(),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Colors.red,
+                      ),
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  _showDischargeReasonDialog(patient);
                 },
               ),
             ],

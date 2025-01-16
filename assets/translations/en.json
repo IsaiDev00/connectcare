@@ -461,6 +461,17 @@
   "info_patient2": "Age: {} | NSS: {}",
   "Previous": "Previous",
   "Next": "Next",
-  "page": "Page {} of {}"
+  "page": "Page {} of {}",
+  "Discharge Patient": "Discharge Patient",
+  "Confirm Discharge": "Confirm Discharge",
+  "Are you sure you want to discharge patient {0}?": "Are you sure you want to discharge patient {}?",
+  "Patient discharged successfully": "Patient discharged successfully",
+  "Failed to discharge patient": "Failed to discharge patient",
+  "Error discharging patient": "Error discharging patient",
+  "Please provide a reason for discharging patient {0}:": "Please provide a reason for discharging patient {}:",
+  "Enter reason here...": "Enter reason here...",
+  "Pacientes dados de alta": "Patients discharged",
+  "No hay pacientes dados de alta.": "There are no patients discharged.",
+  "patients_discharged": "Discharge date: {}\nReason: {}\nDoctor: {}"
 }
   
