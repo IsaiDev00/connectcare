@@ -28,6 +28,7 @@ class AdminHomeScreenState extends State<AdminHomeScreen> {
     final userService = UserService();
     await userService.updateFirebaseTokenAndSendNotification();
     setState(() {}); // Fuerza la reconstrucción para sincronizar UI
+    
   }
 
   // Guarda los datos en SharedPreferences
