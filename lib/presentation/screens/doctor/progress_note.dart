@@ -5,6 +5,7 @@ import 'package:connectcare/presentation/widgets/selectable_calendar.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:connectcare/presentation/screens/doctor/documents.dart/triage_screen.dart';
 
 class ProgressNote extends StatefulWidget {
   final String nssPaciente;
@@ -57,6 +58,73 @@ class ProgressNoteState extends State<ProgressNote> {
   DateTime? fechaIntubacion;
   DateTime? fechaCateter;
   DateTime? fechaSolicitudCultivo;
+  List<Medication> medications = [];
+
+  void _requestMedication() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return MedicationDialog(
+          onSave: (Medication medication) {
+            setState(() {
+              medications.add(medication);
+            });
+          },
+        );
+      },
+    );
+  }
+
+  Future<void> _registerMedications() async {
+    for (int index = 0; index < medications.length; index++) {
+      final medication = medications[index];
+      final nssPaciente = widget.nssPaciente;
+
+      if (medication.reagents.isEmpty ||
+          medication.quantity <= 0 ||
+          medication.brand.isEmpty ||
+          medication.route.isEmpty ||
+          medication.type.isEmpty) {
+        continue;
+      }
+
+      Map<String, dynamic> medicationData = {
+        'nss_paciente': nssPaciente,
+        'nombre_reactivo': medication.reagents.map((r) => r.name).toList(),
+        'concentracion':
+            medication.reagents.map((r) => r.concentration).toList(),
+        'cantidad': medication.quantity,
+        'marca': medication.brand,
+        'via_administracion': medication.route,
+        'unidad': medication.type,
+        'fuente_tipo': 'progress_note',
+      };
+
+      try {
+        final response = await http.post(
+          Uri.parse('$baseUrl/solicitud_medicamento/'),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode(medicationData),
+        );
+
+        if (response.statusCode == 201) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Medication request created successfully.'.tr()),
+                backgroundColor: Colors.green,
+              ),
+            );
+          }
+        } else if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text("Error requesting medication".tr())));
+        }
+      } catch (e) {
+        //print('Error requesitng medication: $e');
+      }
+    }
+  }
 
   @override
   void initState() {
@@ -118,6 +186,7 @@ class ProgressNoteState extends State<ProgressNote> {
                 : null,
           }),
         );
+        await _registerMedications();
 
         if (response.statusCode == 201) {
           if (mounted) {
@@ -152,6 +221,49 @@ class ProgressNoteState extends State<ProgressNote> {
       controller.dispose();
     }
     super.dispose();
+  }
+
+  Widget _buildMedicationsSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        _buildSectionTitle('Requested Medications', Icons.medication),
+        medications.isEmpty
+            ? Text(
+                'No medications requested yet.'.tr(),
+                style: TextStyle(fontSize: 14, fontStyle: FontStyle.italic),
+              )
+            : ListView.builder(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                itemCount: medications.length,
+                itemBuilder: (context, index) {
+                  final medication = medications[index];
+                  return ListTile(
+                    title: Text(medication.brand),
+                    subtitle: Text("medicine_info".tr(args: [
+                      medication.type,
+                      medication.quantity.toString(),
+                      medication.route
+                    ])),
+                    trailing: IconButton(
+                      icon: Icon(Icons.delete, color: Colors.red),
+                      onPressed: () {
+                        setState(() {
+                          medications.removeAt(index);
+                        });
+                      },
+                    ),
+                  );
+                },
+              ),
+        const SizedBox(height: 20),
+        ElevatedButton(
+          onPressed: _requestMedication,
+          child: Text('Add Medication'.tr()),
+        ),
+      ],
+    );
   }
 
   @override
@@ -202,6 +314,8 @@ class ProgressNoteState extends State<ProgressNote> {
                 {'field': 'diagnostico', 'icon': Icons.assignment},
                 {'field': 'pronostico', 'icon': Icons.query_stats},
               ]),
+              _buildDivider(),
+              _buildMedicationsSection(),
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _submitProgressNote,
@@ -220,7 +334,7 @@ class ProgressNoteState extends State<ProgressNote> {
       children: [
         Text('NSS'.tr(args: [widget.nssPaciente])),
         Text('Patient'.tr(args: [widget.patientName])),
-        Text('Service'.tr(args: [widget.services])),
+        Text('Service'.tr(args: [widget.services.tr()])),
         Text('Date/Time'.tr(args: [_currentDateTime])),
       ],
     );

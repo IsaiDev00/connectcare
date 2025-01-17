@@ -472,6 +472,12 @@
   "Enter reason here...": "Enter reason here...",
   "Pacientes dados de alta": "Patients discharged",
   "No hay pacientes dados de alta.": "There are no patients discharged.",
-  "patients_discharged": "Discharge date: {}\nReason: {}\nDoctor: {}"
+  "patients_discharged": "Discharge date: {}\nReason: {}\nDoctor: {}",
+  "Request Medications": "Request Medications",
+  "Medication request created successfully.": "Medication request created successfully.",
+  "Error requesting medication": "Error requesting medication",
+  "Add Medication": "Add Medication",
+  "medicine_info": "Type: {}, Quantity: {}, Route: {}",
+  "No medications requested yet.": "No hay medicamentos solicitadon aún"
 }
   

@@ -472,6 +472,12 @@
   "Enter reason here...": "Ingrese la razón aquí...",
   "Pacientes dados de alta": "Pacientes dados de alta",
   "No hay pacientes dados de alta.": "No hay pacientes dados de alta.",
-  "patients_discharged": "Fecha de alta: {}\nRazón: {}\nMédico: {}"
+  "patients_discharged": "Fecha de alta: {}\nRazón: {}\nMédico: {}",
+  "Request Medications": "Solicitar medicamento",
+  "Medication request created successfully.": "Medicamento solicitado exitosamente",
+  "Error requesting medication": "Error solicitando medicamento",
+  "Add Medication": "Agregar medicamento",
+  "medicine_info": "Tipo: {}, Cantidad: {}, Administracion: {}",
+  "No medications requested yet.": "No medications requested yet."
 }
   
