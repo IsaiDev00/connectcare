@@ -282,6 +282,7 @@ class ProgressNoteState extends State<ProgressNote> {
           child: Column(
             children: [
               _buildPatientInfo(),
+              _buildDivider(),
               _buildSectionTitle('Vital Signs', Icons.monitor_heart),
               _buildFields([
                 {'field': 'ta_sistolica', 'icon': Icons.speed},

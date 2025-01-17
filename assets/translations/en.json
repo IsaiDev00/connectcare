@@ -478,6 +478,26 @@
   "Error requesting medication": "Error requesting medication",
   "Add Medication": "Add Medication",
   "medicine_info": "Type: {}, Quantity: {}, Route: {}",
-  "No medications requested yet.": "No hay medicamentos solicitadon aún"
+  "No medications requested yet.": "No medications requested yet.",
+  "Medical Instructions": "Medical Instructions",
+  "Diagnosis:": "Diagnosis:",
+  "Weight:": "Weight:",
+  "RET:": "RET:",
+  "LNTP:": "LNTP:",
+  "LVE:": "LVE:",
+  "Formula:": "Formula:",
+  "Nutrition:": "Nutrition:",
+  "Solutions:": "Solutions:",
+  "Medications:": "Medications:",
+  "General Measures:": "General Measures:",
+  "CVC Care:": "CVC Care:",
+  "Pending:": "Pending:",
+  "SAMM Use:": "SAMM Use:",
+  "Yes": "Yes",
+  "No": "No",
+  "Date:": "Date:",
+  "Error fetching medical instructions": "Error fetching medical instructions",
+  "No hay indicaciones medicas aún": "No medical instructions yet",
+  "No medical instructions found": "No medical instructions found"
 }
   

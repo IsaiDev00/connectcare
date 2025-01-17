@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:connectcare/core/constants/constants.dart';
 import 'package:connectcare/data/services/user_service.dart';
 import 'package:connectcare/presentation/screens/doctor/documents.dart/hoja_enfermeria_screen.dart';
-import 'package:connectcare/presentation/screens/doctor/medical_instructions.dart';
+import 'package:connectcare/presentation/screens/nurse/medical_instructions_screen.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -105,7 +105,8 @@ class NurseHomeScreenState extends State<NurseHomeScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => HojaEnfermeriaScreen(nssPaciente: patient['id'].toString()),
+                      builder: (context) => HojaEnfermeriaScreen(
+                          nssPaciente: patient['id'].toString()),
                     ),
                   );
                 },
@@ -125,7 +126,9 @@ class NurseHomeScreenState extends State<NurseHomeScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => MedicalInstructions(),
+                      builder: (context) => MedicalInstructionsScreen(
+                          nssPaciente: patient['id'].toString(),
+                          patientName: patient['name']),
                     ),
                   );
                 },

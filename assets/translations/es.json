@@ -478,6 +478,26 @@
   "Error requesting medication": "Error solicitando medicamento",
   "Add Medication": "Agregar medicamento",
   "medicine_info": "Tipo: {}, Cantidad: {}, Administracion: {}",
-  "No medications requested yet.": "No medications requested yet."
+  "No medications requested yet.": "No hay medicamentos solicitadon aún",
+  "Medical Instructions": "Indicaciones Médicas",
+  "Diagnosis:": "Diagnóstico:",
+  "Weight:": "Peso:",
+  "RET:": "RET:",
+  "LNTP:": "LNTP:",
+  "LVE:": "LVE:",
+  "Formula:": "Fórmula:",
+  "Nutrition:": "Nutrición:",
+  "Solutions:": "Soluciones:",
+  "Medications:": "Medicamentos:",
+  "General Measures:": "Medidas Generales:",
+  "CVC Care:": "Cuidados de CVC:",
+  "Pending:": "Pendientes:",
+  "SAMM Use:": "Uso de SAMM:",
+  "Yes": "Sí",
+  "No": "No",
+  "Date:": "Fecha:",
+  "Error fetching medical instructions": "Error al obtener las indicaciones médicas",
+  "No hay indicaciones medicas aún": "No hay indicaciones médicas aún",
+  "No medical instructions found": "No se encontraron indicaciones médicas"
 }
   
