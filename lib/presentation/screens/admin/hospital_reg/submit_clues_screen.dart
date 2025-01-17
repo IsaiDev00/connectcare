@@ -1,13 +1,20 @@
+import 'dart:io';
+import 'dart:typed_data';
+import 'dart:convert';
+import 'package:connectcare/core/constants/constants.dart';
+import 'package:connectcare/presentation/screens/admin/hospital_reg/waiting_confirmation_screen.dart';
+import 'package:connectcare/presentation/screens/general/dynamic_wrapper.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:connectcare/data/services/shared_preferences_service.dart';
-import 'package:connectcare/main.dart';
 import 'package:connectcare/presentation/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
-import 'dart:convert';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:googleapis/vision/v1.dart' as vision;
 import 'package:googleapis_auth/auth_io.dart';
 import 'package:image/image.dart' as img;
-import 'dart:typed_data';
+import 'package:http/http.dart'
+    as http; // <-- Importante para enviar peticiones HTTP
 import 'dart:core';
 import 'dart:io' show File;
 
@@ -20,25 +27,206 @@ class SubmitCluesScreen extends StatefulWidget {
 
 class SubmitCluesScreenState extends State<SubmitCluesScreen> {
   PlatformFile? pickedFile;
-  String? detectedText;
+  String? detectedText; // CLUES detectado
   img.Image? croppedImage;
-  final SharedPreferencesService _sharedPreferencesService =
-      SharedPreferencesService();
   bool isLoading = false;
 
-  void _startLoadingAndAnalyze() {
-    setState(() {
-      isLoading = true; // Inicia el indicador de carga
-    });
+  // Servicio para get/set de SharedPreferences
+  final SharedPreferencesService _sharedPreferencesService =
+      SharedPreferencesService();
 
-    Future.delayed(Duration(milliseconds: 100),
-        _analyzeFile); // Llama a la función después de una breve pausa
+  /// Método para pedir permiso de almacenamiento de forma dinámica
+  /// - Si Android 13+ => Permission.photos
+  /// - Si Android <= 12 => Permission.storage
+  Future<bool> _verificarPermisosAlmacenamiento() async {
+    if (!Platform.isAndroid) {
+      return true;
+    }
+
+    final androidInfo = await DeviceInfoPlugin().androidInfo;
+    final sdkInt = androidInfo.version.sdkInt;
+
+    if (sdkInt >= 33) {
+      final statusPhotos = await Permission.photos.status;
+      if (statusPhotos.isGranted) {
+        return true;
+      }
+      if (statusPhotos.isDenied) {
+        final newStatus = await Permission.photos.request();
+        if (newStatus.isGranted) {
+          return true;
+        } else if (newStatus.isPermanentlyDenied) {
+          showCustomSnackBar(
+            context,
+            "Los permisos para leer imágenes están permanentemente denegados. Habilítelos desde la configuración.",
+          );
+          openAppSettings();
+          return false;
+        } else {
+          showCustomSnackBar(context, "Permiso para leer imágenes denegado.");
+          return false;
+        }
+      }
+      if (statusPhotos.isPermanentlyDenied) {
+        showCustomSnackBar(
+          context,
+          "Los permisos para leer imágenes están permanentemente denegados. Habilítelos desde la configuración.",
+        );
+        openAppSettings();
+        return false;
+      }
+      return false;
+    } else {
+      final statusStorage = await Permission.storage.status;
+      if (statusStorage.isGranted) {
+        return true;
+      }
+      if (statusStorage.isDenied) {
+        final newStatus = await Permission.storage.request();
+        if (newStatus.isGranted) {
+          return true;
+        } else if (newStatus.isPermanentlyDenied) {
+          showCustomSnackBar(
+            context,
+            "Los permisos de almacenamiento están permanentemente denegados. Habilítelos desde la configuración.",
+          );
+          openAppSettings();
+          return false;
+        } else {
+          showCustomSnackBar(context, "Permiso de almacenamiento denegado.");
+          return false;
+        }
+      }
+      if (statusStorage.isPermanentlyDenied) {
+        showCustomSnackBar(
+          context,
+          "Los permisos de almacenamiento están permanentemente denegados. Habilítelos desde la configuración.",
+        );
+        openAppSettings();
+        return false;
+      }
+      return false;
+    }
   }
 
+  /// Función para subir la imagen original a Cloudinary
+  /// Retorna la secureUrl o null si falla
+  Future<String?> _uploadImageToCloudinary(Uint8List imageBytes) async {
+    print('Iniciando subida de imagen a Cloudinary...');
+
+    const String cloudName = 'db4rwgxge';
+    const String uploadPreset = 'Clues_image';
+
+    final url =
+        Uri.parse('https://api.cloudinary.com/v1_1/$cloudName/image/upload');
+    final request = http.MultipartRequest('POST', url);
+
+    request.fields['upload_preset'] = uploadPreset;
+    final fileName = 'clues_image_${DateTime.now().millisecondsSinceEpoch}.jpg';
+
+    request.files.add(http.MultipartFile.fromBytes(
+      'file',
+      imageBytes,
+      filename: fileName,
+    ));
+
+    try {
+      final response = await request.send();
+      final respStr = await response.stream.bytesToString();
+
+      if (response.statusCode == 200) {
+        final jsonData = jsonDecode(respStr);
+        final secureUrl = jsonData['secure_url'];
+        print('Imagen subida con éxito a Cloudinary: $secureUrl');
+        return secureUrl;
+      } else {
+        print('Error al subir la imagen a Cloudinary: ${response.statusCode}');
+        print('Respuesta de Cloudinary: $respStr');
+        return null;
+      }
+    } catch (e) {
+      print('Excepción al subir la imagen: $e');
+      return null;
+    }
+  }
+
+  Future<void> _registrarSolicitudHospital(
+      String? clues, String? secureUrl) async {
+    if (clues == null || secureUrl == null) {
+      print(
+          'Faltan datos para registrar la solicitud (clues o secureUrl nulos).');
+      return;
+    }
+
+    // Obtenemos el id_usuario desde SharedPreferences
+    final idUsuario = await _sharedPreferencesService.getUserId();
+    if (idUsuario == null) {
+      print('No se encontró id_usuario en SharedPreferences.');
+      return;
+    }
+
+    final url = Uri.parse('$baseUrl/hospital/solicitudHospital');
+    final body = {
+      "clues": clues,
+      "link_imagen": secureUrl,
+      "id_usuario": idUsuario,
+    };
+
+    try {
+      print('Enviando POST a $url con body: $body');
+      final response = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(body),
+      );
+
+      print(
+          'Respuesta del servidor: ${response.statusCode} - ${response.body}');
+      if (response.statusCode == 201) {
+        showCustomSnackBar(context, "Solicitud registrada con éxito");
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const DynamicWrapper(),
+          ),
+        );
+      } else {
+        showCustomSnackBar(
+            context, "Error al registrar la solicitud: ${response.body}");
+      }
+    } catch (e) {
+      print('Excepción al hacer POST: $e');
+      showCustomSnackBar(context, "Ocurrió un error al registrar la solicitud");
+    }
+  }
+
+  /// Inicia la detección y subida de imagen
+  void _startLoadingAndAnalyze() async {
+    bool permisoConcedido = await _verificarPermisosAlmacenamiento();
+    if (!permisoConcedido) {
+      return;
+    }
+
+    setState(() {
+      isLoading = true;
+    });
+
+    Future.delayed(const Duration(milliseconds: 100), _analyzeFile);
+  }
+
+  /// Seleccionar la imagen
   Future<void> _pickFile() async {
     try {
+      bool permisoConcedido = await _verificarPermisosAlmacenamiento();
+      if (!permisoConcedido) {
+        return;
+      }
+
       FilePickerResult? result = await FilePicker.platform.pickFiles(
-          type: FileType.custom, allowedExtensions: ['jpg', 'jpeg', 'png']);
+        type: FileType.custom,
+        allowedExtensions: ['jpg', 'jpeg', 'png'],
+      );
+
       if (result != null) {
         setState(() {
           pickedFile = result.files.first;
@@ -50,70 +238,79 @@ class SubmitCluesScreenState extends State<SubmitCluesScreen> {
     }
   }
 
+  /// Analiza la imagen con Cloud Vision y sube la original a Cloudinary
   Future<void> _analyzeFile() async {
     if (pickedFile == null) return;
 
     setState(() {
-      isLoading = true; // Mostrar indicador de carga
+      isLoading = true;
     });
 
     try {
-      Uint8List fileBytes;
-
+      Uint8List fileBytesOriginal;
       if (pickedFile!.bytes != null) {
-        fileBytes = pickedFile!.bytes!;
+        fileBytesOriginal = pickedFile!.bytes!;
       } else if (pickedFile!.path != null) {
         final file = File(pickedFile!.path!);
-        fileBytes = await file.readAsBytes();
+        fileBytesOriginal = await file.readAsBytes();
       } else {
         throw Exception("No se pudo obtener los datos del archivo.");
       }
 
-      img.Image? originalImage = img.decodeImage(fileBytes);
+      // Decodificamos la imagen
+      final originalImage = img.decodeImage(fileBytesOriginal);
       if (originalImage == null) {
         throw Exception("No se pudo decodificar la imagen seleccionada.");
       }
 
-      int cropWidth = (originalImage.width * 0.8).toInt();
-      int cropHeight = (originalImage.height * 0.3).toInt();
-      int cropX = (originalImage.width * 0.1).toInt();
-      int cropY = (originalImage.height * 0.35).toInt();
+      // Recorte (si lo necesitas)
+      final cropWidth = (originalImage.width * 0.8).toInt();
+      final cropHeight = (originalImage.height * 0.3).toInt();
+      final cropX = (originalImage.width * 0.1).toInt();
+      final cropY = (originalImage.height * 0.35).toInt();
 
-      croppedImage = img.copyCrop(originalImage,
-          x: cropX, y: cropY, width: cropWidth, height: cropHeight);
+      croppedImage = img.copyCrop(
+        originalImage,
+        x: cropX,
+        y: cropY,
+        width: cropWidth,
+        height: cropHeight,
+      );
 
+      // Convertimos la imagen recortada a base64
       final croppedBytes = img.encodeJpg(croppedImage!);
       final base64Image = base64Encode(croppedBytes);
 
+      // Autenticación con Vision
       final accountCredentials = ServiceAccountCredentials.fromJson(r'''
-    {
-      "type": "service_account",
-      "project_id": "connectcare-438217",
-      "private_key_id": "6b5415f4de100b7b9255c5cf497eafb5ba580775",
-      "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDrU6FFpTDHQF1b\n1Comxf9Iy1C3Fjb+6W+zp6KUih5ghr/+O02liu2Ujah5XTON3wNLuHCB+hGAMPq1\n+q3MZoCZlsYGXny41rAwv5+gB9h07KzKSXMQiZ7Ly/3HwTyXBKvGY3GrSgeT0lA/\nS9iHITA+Cpb2LEW6IzdXFO65X1P28kjzNBQ+iXa8fwrT5aEpChaLt/U/J444X7fY\nJEDDovtv0I0qd5esGaNaSMyhsKddDblFfg2F5T5tSkergzHkWR1wOMJiLbqJKxxF\nGGhU9XeBWfC+KJZD10SX2yn5DxRd4xXB26t0BqaHw3mAha5FviamnhcGcqr4hw0N\ns4hx5j/VAgMBAAECggEAE6FvU5r7HbP91bo2JfPgXtcvDYbZ4ZvhiJAUXOXEsPKs\ns22JBaU4OmsywaUHtu8CnF9vazhMG3B6iZG2y9VFJwrPzBo3t0eZfQePLk9ZPC++\nHkXQRnHkgEWtDuvMvSBToAINqmdLiIZD0XPnRSZ8msBRZYm961Aivq3tWCNeorvc\nZPnB9AU/neKQ/PVOStRsAOEFEsKwQpLQUYoYizFiuwiLiJH95yq2IFw6I8BNdf0c\niDu1uhbubmZbXM/l/9Z1yRBfKLy6mFJ549b4NrksszaaXgXOQYWKjsHssUZxBlzR\nAalyB/B1nJGh+ZcpkovkYmKIxOBEzJV7pSweXfTB5QKBgQD/HWDwkMJf7F5PondY\nTlXfTDJOHOPs2bc275K/6XOqyPig0gUaDQ4NBdVdoquvmuBdhWSLr6zgFo3o2Mku\nKmlMbuXCZcQoIi2mCkuLfyK6wheKgslGqAgwd0MrUO1YIQqnHJzd/uDfhhB6/8tc\nCa1QPST1ARrTTS53GTsPM44KTwKBgQDsJKxe1LpSjqfszfUuBDSfJFCZzHFI/v0H\nwIMrqVkidhWRK0gvLfo/aq1JoTSUkQeLi0Si29r45bTvpjqzzlTirlcoNGwJwqxB\nQRThEGKFeUlZa0SDYiDVdaedG6VxpwIjI4/TnuTNp5f/JeDODqtSNUP6SvjkyaEn\n7dUSLNNemwKBgC4T41dv/fuPWLVvdbjYZUAwpgFfzHcSF7pvaQUKqF6Xb/i0FkHP\nS9NkU1ZXNEVCZvXdSvzD3SiYSkddKHETLfOlMBB9iwFosvADegOXEfHDbrcQykPd\nw6TlVZd0RXoedasbSuX5zCnzL/TXUKauBMSyVoN+EJdLoHHYd8dWG3iXAoGBAOtN\nv9Te9Kq/K+VzdRRdbHIHpakbZubt7wSCeDJRlVgZgnQdRNh+YBZBHlt4HwTLX1FV\nfRcrLI9HlXwXj/cLatpWDtMpKV6wdSSwzTVXNlT5/nTzxlmEtmL90f9jRQBzAlYx\nYWfltOiYT4UXIWMyitRn70zA2DJiGAvJmb96m0RxAoGAB+9LihWRXj2OwbtwrNhC\n0Xy5c0I1ZSGKItciKEjwEuwaeckgJOu5Bn7ug6lZc4Q81nVFeuQFgT62c/vNwY4S\nDzLq1x0LAOeLxnqAE600PjrVEMsz8BEjlaT7IiD2JNRAYQN1XHY/PWC+Q+c7y2WJ\nWrJZRSSiVesuYLfpSCmca1g=\n-----END PRIVATE KEY-----\n",
-    "client_email": "connectcare-893@connectcare-438217.iam.gserviceaccount.com",
-    "client_id": "115209440935153739424",
-    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-    "token_uri": "https://oauth2.googleapis.com/token",
-    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-    "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/connectcare-893%40connectcare-438217.iam.gserviceaccount.com",
-    "universe_domain": "googleapis.com"
-    }
-    ''');
+{
+  "type": "service_account",
+  "project_id": "connectcare-445200",
+  "private_key_id": "28e7fde9b62e37213c3e57a5cc115857e8160164",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDcSZ4Ovic7JK3F\nIM05ak696umYcj0tWikuviHlLbquLNkw6ggnxGjzNjoLvEaroxk77EQMMRtT88rV\npmPyL1njS47MfanOM/qbAz892o1IlLnKIZbnJJV8zmLvUzDhJrSqJABxp4o3i4Ta\n8H9pVb91CuaC5x0JRRWffCVwOfZf8ndqQZC/FAQsKwVlQ9Y9s8JJvVFNA5RWP7P1\n6PL+nb5MVKILbwKvlTG9PykLMtS5Y8B0OSyMaHEYCf4tEBhgti5jqJ9t0acEKZNp\nQ7g79SdjjY6/X//nnZyk9z0xCh7iiOkdrS2Dq5IhcN/pfv6JEPKM3uJIklXRT/uy\nCc3RhsJjAgMBAAECggEAPAKsFc0Uh+ailiCs97avs8oyj86TPu8gZ/Tw6+uMvxVF\np68hwJ+fjZ4YqwjD4c8hOTNQiFe6X6D7AT/+W0QuAx8azDdxklSTsTXtvQ50TbEC\nef+zic1sEd9xkUwC9VsjfXQoUM3498/AxhodQ5dR/HMXP9LxFIzm6pcZ5dxMc29q\n+0CSorzte7nHy9SHJ2n42ZFmJpwFfoNjyO+OjKEaOoDNbm3GpDtf78mNs9+jcqyE\nI+rzokH2vSV/eFHFFYWAgHOEBB9i0WtbMV/qmyuWUq3lOw+eK6gId8gzaHjKGOr8\nhWYu6DV1dGPth71R0EWa88T+7hFWHRsYM2wdWhVjRQKBgQD//uMqz1QzfUHuO0b/\nBMaerw9gbtJ/8734U0q+qGnqJgAmhII9SeWf3qwGXt7J89rA2sSegqnxOyuUfnLw\nhAY7TfMcN3sB580tRmXbr3Zx+kz7gw9cdjqi9StRCTep5vwfXIVB0BRZ9in2A1+S\nSuRMCWdA3D080CF5j15Zi78iBQKBgQDcSpMo7Vbk4nSFmc/yHai3lNNa7PkBennX\nnsGDplrY0pybtvFmy8kw6ESbxDRy5XuYHcm0r4WwTiSV+kbmuwEB1UMyKNUk0Ogx\n2JM6Sc1FjnkUNwEtDLXJu5otkw2L81qjengiq90rZS3ktLEDKKN1pfXYmTPHUQvn\ndDtxFiR3RwKBgCR0svskvXP7sYjwriKhFnwAqCrufVG1b2dOzUUrjLHIqZrSog2C\nWY4T0uGxXv7ZmFyAiyGbsAHnkEQ8Ybf4xT5q0mVBTWYvEZwR+212pmKC57Wlq2la\neO0+BuYqbt/mQh9hOKTvsgZBtSYQwup9edeOO0MUWjAv36SFE0WjThvVAoGBAKQM\nsTyISu6WqdmYauBOMAfOv/r1gJYWREhLhKbqqrrPVSss+ObpmcFfJ0Csw7ZQqVLl\n1AFHuRJLjzlVMZm/54ca7ziaaehJ3rDILRP6Q/Cpogdo0upejb5WhAGugicXqgcW\nPALt4/3eEmhAG5ZTnC8P0V5k8Mdc1rWdvGqB59QfAoGAfA+BMfq+fpO7xItvY1t5\nqyFe9S1czzt49YChX+gUpY/odzJC2pyCKAm0nly+gt0gV2/sb5knEmAniSeJ0xKz\nl2OMOOn6Aok5kclKIk+12MSkfY/mkYFN/GMjl0gwk69i3fr+ZmVcE54BaVBsSnlP\n/E6UGQnUW9LMZ5QBLIbwPFk=\n-----END PRIVATE KEY-----\n",
+  "client_email": "vision-service-account@connectcare-445200.iam.gserviceaccount.com",
+  "client_id": "111709489632121584450",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/vision-service-account%40connectcare-445200.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
+''');
 
       final scopes = [vision.VisionApi.cloudPlatformScope];
       final httpClient =
           await clientViaServiceAccount(accountCredentials, scopes);
       final visionApi = vision.VisionApi(httpClient);
 
-      final request = vision.BatchAnnotateImagesRequest(requests: [
+      final batchRequest = vision.BatchAnnotateImagesRequest(requests: [
         vision.AnnotateImageRequest(
           image: vision.Image(content: base64Image),
           features: [vision.Feature(type: "DOCUMENT_TEXT_DETECTION")],
         )
       ]);
 
-      final response = await visionApi.images.annotate(request);
+      final response = await visionApi.images.annotate(batchRequest);
 
       if (response.responses != null && response.responses!.isNotEmpty) {
         final fullText = response.responses!.first.fullTextAnnotation?.text ??
@@ -125,20 +322,32 @@ class SubmitCluesScreenState extends State<SubmitCluesScreen> {
               ? cluesMatch.group(0)
               : "No se detectó código CLUES.";
         });
-        debugPrint("Texto detectado: $detectedText");
-
-        _cluesResponse(detectedText);
+        print("Texto detectado (CLUES): $detectedText");
       } else {
-        debugPrint("No se recibió una respuesta válida de la API.");
+        print("No se recibió una respuesta válida de la API de Vision.");
         _invalidApiResponse();
-        MyApp.nav.navigateTo('/cluesErrScreen');
       }
+
+      // Subimos la imagen original a Cloudinary
+      final secureUrl = await _uploadImageToCloudinary(fileBytesOriginal);
+
+      // Guardamos CLUES en SharedPreferences (opcional)
+      if (detectedText != null &&
+          detectedText != "No se detectó código CLUES.") {
+        print("Guardando el CLUES en SharedPreferences: $detectedText");
+        _sharedPreferencesService.saveClues(detectedText!);
+      } else {
+        print("No se detectó CLUES válido, no se guarda en SharedPreferences.");
+      }
+
+      // Llamamos a la función para registrar la solicitud en el back
+      await _registrarSolicitudHospital(detectedText, secureUrl);
     } catch (e) {
       debugPrint("Error al analizar el archivo: $e");
       _errorParsingFile(e);
     } finally {
       setState(() {
-        isLoading = false; // Ocultar indicador de carga
+        isLoading = false;
       });
     }
   }
@@ -157,15 +366,11 @@ class SubmitCluesScreenState extends State<SubmitCluesScreen> {
           children: <Widget>[
             Center(
               child: ConstrainedBox(
-                constraints: const BoxConstraints(
-                  maxWidth: 600,
-                ),
-                child: Center(
-                  child: const Text(
-                    'Ahora debe subir la imagen del certificado CLUES, es importante que sea legible y nítida.',
-                    style: TextStyle(
-                      fontSize: 16,
-                    ),
+                constraints: const BoxConstraints(maxWidth: 600),
+                child: const Center(
+                  child: Text(
+                    'Now you must upload the image of the CLUES certificate, it is important that it is legible and clear.',
+                    style: TextStyle(fontSize: 16),
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -182,7 +387,7 @@ class SubmitCluesScreenState extends State<SubmitCluesScreen> {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: pickedFile != null ? _startLoadingAndAnalyze : null,
-              child: const Text('Enviar'),
+              child: const Text('Upload'),
             ),
             if (isLoading)
               const Padding(
@@ -191,10 +396,9 @@ class SubmitCluesScreenState extends State<SubmitCluesScreen> {
               ),
             if (detectedText != null) ...[
               const SizedBox(height: 20),
-              Text(
+              const Text(
                 'Texto detectado:',
-                style:
-                    const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               Text(
                 detectedText!,
@@ -203,10 +407,9 @@ class SubmitCluesScreenState extends State<SubmitCluesScreen> {
             ],
             if (croppedImage != null) ...[
               const SizedBox(height: 20),
-              Text(
+              const Text(
                 'Imagen recortada:',
-                style:
-                    const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               Image.memory(
                 Uint8List.fromList(img.encodeJpg(croppedImage!)),
@@ -224,21 +427,11 @@ class SubmitCluesScreenState extends State<SubmitCluesScreen> {
     showCustomSnackBar(context, "Error al seleccionar el archivo: $e");
   }
 
-  void _cluesResponse(detectedText) {
-    showCustomSnackBar(context, "Texto detectado: $detectedText");
-
-    if (detectedText != null && detectedText != "No se detectó código CLUES.") {
-      _sharedPreferencesService.saveClues(detectedText!);
-      showCustomSnackBar(context, "CLUES GUARDADO: $detectedText");
-      Navigator.pushNamed(context, '/verificationCodeScreen');
-    } else {
-      Navigator.pushNamed(context, '/cluesErrScreen');
-    }
-  }
-
   void _invalidApiResponse() {
     showCustomSnackBar(
-        context, "No se recibió una respuesta válida de la API.");
+      context,
+      "No se recibió una respuesta válida de la API.",
+    );
   }
 
   void _errorParsingFile(e) {
