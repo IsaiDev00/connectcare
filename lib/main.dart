@@ -1,4 +1,6 @@
+import 'dart:io';
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -27,42 +29,44 @@ import 'package:connectcare/presentation/screens/admin/principal/main_screen.dar
 import 'package:connectcare/presentation/screens/admin/short_tutorial_screen.dart';
 import 'package:connectcare/presentation/screens/doctor/documents.dart/patient_reg_screen.dart';
 import 'package:connectcare/presentation/screens/admin/hospital_reg/clues_err_screen.dart';
-import 'package:connectcare/presentation/screens/admin/hospital_reg/hospital_name_screen.dart';
 import 'package:connectcare/presentation/screens/admin/hospital_reg/register_hospital_screen.dart';
 import 'package:connectcare/presentation/screens/admin/hospital_reg/submit_clues_screen.dart';
 import 'package:connectcare/presentation/screens/admin/hospital_reg/verification_code_screen.dart';
 import 'package:connectcare/presentation/screens/admin/principal/profile_screen.dart';
+import 'package:permission_handler/permission_handler.dart';
+
 // Instancia global de FlutterLocalNotificationsPlugin
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
 
+// Arrancamos la app
 Future<void> main() async {
+  // 1. Inicializa bindings de Flutter
   WidgetsFlutterBinding.ensureInitialized();
+
+  // 2. Inicializa EasyLocalization
   await EasyLocalization.ensureInitialized();
 
+  // 3. Inicializa Firebase
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
+  // 4. FirebaseAppCheck
   await FirebaseAppCheck.instance.activate(
     androidProvider: AndroidProvider.debug,
     appleProvider: AppleProvider.debug,
   );
 
-  // Inicializamos local notifications (Android / iOS si deseas)
+  // 5. Inicializamos local notifications
   const AndroidInitializationSettings initializationSettingsAndroid =
       AndroidInitializationSettings('@mipmap/ic_launcher');
-
-  // Si quieres iOS, añade iOSInitializationSettings(...) aquí
   const InitializationSettings initializationSettings = InitializationSettings(
     android: initializationSettingsAndroid,
   );
+  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
 
-  await flutterLocalNotificationsPlugin.initialize(
-    initializationSettings,
-  );
-
-  // Opcional: Pedir permisos de notificación para iOS / Android 13+
+  // 6. Pedir permisos de notificación (para iOS / Android 13+)
   NotificationSettings settings =
       await FirebaseMessaging.instance.requestPermission(
     alert: true,
@@ -71,12 +75,11 @@ Future<void> main() async {
   );
   print('User granted permission: ${settings.authorizationStatus}');
 
-  // Listeners para notificaciones en Foreground
+  // 7. Escuchar notificaciones en Foreground
   FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
-    print(
-        'Notificación en Foreground: ${message.notification?.title}, ${message.notification?.body}');
+    print('Notificación en Foreground: '
+        '${message.notification?.title}, ${message.notification?.body}');
 
-    // Preparar datos para la notificación local
     final String notiTitle = message.notification?.title ?? 'Sin título';
     final String notiBody = message.notification?.body ?? 'Sin contenido';
 
@@ -95,14 +98,17 @@ Future<void> main() async {
 
     // Mostramos la notificación local
     await flutterLocalNotificationsPlugin.show(
-      0, // ID de la notificación
+      0,
       notiTitle,
       notiBody,
       platformChannelSpecifics,
     );
   });
 
-  // Arrancamos la app
+  // 8. Pedir permisos de almacenamiento
+  await solicitarPermisosAlmacenamiento();
+
+  // 10. Lanzamos la app con EasyLocalization
   runApp(
     EasyLocalization(
       supportedLocales: const [Locale('en'), Locale('es')],
@@ -111,6 +117,63 @@ Future<void> main() async {
       child: const MyApp(initialRoute: '/'),
     ),
   );
+}
+
+Future<void> solicitarPermisosAlmacenamiento() async {
+  if (Platform.isAndroid) {
+    final androidInfo = await DeviceInfoPlugin().androidInfo;
+    final sdkInt = androidInfo.version.sdkInt;
+
+    if (sdkInt >= 33) {
+      final status = await Permission.photos.status;
+      if (status.isGranted) {
+        debugPrint('Permiso de IMÁGENES ya estaba concedido (Android 13+).');
+        return;
+      }
+      if (status.isDenied) {
+        final newStatus = await Permission.photos.request();
+        if (newStatus.isGranted) {
+          debugPrint('Permiso de IMÁGENES concedido (Android 13+).');
+          return;
+        } else if (newStatus.isPermanentlyDenied) {
+          debugPrint('Permiso permanentemente denegado (Android 13+).');
+          openAppSettings();
+        } else {
+          debugPrint('Permiso denegado (Android 13+).');
+        }
+      }
+      if (status.isPermanentlyDenied) {
+        debugPrint('Permiso permanentemente denegado (Android 13+).');
+        openAppSettings();
+      }
+    } else {
+      final status = await Permission.storage.status;
+      if (status.isGranted) {
+        debugPrint(
+            'Permiso de almacenamiento ya estaba concedido (<= Android 12).');
+        return;
+      }
+      if (status.isDenied) {
+        final newStatus = await Permission.storage.request();
+        if (newStatus.isGranted) {
+          debugPrint('Permiso de almacenamiento concedido (<= Android 12).');
+          return;
+        } else if (newStatus.isPermanentlyDenied) {
+          debugPrint('Permiso permanentemente denegado (<= Android 12).');
+          openAppSettings();
+        } else {
+          debugPrint('Permiso denegado (<= Android 12).');
+        }
+      }
+      if (status.isPermanentlyDenied) {
+        debugPrint('Permiso permanentemente denegado (<= Android 12).');
+        openAppSettings();
+      }
+    }
+  } else {
+    debugPrint(
+        'Plataforma no es Android; no se solicitan permisos de almacenamiento.');
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -139,7 +202,6 @@ class MyApp extends StatelessWidget {
         '/submitCluesScreen': (context) => SubmitCluesScreen(),
         '/cluesErrScreen': (context) => CluesErrScreen(),
         '/verificationCodeScreen': (context) => VerificationCodeScreen(),
-        '/hospitalNameScreen': (context) => HospitalNameScreen(),
         '/manageRoomScreen': (context) => ManageRoomScreen(),
         '/manageProcedureScreen': (context) => ManageProcedureScreen(),
         '/manageServiceScreen': (context) => ManageServiceScreen(),

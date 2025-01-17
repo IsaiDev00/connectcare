@@ -35,7 +35,7 @@ class RegisterHospitalScreenState extends State<RegisterHospitalScreen> {
                 maxWidth: 600,
               ),
               child: const Text(
-                'Before starting the registration of a hospital, you must make sure that your mobile device has airtime, that you have the hospitals CLUES certificate and the telephone number registered there at hand.',
+                'Before starting a hospital registration, you must ensure that your mobile device has a readable image of your hospitals CLUES certificate.',
                 style: TextStyle(
                   fontSize: 16,
                 ),

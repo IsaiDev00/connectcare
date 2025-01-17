@@ -44,41 +44,6 @@ class _AdminStartScreen extends State<AdminStartScreen> {
       appBar: AppBar(
         title: const Text('Iniciar configuracion'),
       ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            DrawerHeader(
-              decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor,
-              ),
-              child: const Text(
-                'Menu',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                ),
-              ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.person),
-              title: const Text('Profile'),
-              onTap: () {
-                // Navegar a la pantalla de perfil
-                Navigator.pushNamed(context, '/profile');
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.settings),
-              title: const Text('Settings'),
-              onTap: () {
-                // Navegar a la pantalla de ajustes
-                Navigator.pushNamed(context, '/settings');
-              },
-            ),
-          ],
-        ),
-      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -92,7 +57,7 @@ class _AdminStartScreen extends State<AdminStartScreen> {
                   return const CircularProgressIndicator();
                 } else if (snapshot.hasError) {
                   return const Text(
-                    'Error al cargar el nombre del hospital',
+                    'Error loading the hospital name',
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -101,7 +66,7 @@ class _AdminStartScreen extends State<AdminStartScreen> {
                   );
                 } else if (!snapshot.hasData || snapshot.data == null) {
                   return const Text(
-                    'Hospital no encontrado',
+                    'Hospital not found',
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,

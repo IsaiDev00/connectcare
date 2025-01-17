@@ -1,3 +1,4 @@
+import 'package:connectcare/presentation/screens/app-admin/hospital_request_screen.dart';
 import 'package:connectcare/presentation/screens/general/auth/forgot_password/forgot_password.dart';
 import 'package:connectcare/presentation/screens/general/auth/verification/two_step_verification_screen.dart';
 import 'package:connectcare/presentation/widgets/snack_bar.dart';
@@ -55,6 +56,16 @@ class LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _loginWithEmail(String email, String password) async {
+    // Verificación especial para correo y contraseña específicos
+    if (email == 'a@b.com' && password == 'abc') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => HospitalRequestScreen(),
+        ),
+      );
+      return;
+    }
     try {
       final url = Uri.parse('$baseUrl/auth/loginWithEmail/$email');
       final response = await http.post(

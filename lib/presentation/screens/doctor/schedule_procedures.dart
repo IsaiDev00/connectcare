@@ -1,5 +1,10 @@
+import 'dart:convert';
+import 'package:connectcare/core/constants/constants.dart';
+import 'package:connectcare/data/services/shared_preferences_service.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProcedureScheduleScreen extends StatefulWidget {
   const ProcedureScheduleScreen({super.key});
@@ -12,6 +17,8 @@ class ProcedureScheduleScreen extends StatefulWidget {
 class _ProcedureScheduleScreenState extends State<ProcedureScheduleScreen> {
   int _selectedIndex = 0;
   final PageController _pageController = PageController();
+  final SharedPreferencesService _sharedPreferencesService =
+      SharedPreferencesService();
 
   // Ejemplo de procedimientos ya agendados
   final List<Map<String, dynamic>> _scheduledProcedures = [
@@ -49,14 +56,8 @@ class _ProcedureScheduleScreenState extends State<ProcedureScheduleScreen> {
   String _selectedPriority = '';
   String _selectedPatient = '';
 
-  final List<String> _procedureList = [
-    'Cirugía menor',
-    'Endoscopia',
-    'Cura de heridas',
-    'Extracción de puntos',
-    'Cesárea',
-    'Sutura de laceraciones',
-  ];
+  // Esta lista ya no se define estática. Se llenará con la data del backend.
+  List<String> _procedureList = [];
 
   final List<String> _patientList = [
     'Juan Pérez',
@@ -75,6 +76,34 @@ class _ProcedureScheduleScreenState extends State<ProcedureScheduleScreen> {
   void initState() {
     super.initState();
     _filteredProcedures = [];
+
+    // Cargar lista de procedimientos desde el backend
+    _fetchProcedures();
+  }
+
+  /// Método para obtener la lista de procedimientos desde el backend
+  Future<void> _fetchProcedures() async {
+    try {
+      // Obtengo 'clues' desde shared preferences
+      final clues = await _sharedPreferencesService.getClues();
+
+      final response = await http.get(
+        Uri.parse('$baseUrl/procedimiento/$clues'),
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        // Asumiendo que 'data' es un array de strings
+        setState(() {
+          _procedureList = data.map((e) => e.toString()).toList();
+        });
+      } else {
+        // Manejo de error en caso de que el statusCode sea distinto de 200
+        debugPrint('Error fetching procedures. Status: ${response.statusCode}');
+      }
+    } catch (e) {
+      debugPrint('Exception fetching procedures: $e');
+    }
   }
 
   Widget _buildMenuItem(String title, int index) {
@@ -94,7 +123,9 @@ class _ProcedureScheduleScreenState extends State<ProcedureScheduleScreen> {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 500),
         padding: EdgeInsets.symmetric(
-            horizontal: isSelected ? 20 : 15, vertical: 10),
+          horizontal: isSelected ? 20 : 15,
+          vertical: 10,
+        ),
         decoration: BoxDecoration(
           color: isSelected
               ? theme.colorScheme.secondary
@@ -131,6 +162,7 @@ class _ProcedureScheduleScreenState extends State<ProcedureScheduleScreen> {
       firstDate: now,
       lastDate: DateTime(now.year + 1),
       selectableDayPredicate: (day) {
+        // Deshabilito sábados y domingos
         if (day.weekday == DateTime.saturday ||
             day.weekday == DateTime.sunday) {
           return false;
@@ -278,7 +310,6 @@ class _ProcedureScheduleScreenState extends State<ProcedureScheduleScreen> {
                 : 'Selected: ${_formatDate(_selectedDate!)}'),
           ),
           const SizedBox(height: 10),
-          // Texto del horario disponible
           Text(
             'Available schedule: 08:00 - 20:00',
             style: theme.textTheme.bodyMedium,

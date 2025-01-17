@@ -1,3 +1,4 @@
+import 'package:connectcare/presentation/screens/general/dynamic_wrapper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -14,7 +15,7 @@ class _ShortTutorialScreen extends State<ShortTutorialScreen> {
     var brightness = Theme.of(context).brightness;
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Create procedure"),
+        title: const Text("Short Tutorial"),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () {
@@ -117,7 +118,12 @@ class _ShortTutorialScreen extends State<ShortTutorialScreen> {
                   const SizedBox(height: 50),
                   ElevatedButton(
                     onPressed: () {
-                      Navigator.pushNamed(context, '/adminHomeScreen');
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const DynamicWrapper(),
+                        ),
+                      );
                     },
                     child: const Text("Got it"),
                   ),
