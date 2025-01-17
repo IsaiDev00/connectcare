@@ -1,45 +1,170 @@
-import 'package:connectcare/data/services/user_service.dart';
+import 'package:connectcare/core/constants/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
-class PatientHistory extends StatefulWidget {
-  const PatientHistory({super.key});
+class PatientHistory extends StatelessWidget {
+  final String nssPaciente;
+
+  PatientHistory({required this.nssPaciente});
 
   @override
-  PatientHistoryState createState() => PatientHistoryState();
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Patient History')),
+      body: ListView(
+        children: [
+          ListTile(
+            title: Text('Triage'),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => HistoryDetailsScreen(
+                  title: 'Triage',
+                  endpoint: '/triage/patient/$nssPaciente',
+                  itemsPerPage: 5,
+                ),
+              ),
+            ),
+          ),
+          ListTile(
+            title: Text('Nursing Sheets'),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => HistoryDetailsScreen(
+                  title: 'Nursing Sheets',
+                  endpoint: '/hoja_de_enfermeria/patient/$nssPaciente',
+                  itemsPerPage: 5,
+                ),
+              ),
+            ),
+          ),
+          ListTile(
+            title: Text('Progress Notes'),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => HistoryDetailsScreen(
+                  title: 'Progress Notes',
+                  endpoint: '/nota_de_evolucion/patient/$nssPaciente',
+                  itemsPerPage: 5,
+                ),
+              ),
+            ),
+          ),
+          ListTile(
+            title: Text('Medical Instructions'),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => HistoryDetailsScreen(
+                  title: 'Medical Instructions',
+                  endpoint: '/indicaciones_medicas/patient/$nssPaciente',
+                  itemsPerPage: 5,
+                ),
+              ),
+            ),
+          ),
+          ListTile(
+            title: Text('Discharge Records'),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => HistoryDetailsScreen(
+                  title: 'Discharge Records',
+                  endpoint: '/paciente/patient/$nssPaciente',
+                  itemsPerPage: 10,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
-class PatientHistoryState extends State<PatientHistory> {
-  String? userId;
-  String? userType;
+class HistoryDetailsScreen extends StatefulWidget {
+  final String title;
+  final String endpoint;
+  final int itemsPerPage;
+
+  HistoryDetailsScreen(
+      {required this.title,
+      required this.endpoint,
+      required this.itemsPerPage});
+
+  @override
+  _HistoryDetailsScreenState createState() => _HistoryDetailsScreenState();
+}
+
+class _HistoryDetailsScreenState extends State<HistoryDetailsScreen> {
+  List<dynamic> records = [];
+  int currentPage = 1;
+  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _loadUserData();
+    _fetchRecords();
   }
 
-  Future<void> _loadUserData() async {
-    final userData = await UserService().loadUserData();
-    setState(() {
-      userId = userData['userId'];
-      userType = userData['userType'];
-    });
+  Future<void> _fetchRecords() async {
+    final url = Uri.parse('$baseUrl${widget.endpoint}?page=$currentPage');
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        setState(() {
+          records = json.decode(response.body);
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      //print('Error fetching records: $e');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('HISTORIAL DEL PACIENTE'),
-      ),
-      body: Center(
-        child: userId == null
-            ? const CircularProgressIndicator()
-            : Text(
-                'HOLA',
-                style: const TextStyle(fontSize: 16),
-                textAlign: TextAlign.center,
-              ),
+      appBar: AppBar(title: Text(widget.title)),
+      body: isLoading
+          ? Center(child: CircularProgressIndicator())
+          : ListView.builder(
+              itemCount: records.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: Text(records[index].toString()),
+                );
+              },
+            ),
+      bottomNavigationBar: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: currentPage > 1
+                ? () {
+                    setState(() {
+                      currentPage--;
+                      isLoading = true;
+                    });
+                    _fetchRecords();
+                  }
+                : null,
+          ),
+          IconButton(
+            icon: Icon(Icons.arrow_forward),
+            onPressed: () {
+              setState(() {
+                currentPage++;
+                isLoading = true;
+              });
+              _fetchRecords();
+            },
+          ),
+        ],
       ),
     );
   }
