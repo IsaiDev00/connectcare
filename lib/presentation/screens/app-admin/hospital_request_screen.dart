@@ -40,7 +40,6 @@ class _HospitalRequestScreen extends State<HospitalRequestScreen> {
         setState(() {
           isLoading = false;
         });
-        showErrorDialog('Error fetching requests. Please try again later.');
       }
     } catch (error) {
       setState(() {

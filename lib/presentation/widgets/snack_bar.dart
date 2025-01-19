@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-void showCustomSnackBar(BuildContext context, String msg) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Text(msg),
-      duration: const Duration(seconds: 2),
+void showCustomSnackBar(BuildContext context, String message,
+    {bool isError = false}) {
+  final snackBar = SnackBar(
+    content: Text(
+      message,
+      style: TextStyle(color: isError ? Colors.red : Colors.white),
     ),
+    backgroundColor: isError ? Colors.white : Colors.black,
   );
+  ScaffoldMessenger.of(context).showSnackBar(snackBar);
 }
 
 void responseHandlerPost(

@@ -80,7 +80,7 @@ class CreateRoomScreenState extends State<CreateRoomScreen> {
         setState(() {
           services = data
               .map((item) =>
-                  {'id': item['id_servicio'], 'name': item['servicio_nombre']})
+                  {'id': item['id_servicio'], 'name': item['nombre_servicio']})
               .toList();
         });
       } else {

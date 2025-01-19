@@ -2,7 +2,6 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'dart:convert';
 import 'package:connectcare/core/constants/constants.dart';
-import 'package:connectcare/presentation/screens/admin/hospital_reg/waiting_confirmation_screen.dart';
 import 'package:connectcare/presentation/screens/general/dynamic_wrapper.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:connectcare/data/services/shared_preferences_service.dart';
@@ -16,7 +15,6 @@ import 'package:image/image.dart' as img;
 import 'package:http/http.dart'
     as http; // <-- Importante para enviar peticiones HTTP
 import 'dart:core';
-import 'dart:io' show File;
 
 class SubmitCluesScreen extends StatefulWidget {
   const SubmitCluesScreen({super.key});
@@ -182,6 +180,25 @@ class SubmitCluesScreenState extends State<SubmitCluesScreen> {
 
       print(
           'Respuesta del servidor: ${response.statusCode} - ${response.body}');
+
+      // Intentamos decodificar la respuesta como JSON
+      dynamic responseData;
+      try {
+        responseData = jsonDecode(response.body);
+      } catch (e) {
+        print('La respuesta no es un JSON válido: $e');
+        responseData = null;
+      }
+
+      // Verificamos si la respuesta indica "status": 0
+      if (responseData != null &&
+          responseData is Map &&
+          responseData['status'] == 0) {
+        // Mostramos mensaje de error en rojo y salimos de la función
+        showCustomSnackBar(context, "Invalid document", isError: true);
+        return;
+      }
+
       if (response.statusCode == 201) {
         showCustomSnackBar(context, "Solicitud registrada con éxito");
         Navigator.push(

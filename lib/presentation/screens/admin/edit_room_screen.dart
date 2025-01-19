@@ -16,7 +16,7 @@ class EditRoomScreen extends StatefulWidget {
 }
 
 class EditRoomScreenState extends State<EditRoomScreen> {
-    final SharedPreferencesService _sharedPreferencesService =
+  final SharedPreferencesService _sharedPreferencesService =
       SharedPreferencesService();
   final _formKey = GlobalKey<FormState>();
   bool is24_7 = true;
@@ -101,10 +101,11 @@ class EditRoomScreenState extends State<EditRoomScreen> {
           selectedServiceId = data['id_servicio'].toString();
           maxBedsController.text = data['max_beds'].toString();
 
-          // Activar automáticamente las checkboxes
+          // Recibimos si es 24/7 e info de visitas (si la API lo provee)
           is24_7 = data['is24_7'] ?? false;
           hasVisitingHours = data['hasVisitingHours'] ?? false;
 
+          // Si hay horario de visita
           if (hasVisitingHours && data['horarioVisita'] != null) {
             startVisitingController.text = data['horarioVisita']['inicio'];
             endVisitingController.text = data['horarioVisita']['fin'];
@@ -112,6 +113,7 @@ class EditRoomScreenState extends State<EditRoomScreen> {
                 data['horarioVisita']['visitantes'].toString();
           }
 
+          // Cargar horario de atención
           final horarioAtencion = data['horarioAtencion'] ?? {};
 
           startControllers.forEach((day, controller) {
@@ -153,8 +155,8 @@ class EditRoomScreenState extends State<EditRoomScreen> {
         List<dynamic> data = json.decode(response.body);
         setState(() {
           services = data
-              .map(
-                  (item) => {'id': item['id_servicio'], 'name': item['nombre_servicio']})
+              .map((item) =>
+                  {'id': item['id_servicio'], 'name': item['nombre_servicio']})
               .toList();
         });
       } else {
@@ -170,25 +172,23 @@ class EditRoomScreenState extends State<EditRoomScreen> {
     }
   }
 
+  /// Intenta formatear la hora de [time] en formato "HH:mm:ss".
+  /// Si no lo logra, lanza una excepción para que no continúe el registro.
   String _formatTime(String time) {
     try {
-      // Remueve caracteres especiales o espacios no visibles
       time = time.replaceAll(RegExp(r'[\u202F\u00A0]'), '').trim();
 
-      // Intenta parsear el formato en formato de 12 horas si detecta "AM" o "PM"
       DateTime parsedTime;
       if (time.contains(RegExp(r'AM|PM', caseSensitive: false))) {
         parsedTime = DateFormat.jm().parse(time);
       } else {
-        // Asume que está en formato de 24 horas si no hay AM/PM
         parsedTime = DateFormat.Hms().parse(time);
       }
 
-      // Devuelve en formato HH:mm:ss
       return DateFormat('HH:mm:ss').format(parsedTime);
     } catch (e) {
       print('Error formateando el tiempo: $e');
-      return '00:00:00';
+      throw FormatException('Invalid time format: $time');
     }
   }
 
@@ -199,58 +199,69 @@ class EditRoomScreenState extends State<EditRoomScreen> {
 
     try {
       final url = Uri.parse('$baseUrl/sala/sala/${widget.roomId}');
-      Map<String, String?> horarioAtencion = {};
+      Map<String, String?> horarioAtencionMap = {};
 
+      // Manejo de horario de atención
       if (is24_7) {
         for (var day in startControllers.keys) {
           String dayInSpanish = dayTranslations[day]!;
-          horarioAtencion['${dayInSpanish}_hora_inicio'] = "00:00:00";
-          horarioAtencion['${dayInSpanish}_hora_fin'] = "23:59:59";
+          horarioAtencionMap['${dayInSpanish}_hora_inicio'] = "00:00:00";
+          horarioAtencionMap['${dayInSpanish}_hora_fin'] = "23:59:59";
         }
       } else {
         for (var day in startControllers.keys) {
           String dayInSpanish = dayTranslations[day]!;
+
           if (isClosed[day]!) {
-            horarioAtencion['${dayInSpanish}_hora_inicio'] = null;
-            horarioAtencion['${dayInSpanish}_hora_fin'] = null;
+            horarioAtencionMap['${dayInSpanish}_hora_inicio'] = null;
+            horarioAtencionMap['${dayInSpanish}_hora_fin'] = null;
           } else {
-            horarioAtencion['${dayInSpanish}_hora_inicio'] =
-                startControllers[day]!.text.isNotEmpty
-                    ? _formatTime(startControllers[day]!.text)
-                    : null;
-            horarioAtencion['${dayInSpanish}_hora_fin'] =
-                endControllers[day]!.text.isNotEmpty
-                    ? _formatTime(endControllers[day]!.text)
-                    : null;
+            final startTime = startControllers[day]!.text.isNotEmpty
+                ? _formatTime(startControllers[day]!.text)
+                : null;
+            final endTime = endControllers[day]!.text.isNotEmpty
+                ? _formatTime(endControllers[day]!.text)
+                : null;
+
+            horarioAtencionMap['${dayInSpanish}_hora_inicio'] = startTime;
+            horarioAtencionMap['${dayInSpanish}_hora_fin'] = endTime;
           }
         }
       }
 
+      // Armar el payload principal
       Map<String, dynamic> payload = {
         'nombre': nameController.text,
         'numero': int.tryParse(numberController.text) ?? 0,
         'id_servicio': int.tryParse(selectedServiceId ?? '') ?? 0,
         'maxBeds': int.tryParse(maxBedsController.text) ?? 0,
-        'horarioAtencion': horarioAtencion,
+        'horarioAtencion': horarioAtencionMap,
+        'hasVisitingHours': hasVisitingHours, // <-- Bandera importante
       };
 
+      // Manejo de horario de visita según hasVisitingHours
       if (hasVisitingHours) {
         if (startVisitingController.text.isNotEmpty &&
             endVisitingController.text.isNotEmpty &&
             maxVisitsController.text.isNotEmpty) {
+          final visitingStart = _formatTime(startVisitingController.text);
+          final visitingEnd = _formatTime(endVisitingController.text);
+
           payload['horarioVisita'] = {
-            'inicio': _formatTime(startVisitingController.text),
-            'fin': _formatTime(endVisitingController.text),
+            'inicio': visitingStart,
+            'fin': visitingEnd,
             'visitantes': int.tryParse(maxVisitsController.text) ?? 0,
           };
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-                content: Text('Please complete all visiting hours fields')),
+              content: Text('Please complete all visiting hours fields'),
+            ),
           );
           return;
         }
       }
+      // Si hasVisitingHours es false, no mandamos horarioVisita, el backend lo eliminará si existía
 
       final response = await http.put(
         url,
@@ -271,6 +282,14 @@ class EditRoomScreenState extends State<EditRoomScreen> {
         print('Response body: ${response.body}');
         throw Exception('Failed to update room details');
       }
+    } on FormatException catch (fe) {
+      print('Formato de hora inválido: ${fe.message}');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Invalid time format: ${fe.message}'),
+          backgroundColor: Colors.red,
+        ),
+      );
     } catch (e) {
       print('Error updating room details: $e');
       ScaffoldMessenger.of(context).showSnackBar(
@@ -295,7 +314,6 @@ class EditRoomScreenState extends State<EditRoomScreen> {
 
     if (pickedTime != null && mounted) {
       final now = DateTime.now();
-      // Formatea a HH:mm:ss
       final formattedTime = DateFormat('HH:mm:ss').format(
         DateTime(
             now.year, now.month, now.day, pickedTime.hour, pickedTime.minute),
@@ -307,7 +325,7 @@ class EditRoomScreenState extends State<EditRoomScreen> {
   }
 
   bool _validateDays() {
-    // If not 24/7, verify each day has valid hours or is closed
+    // Validar horarios si no es 24/7
     if (!is24_7) {
       for (var day in startControllers.keys) {
         if (!isClosed[day]!) {
@@ -348,9 +366,7 @@ class EditRoomScreenState extends State<EditRoomScreen> {
         ),
       ),
       body: isLoading
-          ? const Center(
-              child: CircularProgressIndicator(),
-            )
+          ? const Center(child: CircularProgressIndicator())
           : Padding(
               padding: const EdgeInsets.all(16.0),
               child: SingleChildScrollView(
@@ -361,8 +377,6 @@ class EditRoomScreenState extends State<EditRoomScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       const SizedBox(height: 30),
-
-                      // NAME OF THE ROOM
                       TextFormField(
                         controller: nameController,
                         decoration: const InputDecoration(
@@ -379,10 +393,7 @@ class EditRoomScreenState extends State<EditRoomScreen> {
                           return null;
                         },
                       ),
-
                       const SizedBox(height: 15),
-
-                      // NUMBER OF THE ROOM
                       TextFormField(
                         controller: numberController,
                         decoration: const InputDecoration(
@@ -401,17 +412,13 @@ class EditRoomScreenState extends State<EditRoomScreen> {
                           return null;
                         },
                       ),
-
                       const SizedBox(height: 30),
-
-                      // OPENING HOURS
-                      Text("Opening hours"),
+                      const Text("Opening hours"),
                       const SizedBox(height: 5),
-
                       SizedBox(
                         width: 200,
                         child: CheckboxListTile(
-                          title: Text("24/7"),
+                          title: const Text("24/7"),
                           value: is24_7,
                           onChanged: (value) {
                             setState(() {
@@ -421,15 +428,13 @@ class EditRoomScreenState extends State<EditRoomScreen> {
                                     (_, controller) => controller.clear());
                                 endControllers.forEach(
                                     (_, controller) => controller.clear());
-                                isClosed.updateAll((key, value) => false);
+                                isClosed.updateAll((key, _) => false);
                               }
                             });
                           },
                         ),
                       ),
-
                       const SizedBox(height: 5),
-
                       Visibility(
                         visible: !is24_7,
                         child: Column(
@@ -445,11 +450,8 @@ class EditRoomScreenState extends State<EditRoomScreen> {
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  SizedBox(
-                                    width: 80,
-                                    child: Text(day),
-                                  ),
-                                  const SizedBox(width: 40),
+                                  SizedBox(width: 80, child: Text(day)),
+                                  const SizedBox(width: 10),
                                   SizedBox(
                                     width: 100,
                                     child: CheckboxListTile(
@@ -468,44 +470,53 @@ class EditRoomScreenState extends State<EditRoomScreen> {
                                     ),
                                   ),
                                   const SizedBox(width: 20),
-                                  SizedBox(
-                                    width: 100,
-                                    child: TextFormField(
-                                      controller: startController,
-                                      readOnly: true,
-                                      enabled: !isClosed[day]!,
-                                      decoration: const InputDecoration(
-                                        labelText: "Start time",
+                                  Column(
+                                    children: [
+                                      SizedBox(
+                                        width: 80,
+                                        child: TextFormField(
+                                          controller: startController,
+                                          readOnly: true,
+                                          enabled: !isClosed[day]!,
+                                          decoration: const InputDecoration(
+                                            labelText: "Start time",
+                                          ),
+                                          onTap: () =>
+                                              _selectTime(startController),
+                                          validator: (value) {
+                                            if (!isClosed[day]! &&
+                                                (value == null ||
+                                                    value.isEmpty)) {
+                                              return 'Required';
+                                            }
+                                            return null;
+                                          },
+                                        ),
                                       ),
-                                      onTap: () => _selectTime(startController),
-                                      validator: (value) {
-                                        if (!isClosed[day]! &&
-                                            (value == null || value.isEmpty)) {
-                                          return 'Required';
-                                        }
-                                        return null;
-                                      },
-                                    ),
-                                  ),
-                                  const SizedBox(width: 10),
-                                  SizedBox(
-                                    width: 100,
-                                    child: TextFormField(
-                                      controller: endController,
-                                      readOnly: true,
-                                      enabled: !isClosed[day]!,
-                                      decoration: const InputDecoration(
-                                        labelText: "End time",
+                                      const SizedBox(height: 10),
+                                      SizedBox(
+                                        width: 80,
+                                        child: TextFormField(
+                                          controller: endController,
+                                          readOnly: true,
+                                          enabled: !isClosed[day]!,
+                                          decoration: const InputDecoration(
+                                            labelText: "End time",
+                                          ),
+                                          onTap: () =>
+                                              _selectTime(endController),
+                                          validator: (value) {
+                                            if (!isClosed[day]! &&
+                                                (value == null ||
+                                                    value.isEmpty)) {
+                                              return 'Required';
+                                            }
+                                            return null;
+                                          },
+                                        ),
                                       ),
-                                      onTap: () => _selectTime(endController),
-                                      validator: (value) {
-                                        if (!isClosed[day]! &&
-                                            (value == null || value.isEmpty)) {
-                                          return 'Required';
-                                        }
-                                        return null;
-                                      },
-                                    ),
+                                      const SizedBox(height: 20),
+                                    ],
                                   ),
                                 ],
                               ),
@@ -513,14 +524,11 @@ class EditRoomScreenState extends State<EditRoomScreen> {
                           }).toList(),
                         ),
                       ),
-
                       const SizedBox(height: 30),
-
-                      // VISITING HOURS
                       SizedBox(
                         width: 200,
                         child: CheckboxListTile(
-                          title: Text("Add Visiting Hours"),
+                          title: const Text("Add Visiting Hours"),
                           value: hasVisitingHours,
                           onChanged: (value) {
                             setState(() {
@@ -534,13 +542,12 @@ class EditRoomScreenState extends State<EditRoomScreen> {
                           },
                         ),
                       ),
-
                       Visibility(
                         visible: hasVisitingHours,
                         child: Column(
                           children: [
                             const SizedBox(height: 10),
-                            Text("Visiting hours"),
+                            const Text("Visiting hours"),
                             const SizedBox(height: 10),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -616,10 +623,7 @@ class EditRoomScreenState extends State<EditRoomScreen> {
                           ],
                         ),
                       ),
-
                       const SizedBox(height: 30),
-
-                      // MAX NUMBER OF BEDS/INCUBATORS/CRIBS
                       TextFormField(
                         controller: maxBedsController,
                         decoration: const InputDecoration(
@@ -644,10 +648,7 @@ class EditRoomScreenState extends State<EditRoomScreen> {
                           return null;
                         },
                       ),
-
                       const SizedBox(height: 30),
-
-                      // Service Selection
                       DropdownButtonFormField<String>(
                         decoration: const InputDecoration(
                           labelText: "Select Service",
@@ -659,9 +660,7 @@ class EditRoomScreenState extends State<EditRoomScreen> {
                             value: service['id'].toString(),
                             child: Text(
                               service['name'],
-                              style: const TextStyle(
-                                fontSize: 13,
-                              ),
+                              style: const TextStyle(fontSize: 13),
                             ),
                           );
                         }).toList(),
@@ -677,9 +676,7 @@ class EditRoomScreenState extends State<EditRoomScreen> {
                           return null;
                         },
                       ),
-
                       const SizedBox(height: 40),
-
                       ElevatedButton(
                         onPressed: () {
                           if (_formKey.currentState!.validate() &&
@@ -688,8 +685,9 @@ class EditRoomScreenState extends State<EditRoomScreen> {
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                  content: Text(
-                                      'Please enter valid times for all open days')),
+                                content: Text(
+                                    'Please enter valid times for all open days'),
+                              ),
                             );
                           }
                         },

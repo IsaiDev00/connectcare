@@ -1329,8 +1329,48 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please fix the errors in the form')),
+        SnackBar(content: Text('Please fill the missing fields in the form')),
       );
+    }
+  }
+
+  Future<void> sendReport(String message) async {
+    final urlGet = "$baseUrl/paciente_familiar/familiar/$nss";
+    final responseGet = await http.get(Uri.parse(urlGet));
+
+    if (responseGet.statusCode != 200) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text("Este paciente no tiene familiares vinculados")));
+      return;
+    }
+
+    final jsonGet = jsonDecode(responseGet.body);
+    if (jsonGet["id_familiar"] == null) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text("Este paciente no tiene familiares vinculados")));
+      return;
+    }
+
+    final familyId = jsonGet["id_familiar"];
+    final urlPost = "$baseUrl/firebase_notification/send-notification";
+    final title = "Your relative need their medicine";
+    final body = message.isEmpty
+        ? "You have not brought some necesary medications"
+        : message;
+
+    final responsePost = await http.post(
+      Uri.parse(urlPost),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({"userId": familyId, "title": title, "body": body}),
+    );
+
+    // Opcional: manejar la respuesta del envío de la notificación
+    if (responsePost.statusCode == 200) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("The family member has been notificated")));
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error notificating the family member")));
     }
   }
 
@@ -3197,6 +3237,50 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                       ),
                     ),
                   ],
+                ),
+              ),
+              const SizedBox(height: 30),
+
+              Center(
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red, // Color de fondo rojo
+                  ),
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        String message = "";
+                        return AlertDialog(
+                          title: Text("Report lack of requested medications"),
+                          content: TextField(
+                            onChanged: (value) {
+                              message = value;
+                            },
+                            decoration:
+                                InputDecoration(hintText: "Optional message"),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                message = "";
+                                Navigator.pop(context);
+                              },
+                              child: Text("Cancel"),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                sendReport(message);
+                                Navigator.pop(context);
+                              },
+                              child: Text("Send"),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                  child: Text("Report lack of requested medications"),
                 ),
               ),
 

@@ -6,7 +6,7 @@ import 'dart:convert';
 class PatientHistory extends StatelessWidget {
   final String nssPaciente;
 
-  PatientHistory({required this.nssPaciente});
+  const PatientHistory({super.key, required this.nssPaciente});
 
   @override
   Widget build(BuildContext context) {
@@ -90,8 +90,8 @@ class HistoryDetailsScreen extends StatefulWidget {
   final String endpoint;
   final int itemsPerPage;
 
-  HistoryDetailsScreen(
-      {required this.title,
+  const HistoryDetailsScreen(
+      {super.key, required this.title,
       required this.endpoint,
       required this.itemsPerPage});
 
