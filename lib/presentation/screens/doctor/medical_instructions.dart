@@ -141,7 +141,7 @@ class MedicalInstructionsState extends State<MedicalInstructions> {
           Icon(icon, color: const Color(0xFF00A0A6)),
           const SizedBox(width: 8),
           Text(
-            title,
+            title.tr(),
             style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
