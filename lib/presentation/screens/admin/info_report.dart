@@ -19,18 +19,24 @@ class _ViewDailyReportState extends State<ViewDailyReport> {
   String loadingText = 'Loading';
   Timer? _timer;
   List<String> graphs = [];
+
   @override
   void initState() {
     super.initState();
     date = DateFormat('dd/MM/yy').format(widget.date);
     _startLoadingAnimation();
-
     _fetchGraphs();
   }
 
-  _fetchGraphs() async {
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _fetchGraphs() async {
     bool mov = await fetchGraphs();
-    if (mov) {
+    if (mov && mounted) {
       setState(() {
         _isLoading = false;
       });
@@ -38,14 +44,13 @@ class _ViewDailyReportState extends State<ViewDailyReport> {
   }
 
   Future<bool> fetchGraphs() async {
-    // var url = Uri.parse('$baseUrl/auth/email/$email');
     var url = Uri.parse(
-        'http://localhost:8080/generate_image/12/04/enfermeros,medicos,camilleros,trabajo_social,familiares,Hhoja_enfermeria,Hsolicitudes_traslado,Hindicaciones_medicas,Htriage,Hnotas_evolucion,Haltas_paciente,Htraslado_pacientes_completados,Htraslado_pacientes_no_completados,Hvinculaciones_cuentas_familiares,Hpeticiones_visita,Hpeticiones_visita_aceptadas,Hpeticiones_visita_no_aceptadas1');
+        'https://connectcare-graphics-320080170162.us-central1.run.app/generate_image/12/04/enfermeros,medicos,camilleros,trabajo_social,Hhoja_enfermeria,Hindicaciones_medicas,Htriage,Hnotas_evolucion,Haltas_paciente,Hsolicitudes_traslado,Htraslado_pacientes_completados,Htraslado_pacientes_no_completados,Hvinculaciones_cuentas_familiares');
     var response = await http.get(url);
 
     if (response.statusCode == 200) {
       var responseBody = jsonDecode(response.body);
-      graphs = responseBody.images;
+      graphs = List<String>.from(responseBody['images']);
       return true;
     } else {
       return false;
@@ -80,21 +85,17 @@ class _ViewDailyReportState extends State<ViewDailyReport> {
   }
 
   @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     var theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(date,
-            style: theme.textTheme.titleMedium!.copyWith(
-              color: theme.colorScheme.onSurface,
-            )),
+        title: Text(
+          date,
+          style: theme.textTheme.titleMedium!.copyWith(
+            color: theme.colorScheme.onSurface,
+          ),
+        ),
         centerTitle: true,
       ),
       body: Center(
@@ -104,34 +105,43 @@ class _ViewDailyReportState extends State<ViewDailyReport> {
                 children: [
                   Center(
                     child: Text(
-                        '     $loadingText\nPlease wait for\nData Graphics',
-                        style: theme.textTheme.headlineLarge!.copyWith(
-                          color: theme.colorScheme.onSurface,
-                        )),
+                      '     $loadingText\nPlease wait for\nData Graphics',
+                      style: theme.textTheme.headlineLarge!.copyWith(
+                        color: theme.colorScheme.onSurface,
+                      ),
+                    ),
                   ),
                 ],
               )
-            : Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Center(
-                    child: graphs.isNotEmpty
-                        ? ListView.builder(
-                            itemCount: graphs.length,
-                            itemBuilder: (context, index) {
-                              final item = graphs[index];
-                              return ListTile(
-                                  title: Image.network(
-                                      'data:image/png;base64,$item'));
-                            },
-                          )
-                        : Text('There was an error fetching graphs',
-                            style: theme.textTheme.headlineLarge!.copyWith(
-                              color: theme.colorScheme.onSurface,
-                            )),
+            : graphs.isNotEmpty
+                ? ListView.separated(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    itemCount: graphs.length,
+                    itemBuilder: (context, index) {
+                      final item = graphs[index];
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Card(
+                          elevation: 4,
+                          child: Image.memory(
+                            base64Decode(item),
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                      );
+                    },
+                    separatorBuilder: (context, index) => const SizedBox(
+                      height: 8.0,
+                    ),
+                  )
+                : Center(
+                    child: Text(
+                      'There was an error fetching graphs',
+                      style: theme.textTheme.headlineLarge!.copyWith(
+                        color: theme.colorScheme.onSurface,
+                      ),
+                    ),
                   ),
-                ],
-              ),
       ),
     );
   }
