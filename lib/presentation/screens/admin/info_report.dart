@@ -19,6 +19,88 @@ class _ViewDailyReportState extends State<ViewDailyReport> {
   String loadingText = 'Loading';
   Timer? _timer;
   List<String> graphs = [];
+  Map<String, int> counts = {};
+
+  final List<Map<String, dynamic>> titlesWithIcons = [
+    {
+      "title": "Enfermeros",
+      "icon": Icons.local_hospital,
+      "keys": ["solicitudes_traslado_nurse", "hoja_enfermeria_nurse"]
+    },
+    {
+      "title": "Médicos",
+      "icon": Icons.person,
+      "keys": [
+        "solicitudes_traslado_doctor",
+        "hoja_enfermeria_doctor",
+        "indicaciones_medicas",
+        "triage",
+        "notas_evolucion",
+        "altas_paciente"
+      ]
+    },
+    {
+      "title": "Camilleros",
+      "icon": Icons.local_shipping,
+      "keys": [
+        "traslado_pacientes_completados",
+        "traslado_pacientes_no_completados"
+      ]
+    },
+    {
+      "title": "Trabajo social",
+      "icon": Icons.people,
+      "keys": ["vinculaciones_cuentas_familiares"]
+    },
+  ];
+
+  final List<Map<String, dynamic>> additionalTitlesWithIcons = [
+    {
+      "title": "Actualizaciones a hojas de enfermería",
+      "icon": Icons.note_alt,
+      "key": "hoja_enfermeria"
+    },
+    {
+      "title": "Actualizaciones a indicaciones médicas",
+      "icon": Icons.receipt,
+      "key": "indicaciones_medicas"
+    },
+    {
+      "title": "Actualizaciones a triage",
+      "icon": Icons.assignment,
+      "key": "triage"
+    },
+    {
+      "title": "Actualizaciones a notas de evolución",
+      "icon": Icons.edit_note,
+      "key": "notas_evolucion"
+    },
+    {
+      "title": "Altas de pacientes",
+      "icon": Icons.exit_to_app,
+      "key": "altas_paciente"
+    },
+    {
+      "title": "Solicitudes de traslado generadas",
+      "icon": Icons.send,
+      "key": "solicitudes_traslado"
+    },
+    {
+      "title": "Solicitudes de traslado completadas",
+      "icon": Icons.done,
+      "key": "traslado_pacientes_completados"
+    },
+    {
+      "title": "Solicitudes de traslado no completadas",
+      "icon": Icons.close,
+      "key": "traslado_pacientes_no_completados"
+    },
+    {
+      "title": "Vinculaciones de cuentas de familiares",
+      "icon": Icons.family_restroom,
+      "key": "vinculaciones_cuentas_familiares"
+    },
+  ];
 
   @override
   void initState() {
@@ -35,15 +117,6 @@ class _ViewDailyReportState extends State<ViewDailyReport> {
   }
 
   Future<void> _fetchGraphs() async {
-    bool mov = await fetchGraphs();
-    if (mov && mounted) {
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
-
-  Future<bool> fetchGraphs() async {
     var url = Uri.parse(
         'https://connectcare-graphics-320080170162.us-central1.run.app/generate_image/12/04/enfermeros,medicos,camilleros,trabajo_social,Hhoja_enfermeria,Hindicaciones_medicas,Htriage,Hnotas_evolucion,Haltas_paciente,Hsolicitudes_traslado,Htraslado_pacientes_completados,Htraslado_pacientes_no_completados,Hvinculaciones_cuentas_familiares');
     var response = await http.get(url);
@@ -51,9 +124,10 @@ class _ViewDailyReportState extends State<ViewDailyReport> {
     if (response.statusCode == 200) {
       var responseBody = jsonDecode(response.body);
       graphs = List<String>.from(responseBody['images']);
-      return true;
-    } else {
-      return false;
+      counts = Map<String, int>.from(responseBody['counts']);
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -92,9 +166,7 @@ class _ViewDailyReportState extends State<ViewDailyReport> {
       appBar: AppBar(
         title: Text(
           date,
-          style: theme.textTheme.titleMedium!.copyWith(
-            color: theme.colorScheme.onSurface,
-          ),
+          style: theme.textTheme.titleMedium,
         ),
         centerTitle: true,
       ),
@@ -106,42 +178,130 @@ class _ViewDailyReportState extends State<ViewDailyReport> {
                   Center(
                     child: Text(
                       '     $loadingText\nPlease wait for\nData Graphics',
-                      style: theme.textTheme.headlineLarge!.copyWith(
-                        color: theme.colorScheme.onSurface,
-                      ),
+                      style: theme.textTheme.headlineLarge,
                     ),
                   ),
                 ],
               )
-            : graphs.isNotEmpty
-                ? ListView.separated(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    itemCount: graphs.length,
-                    itemBuilder: (context, index) {
-                      final item = graphs[index];
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        child: Card(
+            : ListView.builder(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                itemCount: graphs.length,
+                itemBuilder: (context, index) {
+                  if (index < titlesWithIcons.length) {
+                    final title = titlesWithIcons[index];
+                    final List<String> keys = title['keys'];
+                    final List<String> stats = keys.map((key) {
+                      if (key.contains("nurse")) {
+                        return key == "solicitudes_traslado_nurse"
+                            ? "Solicitudes de traslado por enfermeros: ${counts[key] ?? 0}"
+                            : "Actualizaciones a hojas de enfermería por enfermeros: ${counts[key] ?? 0}";
+                      } else if (key.contains("doctor")) {
+                        return key == "solicitudes_traslado_doctor"
+                            ? "Solicitudes de traslado por médicos: ${counts[key] ?? 0}"
+                            : "Actualizaciones a hojas de enfermería por médicos: ${counts[key] ?? 0}";
+                      } else if (key == "indicaciones_medicas") {
+                        return "Indicaciones médicas generadas: ${counts[key] ?? 0}";
+                      } else if (key == "triage") {
+                        return "Triage generados: ${counts[key] ?? 0}";
+                      } else if (key == "notas_evolucion") {
+                        return "Notas de evolución generadas: ${counts[key] ?? 0}";
+                      } else if (key == "altas_paciente") {
+                        return "Pacientes dados de alta: ${counts[key] ?? 0}";
+                      } else if (key == "traslado_pacientes_completados") {
+                        return "Traslados de pacientes completados: ${counts[key] ?? 0}";
+                      } else if (key == "traslado_pacientes_no_completados") {
+                        return "Traslados de pacientes incompletos: ${counts[key] ?? 0}";
+                      } else if (key == "vinculaciones_cuentas_familiares") {
+                        return "Cuentas de familiares vinculadas: ${counts[key] ?? 0}";
+                      }
+                      return "";
+                    }).toList();
+
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            children: [
+                              Icon(
+                                title['icon'],
+                                size: 24,
+                                color: theme.colorScheme.primary,
+                              ),
+                              const SizedBox(width: 8.0),
+                              Text(
+                                title['title'],
+                                style: theme.textTheme.headlineSmall,
+                              ),
+                            ],
+                          ),
+                        ),
+                        ...stats.map(
+                          (stat) => Padding(
+                            padding:
+                                const EdgeInsets.only(left: 40.0, bottom: 4.0),
+                            child: Text(
+                              stat,
+                              style: theme.textTheme.bodyMedium,
+                            ),
+                          ),
+                        ),
+                        Card(
                           elevation: 4,
                           child: Image.memory(
-                            base64Decode(item),
+                            base64Decode(graphs[index]),
                             fit: BoxFit.contain,
                           ),
                         ),
-                      );
-                    },
-                    separatorBuilder: (context, index) => const SizedBox(
-                      height: 8.0,
-                    ),
-                  )
-                : Center(
-                    child: Text(
-                      'There was an error fetching graphs',
-                      style: theme.textTheme.headlineLarge!.copyWith(
-                        color: theme.colorScheme.onSurface,
-                      ),
-                    ),
-                  ),
+                      ],
+                    );
+                  }
+
+                  // Subtítulos y gráficas para categorías adicionales
+                  final adjustedIndex = index - titlesWithIcons.length;
+                  if (adjustedIndex >= 0 &&
+                      adjustedIndex < additionalTitlesWithIcons.length) {
+                    final title = additionalTitlesWithIcons[adjustedIndex];
+
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            children: [
+                              Icon(
+                                title['icon'],
+                                size: 24,
+                                color: theme.colorScheme.primary,
+                              ),
+                              const SizedBox(width: 8.0),
+                              Text(
+                                title['title'],
+                                style: theme.textTheme.headlineSmall,
+                              ),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding:
+                              const EdgeInsets.only(left: 40.0, bottom: 8.0),
+                        ),
+                        Card(
+                          elevation: 4,
+                          child: Image.memory(
+                            base64Decode(graphs[index]),
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                      ],
+                    );
+                  }
+
+                  return const SizedBox();
+                },
+              ),
       ),
     );
   }
