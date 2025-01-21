@@ -1,5 +1,6 @@
 import 'package:connectcare/core/constants/constants.dart';
 import 'package:connectcare/data/services/user_service.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -43,19 +44,21 @@ class FamilyMemberHomeScreenState extends State<FamilyMemberHomeScreen> {
         setState(() {
           isLoading = false;
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content:
-                  Text('Failed to fetch patients: ${response.statusCode}')),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to fetch patients'.tr())),
+          );
+        }
       }
     } catch (e) {
       setState(() {
         isLoading = false;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error fetching patients: $e')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error fetching patients'.tr())),
+        );
+      }
     }
   }
 
@@ -96,62 +99,74 @@ class FamilyMemberHomeScreenState extends State<FamilyMemberHomeScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _buildSection(
-            'General Information',
+            'General Information'.tr(),
             [
               ListTile(
                 leading: Icon(Icons.person,
                     color: Theme.of(context).colorScheme.secondary),
-                title: Text('Name: ${patient['nombre_paciente']}',
+                title: Text(
+                    'Name:'.tr(args: [patient['nombre_paciente'] ?? 'N/A']),
                     style: Theme.of(context).textTheme.headlineSmall),
               ),
               ListTile(
                 leading: Icon(Icons.credit_card,
                     color: Theme.of(context).colorScheme.secondary),
-                title: Text('NSS: ${patient['nss']}',
+                title: Text('NSS:'.tr(args: [patient['nss'].toString()]),
                     style: Theme.of(context).textTheme.headlineSmall),
               ),
               ListTile(
                 leading: Icon(Icons.medical_services,
                     color: Theme.of(context).colorScheme.secondary),
-                title: Text('Doctor: ${patient['medico_nombre'] ?? 'N/A'}',
+                title: Text(
+                    'Doctor:'.tr(args: [patient['medico_nombre'] ?? 'N/A']),
                     style: Theme.of(context).textTheme.headlineSmall),
               ),
               ListTile(
                 leading: Icon(Icons.local_hospital,
                     color: Theme.of(context).colorScheme.secondary),
-                title: Text('Nurse: ${patient['enfermero_nombre'] ?? 'N/A'}',
+                title: Text(
+                    'Nurse:'.tr(args: [patient['enfermero_nombre'] ?? 'N/A']),
                     style: Theme.of(context).textTheme.headlineSmall),
               ),
               ListTile(
                 leading: Icon(Icons.health_and_safety,
                     color: Theme.of(context).colorScheme.secondary),
-                title: Text('Status: ${patient['estado'] ?? 'N/A'}',
+                title: Text('Status:'.tr(args: [patient['estado'] ?? 'N/A']),
                     style: Theme.of(context).textTheme.headlineSmall),
               ),
               ListTile(
                 leading: Icon(Icons.meeting_room,
                     color: Theme.of(context).colorScheme.secondary),
                 title: Text(
-                    'Room: ${patient['sala_nombre']} (${patient['sala_numero']})',
+                    'Room:'.tr(args: [
+                      patient['sala_nombre'],
+                      (patient['sala_numero'])
+                    ]),
                     style: Theme.of(context).textTheme.headlineSmall),
               ),
               ListTile(
                 leading: Icon(Icons.bed,
                     color: Theme.of(context).colorScheme.secondary),
-                title: Text('Bed: ${patient['numero_cama']}',
+                title: Text(
+                    'Bed:'.tr(args: [patient['numero_cama'].toString()]),
                     style: Theme.of(context).textTheme.headlineSmall),
               ),
               ListTile(
                 leading: Icon(Icons.calendar_today,
                     color: Theme.of(context).colorScheme.secondary),
-                title: Text('Days Admitted: ${patient['dias_interno']}',
+                title: Text(
+                    'Days Admitted:'
+                        .tr(args: [patient['dias_interno'].toString()]),
                     style: Theme.of(context).textTheme.headlineSmall),
               ),
               ListTile(
                 leading: Icon(Icons.access_time,
                     color: Theme.of(context).colorScheme.secondary),
                 title: Text(
-                    'Visit Hours: ${patient['horario_visita_inicio']} - ${patient['horario_visita_fin']}',
+                    'Visit Hours:'.tr(args: [
+                      patient['horario_visita_inicio'],
+                      patient['horario_visita_fin']
+                    ]),
                     style: Theme.of(context).textTheme.headlineSmall),
               ),
             ],
@@ -162,7 +177,8 @@ class FamilyMemberHomeScreenState extends State<FamilyMemberHomeScreen> {
               ListTile(
                 leading: Icon(Icons.assignment,
                     color: Theme.of(context).colorScheme.secondary),
-                title: Text('Diagnosis: ${patient['diagnostico'] ?? 'N/A'}',
+                title: Text(
+                    'Diagnosis: {}'.tr(args: [patient['diagnostico'] ?? 'N/A']),
                     style: Theme.of(context).textTheme.headlineSmall),
               ),
             ],
@@ -174,7 +190,8 @@ class FamilyMemberHomeScreenState extends State<FamilyMemberHomeScreen> {
                 leading: Icon(Icons.build,
                     color: Theme.of(context).colorScheme.secondary),
                 title: Text(
-                    'Current Procedure: ${patient['procedimiento_actual'] ?? 'N/A'}',
+                    'Current Procedure:'
+                        .tr(args: [patient['procedimiento_actual'] ?? 'N/A']),
                     style: Theme.of(context).textTheme.headlineSmall),
               ),
             ],
@@ -186,14 +203,16 @@ class FamilyMemberHomeScreenState extends State<FamilyMemberHomeScreen> {
                 ListTile(
                   leading: Icon(Icons.restaurant,
                       color: Theme.of(context).colorScheme.secondary),
-                  title: Text('Nutrition: ${patient['nutricion'] ?? 'N/A'}',
+                  title: Text(
+                      'Nutrition.:'.tr(args: [patient['nutricion'] ?? 'N/A']),
                       style: Theme.of(context).textTheme.headlineSmall),
                 ),
                 ListTile(
                   leading: Icon(Icons.medication,
                       color: Theme.of(context).colorScheme.secondary),
                   title: Text(
-                      'Medications: ${patient['medicamentos'] ?? 'N/A'}',
+                      'Medications.:'
+                          .tr(args: [patient['medicamentos'] ?? 'N/A']),
                       style: Theme.of(context).textTheme.headlineSmall),
                 ),
               ],
@@ -205,55 +224,65 @@ class FamilyMemberHomeScreenState extends State<FamilyMemberHomeScreen> {
                 ListTile(
                   leading: Icon(Icons.note,
                       color: Theme.of(context).colorScheme.secondary),
-                  title: Text('Notes: ${patient['nota'] ?? 'N/A'}',
+                  title: Text('Notes:'.tr(args: [patient['nota'] ?? 'N/A']),
                       style: Theme.of(context).textTheme.headlineSmall),
                 ),
                 ListTile(
                   leading: Icon(Icons.trending_up,
                       color: Theme.of(context).colorScheme.secondary),
-                  title: Text('Prognosis: ${patient['pronostico'] ?? 'N/A'}',
+                  title: Text(
+                      'Prognosis:'.tr(args: [patient['pronostico'] ?? 'N/A']),
                       style: Theme.of(context).textTheme.headlineSmall),
                 ),
                 ListTile(
                   leading: Icon(Icons.timeline,
                       color: Theme.of(context).colorScheme.secondary),
-                  title: Text('Evolution: ${patient['evolucion'] ?? 'N/A'}',
+                  title: Text(
+                      'Evolution:'.tr(args: [patient['evolucion'] ?? 'N/A']),
                       style: Theme.of(context).textTheme.headlineSmall),
                 ),
                 ListTile(
                   leading: Icon(Icons.exit_to_app,
                       color: Theme.of(context).colorScheme.secondary),
                   title: Text(
-                      'Discharge Plan: ${patient['plan_egreso'] ?? 'N/A'}',
+                      'Discharge Plan:'
+                          .tr(args: [patient['plan_egreso'] ?? 'N/A']),
                       style: Theme.of(context).textTheme.headlineSmall),
                 ),
                 ListTile(
                   leading: Icon(Icons.search,
                       color: Theme.of(context).colorScheme.secondary),
                   title: Text(
-                      'Physical Exam: ${patient['exploracion_fisica'] ?? 'N/A'}',
+                      'Physical Exam:'
+                          .tr(args: [patient['exploracion_fisica'] ?? 'N/A']),
                       style: Theme.of(context).textTheme.headlineSmall),
                 ),
                 ListTile(
                   leading: Icon(Icons.image,
                       color: Theme.of(context).colorScheme.secondary),
-                  title: Text('Image: ${patient['imagen'] ?? 'N/A'}',
+                  title: Text('Image:'.tr(args: [patient['imagen'] ?? 'N/A']),
                       style: Theme.of(context).textTheme.headlineSmall),
                 ),
               ],
               context),
         if (relationship == 'main')
           _buildSection(
-            'Requested Medications',
+            'Requested Medications'.tr(),
             (patient['medicamentos_solicitados'] as List<dynamic>)
                 .map((med) => ListTile(
                       leading: Icon(Icons.local_pharmacy,
                           color: Theme.of(context).colorScheme.secondary),
                       title: Text(
-                          'Medication: ${med['nombre_reactivo']} (${med['marca']})',
+                          'Medication:'
+                              .tr(args: [med['nombre_reactivo'], med['marca']]),
                           style: Theme.of(context).textTheme.headlineSmall),
                       subtitle: Text(
-                          'Concentration: ${med['concentracion']} | Administration: ${med['via_administracion']} | Amount: ${med['cantidad']} ${med['unidad']}',
+                          'Concentration.:'.tr(args: [
+                            med['concentracion'],
+                            med['via_administracion'],
+                            med['cantidad'].toString(),
+                            med['unidad'].toString()
+                          ]),
                           style: Theme.of(context).textTheme.bodyLarge),
                     ))
                 .toList(),
@@ -261,30 +290,32 @@ class FamilyMemberHomeScreenState extends State<FamilyMemberHomeScreen> {
           ),
         if (relationship == 'occasional')
           _buildSection(
-              'Evolution Notes',
+              'Evolution Notes'.tr(),
               [
                 ListTile(
                   leading: Icon(Icons.timeline,
                       color: Theme.of(context).colorScheme.secondary),
-                  title: Text('Evolution: ${patient['evolucion'] ?? 'N/A'}',
+                  title: Text(
+                      'Evolution:'.tr(args: [patient['evolucion'] ?? 'N/A']),
                       style: Theme.of(context).textTheme.headlineSmall),
                 ),
               ],
               context),
         if (relationship == 'regular')
           _buildSection(
-              'Evolution Notes',
+              'Evolution Notes'.tr(),
               [
                 ListTile(
                   leading: Icon(Icons.timeline,
                       color: Theme.of(context).colorScheme.secondary),
-                  title: Text('Evolution: ${patient['evolucion'] ?? 'N/A'}',
+                  title: Text(
+                      'Evolution:'.tr(args: [patient['evolucion'] ?? 'N/A']),
                       style: Theme.of(context).textTheme.headlineSmall),
                 ),
                 ListTile(
                   leading: Icon(Icons.image,
                       color: Theme.of(context).colorScheme.secondary),
-                  title: Text('Image: ${patient['imagen'] ?? 'N/A'}',
+                  title: Text('Image:'.tr(args: [patient['imagen'] ?? 'N/A']),
                       style: Theme.of(context).textTheme.headlineSmall),
                 ),
               ],
@@ -297,12 +328,12 @@ class FamilyMemberHomeScreenState extends State<FamilyMemberHomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Family Member Home'),
+        title: Text('Home Screen'.tr()),
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : patients.isEmpty
-              ? const Center(child: Text('No linked patients found.'))
+              ? Center(child: Text('No linked patients found.'.tr()))
               : Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
