@@ -81,9 +81,6 @@ class UserService {
         return;
       }
 
-      // 2. Obtenemos el userType
-      final userType = await _sharedPreferencesService.getUserType();
-
       // 3. Obtenemos el token de Firebase
       final String? token = await FirebaseMessaging.instance.getToken();
 
@@ -110,47 +107,9 @@ class UserService {
           "Mensaje: ${responseUpdateToken.body}",
         );
       }
-
-      // 5. Enviar una notificación de prueba
-      String? titulo;
-      String? cuerpo;
-
-      switch (userType) {
-        case 'doctor':
-          titulo = "Doctor";
-          cuerpo = "Acabas de iniciar sesión como doctor";
-          break;
-        case 'administrator':
-          titulo = "Administrador";
-          cuerpo = "Acabas de iniciar sesión como administrador";
-          break;
-        default:
-          // Si no coincide con ninguno de los anteriores
-          titulo = "Bienvenido/a";
-          cuerpo = "Has iniciado sesión.";
-      }
-
-      final responseSendNotification = await http.post(
-        Uri.parse('$baseUrl/firebase_notification/send-notification'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'userId': userId,
-          'title': titulo,
-          'body': cuerpo,
-        }),
-      );
-
-      if (responseSendNotification.statusCode == 200) {
-        print("Notificación enviada correctamente");
-      } else {
-        print(
-          "Error al enviar la notificación. Código: "
-          "${responseSendNotification.statusCode}. "
-          "Mensaje: ${responseSendNotification.body}",
-        );
-      }
     } catch (error) {
-      print("Error de conexión al actualizar token y/o enviar notificación: $error");
+      print(
+          "Error de conexión al actualizar token y/o enviar notificación: $error");
     }
   }
 }

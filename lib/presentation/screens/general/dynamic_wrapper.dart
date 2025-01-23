@@ -24,6 +24,7 @@ import 'package:connectcare/presentation/screens/nurse/nurse_home_screen.dart';
 import 'package:connectcare/presentation/screens/patient/nfc_bracelet_screen.dart';
 import 'package:connectcare/presentation/screens/social_worker/social_worker_home_screen.dart';
 import 'package:connectcare/presentation/screens/stretcher_bearer/stretcher_bearer_home_screen.dart';
+import 'package:connectcare/presentation/screens/stretcher_bearer/trasnfers_stretcher.dart';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -298,6 +299,7 @@ class _DynamicWrapperState extends State<DynamicWrapper> {
     } else if (userType == 'stretcher bearer' && hasServices) {
       _pages.insert(0, const StretcherBearerHomeScreen());
       _pages.insert(1, const AssignTasksScreen());
+      _pages.insert(2, const TrasnfersStretcher());
       _navItems.insert(
         0,
         TabItem(icon: Icons.transfer_within_a_station, title: 'Home'.tr()),
@@ -306,17 +308,27 @@ class _DynamicWrapperState extends State<DynamicWrapper> {
         1,
         TabItem(icon: Icons.task, title: 'assign_tasks'.tr()),
       );
+      _navItems.insert(
+        2,
+        TabItem(icon: Icons.move_down, title: 'Transfers'),
+      );
     } else if (userType == 'stretcher bearer') {
       _pages.insert(0, const StretcherBearerHomeScreen());
+      _pages.insert(1, const TrasnfersStretcher());
       _navItems.insert(
         0,
         TabItem(icon: Icons.transfer_within_a_station, title: 'Home'.tr()),
+      );
+      _navItems.insert(
+        1,
+        TabItem(icon: Icons.move_down, title: 'Transfers'),
       );
     } else if (userType == 'doctor' && hasServices) {
       _pages.insert(0, const DoctorHomeScreen());
       _pages.insert(1, const AssignTasksScreen());
       _pages.insert(2, const PatientRegScreen());
       _pages.insert(3, const NfcBraceletScreen());
+      _pages.insert(4, const ProcedureScheduleScreen());
       _navItems.insert(
         0,
         TabItem(icon: Icons.medical_services, title: 'Home'.tr()),
@@ -330,6 +342,10 @@ class _DynamicWrapperState extends State<DynamicWrapper> {
         TabItem(icon: Icons.assignment, title: 'Triage'.tr()),
       );
       _navItems.insert(3, TabItem(icon: Icons.nfc, title: 'NFC'));
+      _navItems.insert(
+        4,
+        TabItem(icon: Icons.access_time_filled_sharp, title: 'Agenda'),
+      );
     } else if (userType == 'doctor') {
       _pages.insert(0, const DoctorHomeScreen());
       _pages.insert(1, const PatientRegScreen());
@@ -346,7 +362,7 @@ class _DynamicWrapperState extends State<DynamicWrapper> {
       _navItems.insert(2, TabItem(icon: Icons.nfc, title: 'NFC'));
       _navItems.insert(
         3,
-        TabItem(icon: Icons.access_time_filled_sharp, title: 'Procedures'),
+        TabItem(icon: Icons.access_time_filled_sharp, title: 'Agenda'),
       );
     } else if (userType == 'nurse' && hasServices) {
       _pages.insert(0, const NurseHomeScreen());

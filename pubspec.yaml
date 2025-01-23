@@ -38,6 +38,8 @@ dependencies:
   permission_handler: ^11.3.1
   device_info_plus: ^11.2.1
   url_launcher: ^6.3.1
+  dropdown_search: ^6.0.2
+  dio: ^5.7.0
 
 dev_dependencies:
   flutter_test:
