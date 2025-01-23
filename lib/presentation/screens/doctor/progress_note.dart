@@ -260,7 +260,7 @@ class ProgressNoteState extends State<ProgressNote> {
         const SizedBox(height: 20),
         ElevatedButton(
           onPressed: _requestMedication,
-          child: Text('Add Medication'.tr()),
+          child: Text('Request medication'.tr()),
         ),
       ],
     );
@@ -349,7 +349,7 @@ class ProgressNoteState extends State<ProgressNote> {
           Icon(icon, color: const Color(0xFF00A0A6)),
           const SizedBox(width: 8),
           Text(
-            title,
+            title.tr(),
             style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -394,7 +394,7 @@ class ProgressNoteState extends State<ProgressNote> {
             Text(
               selectedDate != null
                   ? DateFormat('dd/MM/yyyy').format(selectedDate)
-                  : label,
+                  : label.tr(),
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     fontSize: 12,
                   ),
