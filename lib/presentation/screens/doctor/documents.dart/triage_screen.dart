@@ -412,6 +412,7 @@ class _TriageScreenState extends State<TriageScreen> {
     final interrogationSummary = _interrogationSummaryController.text;
     final physicalExam = _physicalExamController.text;
     final diagnosticAux = _selectedDiagnosticAux ?? '';
+    final samm = _selectedSAMM ?? '';
 
     final startDate = DateFormat('yyyy-MM-dd').format(triageStartTime);
     final startTime = DateFormat('HH:mm:ss').format(triageStartTime);

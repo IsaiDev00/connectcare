@@ -1,6 +1,7 @@
 import 'package:connectcare/core/constants/constants.dart';
 import 'package:connectcare/data/services/user_service.dart';
 import 'package:connectcare/presentation/screens/admin/admin_start_screen.dart';
+import 'package:connectcare/presentation/screens/admin/analisis_datos/proyections.dart';
 import 'package:connectcare/presentation/screens/admin/daily_reports.dart';
 import 'package:connectcare/presentation/screens/admin/denied_hospital_screen.dart';
 import 'package:connectcare/presentation/screens/admin/hospital_reg/register_hospital_screen.dart';
@@ -446,7 +447,7 @@ class _DynamicWrapperState extends State<DynamicWrapper> {
               _pages.insert(0, const Management());
               _pages.insert(1, const ManageStaffUsers());
               _pages.insert(2, const DailyReports());
-
+              _pages.insert(3, const Proyections());
               _navItems.insert(0,
                   TabItem(icon: Icons.business_center, title: 'Control'.tr()));
               _navItems.insert(
@@ -456,6 +457,8 @@ class _DynamicWrapperState extends State<DynamicWrapper> {
                   TabItem(
                       icon: Icons.stacked_bar_chart_rounded,
                       title: 'Reports'.tr()));
+              _navItems.insert(3,
+                  TabItem(icon: Icons.add_chart_rounded, title: 'Projections'));
             }
           } else {
             // Si no es 0 ni 1, tal vez la respuesta no está bien definida
@@ -469,7 +472,7 @@ class _DynamicWrapperState extends State<DynamicWrapper> {
               _pages.insert(0, const Management());
               _pages.insert(1, const ManageStaffUsers());
               _pages.insert(2, const DailyReports());
-
+              _pages.insert(3, const Proyections());
               _navItems.insert(0,
                   TabItem(icon: Icons.business_center, title: 'Control'.tr()));
               _navItems.insert(
@@ -479,6 +482,8 @@ class _DynamicWrapperState extends State<DynamicWrapper> {
                   TabItem(
                       icon: Icons.stacked_bar_chart_rounded,
                       title: 'Reports'.tr()));
+              _navItems.insert(3,
+                  TabItem(icon: Icons.add_chart_rounded, title: 'Projections'));
             }
           }
         } else {
@@ -492,7 +497,7 @@ class _DynamicWrapperState extends State<DynamicWrapper> {
             _pages.insert(0, const Management());
             _pages.insert(1, const ManageStaffUsers());
             _pages.insert(2, const DailyReports());
-
+            _pages.insert(3, const Proyections());
             _navItems.insert(
                 0, TabItem(icon: Icons.business_center, title: 'Control'.tr()));
             _navItems.insert(
@@ -502,6 +507,8 @@ class _DynamicWrapperState extends State<DynamicWrapper> {
                 TabItem(
                     icon: Icons.stacked_bar_chart_rounded,
                     title: 'Reports'.tr()));
+            _navItems.insert(3,
+                TabItem(icon: Icons.add_chart_rounded, title: 'Projections'));
           }
         }
       }
