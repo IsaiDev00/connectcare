@@ -652,5 +652,7 @@
   "Medication:": "Medicamento:  {} ({})",
   "Concentration.:": "Concentración: {} | Administración: {} | Cantidad: {} {}",
   "Home Screen": "Inicio",
-  "No linked patients found.": "No se encontraron pacientes vinculados."
+  "No linked patients found.": "No se encontraron pacientes vinculados.",
+  "Historial": "Historial",
+  "Movement history": "Movement history"
 }

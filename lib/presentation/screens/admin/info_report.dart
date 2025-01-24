@@ -258,7 +258,6 @@ class _ViewDailyReportState extends State<ViewDailyReport> {
                     );
                   }
 
-                  // Subtítulos y gráficas para categorías adicionales
                   final adjustedIndex = index - titlesWithIcons.length;
                   if (adjustedIndex >= 0 &&
                       adjustedIndex < additionalTitlesWithIcons.length) {
