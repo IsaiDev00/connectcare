@@ -1,5 +1,7 @@
 import 'package:connectcare/data/services/user_service.dart';
 import 'package:connectcare/presentation/screens/admin/manage_medicaments_screen.dart';
+import 'package:connectcare/presentation/screens/admin/movement_history.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 class Management extends StatefulWidget {
@@ -10,17 +12,27 @@ class Management extends StatefulWidget {
 }
 
 class ManagementState extends State<Management> {
-
+  final UserService _userService = UserService();
+  String clues = '';
   @override
-  void initState(){
+  void initState() {
     super.initState();
+    _loadData();
     _notifications();
   }
 
-  Future<void> _notifications() async{
+  Future<void> _loadData() async {
+    final data = await _userService.loadUserData();
+    setState(() {
+      clues = (data['clues'] ?? '');
+    });
+  }
+
+  Future<void> _notifications() async {
     final userService = UserService();
     await userService.updateFirebaseTokenAndSendNotification();
   }
+
   @override
   Widget build(BuildContext context) {
     var theme = Theme.of(context);
@@ -34,7 +46,7 @@ class ManagementState extends State<Management> {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 SizedBox(
-                  height: 50,
+                  height: 20,
                 ),
                 Text('Management',
                     style: theme.textTheme.headlineLarge!.copyWith(
@@ -108,6 +120,26 @@ class ManagementState extends State<Management> {
                           textStyle: const TextStyle(fontSize: 18),
                         ),
                         child: const Text('Medications'),
+                      ),
+                    ),
+                    const SizedBox(height: 30),
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width / 1.7,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => MovementHistory(
+                                        clues: clues,
+                                      )));
+                        },
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 40, vertical: 20),
+                          textStyle: const TextStyle(fontSize: 18),
+                        ),
+                        child: Text('Historial'.tr()),
                       ),
                     ),
                   ],
