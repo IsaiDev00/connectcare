@@ -1,3 +1,10 @@
+import 'package:connectcare/presentation/screens/admin/completed_transfer_requests_history.dart';
+import 'package:connectcare/presentation/screens/admin/discharges_history.dart';
+import 'package:connectcare/presentation/screens/admin/medical_instructions_history.dart';
+import 'package:connectcare/presentation/screens/admin/nursing_sheet_history.dart';
+import 'package:connectcare/presentation/screens/admin/progress_note_history.dart';
+import 'package:connectcare/presentation/screens/admin/scheduled_procedures_history.dart';
+import 'package:connectcare/presentation/screens/admin/triage_history.dart';
 import 'package:connectcare/presentation/widgets/custom_button2.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -49,67 +56,95 @@ class MovementHistory extends StatelessWidget {
               CustomButton2(
                 text: 'Nursing Sheet'.tr(),
                 icon: Icons.receipt_outlined,
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            NursingSheetHistory(hospitalId: clues),
+                      ));
+                },
               ),
               _buildDivider(),
               _buildSectionTitle('Médicos', Icons.monitor_heart),
               CustomButton2(
                 text: 'Triage'.tr(),
                 icon: Icons.health_and_safety_outlined,
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => TriageHistory(hospitalId: clues),
+                      ));
+                },
               ),
               CustomButton2(
                 text: 'Progress Notes'.tr(),
                 icon: Icons.notes_outlined,
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            ProgressNoteHistory(hospitalId: clues),
+                      ));
+                },
               ),
               CustomButton2(
                 text: 'Medical Instructions'.tr(),
                 icon: Icons.description_outlined,
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            MedicalInstructionsHistory(hospitalId: clues),
+                      ));
+                },
               ),
               CustomButton2(
                 text: 'Scheduled procedures'.tr(),
                 icon: Icons.description_outlined,
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            ScheduledProceduresHistory(hospitalId: clues),
+                      ));
+                },
               ),
               CustomButton2(
                 text: 'Discharges'.tr(),
                 icon: Icons.exit_to_app_outlined,
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            DischargesHistory(hospitalId: clues),
+                      ));
+                },
               ),
               _buildDivider(),
               _buildSectionTitle('Camilleros', Icons.monitor_heart),
               CustomButton2(
                 text: 'Completed transfer requests'.tr(),
                 icon: Icons.transfer_within_a_station,
-                onPressed: () {},
-              ),
-              CustomButton2(
-                text: 'Incomplete transfer requests'.tr(),
-                icon: Icons.close,
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            CompletedTransferRequestsHistory(hospitalId: clues),
+                      ));
+                },
               ),
               _buildDivider(),
               _buildSectionTitle('Recursos humanos', Icons.monitor_heart),
               CustomButton2(
                 text: 'Work schedules'.tr(),
                 icon: Icons.schedule,
-                onPressed: () {},
-              ),
-              CustomButton2(
-                text: 'Nursing chiefs'.tr(),
-                icon: Icons.vaccines,
-                onPressed: () {},
-              ),
-              CustomButton2(
-                text: 'Medicine chiefs'.tr(),
-                icon: Icons.medical_services,
-                onPressed: () {},
-              ),
-              CustomButton2(
-                text: 'Stretcher bearer chiefs'.tr(),
-                icon: Icons.single_bed,
                 onPressed: () {},
               ),
               _buildDivider(),
