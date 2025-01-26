@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:connectcare/core/constants/constants.dart';
 import 'package:connectcare/data/services/user_service.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -19,10 +20,21 @@ class FamilyMemberHomeScreenState extends State<FamilyMemberHomeScreen> {
   final UserService _userService = UserService();
   String id = '';
 
+  // Variables para BPM
+  int? bpm;
+  bool isInitialBpmLoading = true; // Indicador para carga inicial
+  Timer? bpmTimer;
+
   @override
   void initState() {
     super.initState();
     _fetchLinkedPatients();
+  }
+
+  @override
+  void dispose() {
+    bpmTimer?.cancel(); // Cancelar el Timer al destruir el widget
+    super.dispose();
   }
 
   Future<void> _fetchLinkedPatients() async {
@@ -40,6 +52,16 @@ class FamilyMemberHomeScreenState extends State<FamilyMemberHomeScreen> {
           selectedPatient = patients.isNotEmpty ? patients[0] : null;
           isLoading = false;
         });
+
+        if (selectedPatient != null) {
+          final nss = selectedPatient!['nss'];
+          _fetchBpmData(nss, isInitialFetch: true);
+
+          // Iniciar el Timer para actualizar BPM cada 5 minutos
+          bpmTimer = Timer.periodic(Duration(minutes: 2), (timer) {
+            _fetchBpmData(nss);
+          });
+        }
       } else {
         setState(() {
           isLoading = false;
@@ -60,6 +82,138 @@ class FamilyMemberHomeScreenState extends State<FamilyMemberHomeScreen> {
         );
       }
     }
+  }
+
+  Future<void> _fetchBpmData(int? nss, {bool isInitialFetch = false}) async {
+    if (nss == null) {
+      setState(() {
+        bpm = null;
+        if (isInitialFetch) {
+          isInitialBpmLoading = false;
+        }
+      });
+      return;
+    }
+
+    if (isInitialFetch) {
+      setState(() {
+        isInitialBpmLoading = true;
+      });
+    }
+
+    final url = Uri.parse('$baseUrl/samm/lpm/$nss');
+
+    try {
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          bpm = int.tryParse(data['lpm']?.toString() ?? '0');
+          if (isInitialFetch) {
+            isInitialBpmLoading = false;
+          }
+        });
+      } else {
+        if (isInitialFetch) {
+          setState(() {
+            isInitialBpmLoading = false;
+          });
+        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al obtener BPM.'.tr())),
+        );
+      }
+    } catch (e) {
+      if (isInitialFetch) {
+        setState(() {
+          isInitialBpmLoading = false;
+        });
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al obtener BPM.'.tr())),
+      );
+    }
+  }
+
+  Widget _buildBpmWidget() {
+    if (isInitialBpmLoading) {
+      return Card(
+        elevation: 4,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            children: [
+              // Corazón
+              Icon(
+                Icons.favorite,
+                color: Colors.red,
+                size: 50,
+              ),
+              SizedBox(width: 20),
+              // Indicador de carga inicial
+              Text(
+                'Cargando BPM...'.tr(),
+                style: TextStyle(
+                  fontSize: 18,
+                  color: Colors.grey,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Row(
+          children: [
+            // Corazón
+            Icon(
+              Icons.favorite,
+              color: Colors.red,
+              size: 50,
+            ),
+            SizedBox(width: 20),
+            // BPM
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Latidos Por Minuto'.tr(),
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 10),
+                bpm == null
+                    ? Text(
+                        'Sensor no colocado'.tr(),
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.grey,
+                        ),
+                      )
+                    : Text(
+                        '$bpm LPM',
+                        style: TextStyle(
+                          fontSize: 24,
+                          color: Colors.green,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildSection(
@@ -94,10 +248,27 @@ class FamilyMemberHomeScreenState extends State<FamilyMemberHomeScreen> {
   Widget _buildPatientDetails(
       Map<String, dynamic> patient, BuildContext context) {
     final relationship = patient['relacion'];
+    final nss = patient['nss'];
+
+    // Iniciar la obtención de BPM y configurar el Timer
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchBpmData(nss, isInitialFetch: bpm == null);
+
+      // Cancelar cualquier Timer existente
+      bpmTimer?.cancel();
+
+      // Configurar el Timer para actualizar BPM cada 5 minutos
+      bpmTimer = Timer.periodic(Duration(minutes: 5), (timer) {
+        _fetchBpmData(nss);
+      });
+    });
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        // Widget de BPM
+        _buildBpmWidget(),
+
         _buildSection(
             'General Information'.tr(),
             [
@@ -363,7 +534,20 @@ class FamilyMemberHomeScreenState extends State<FamilyMemberHomeScreen> {
                         onChanged: (value) {
                           setState(() {
                             selectedPatient = value;
+                            bpm = null; // Resetear BPM
+                            isInitialBpmLoading = true; // Indicar carga inicial
+                            bpmTimer?.cancel(); // Cancelar el Timer anterior
                           });
+                          if (value != null) {
+                            final nss = value['nss'];
+                            _fetchBpmData(nss, isInitialFetch: true);
+
+                            // Iniciar el Timer para actualizar BPM cada 5 minutos
+                            bpmTimer =
+                                Timer.periodic(Duration(minutes: 5), (timer) {
+                              _fetchBpmData(nss);
+                            });
+                          }
                         },
                       ),
                     ),
