@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 class MainScreen extends StatefulWidget {
@@ -12,7 +13,7 @@ class MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Main Menu'),
+        title: Text('Main Menu'.tr()),
       ),
       drawer: Drawer(
         child: ListView(
@@ -22,7 +23,7 @@ class MainScreenState extends State<MainScreen> {
               decoration: BoxDecoration(
                 color: Theme.of(context).primaryColor,
               ),
-              child: const Text(
+              child: Text(
                 'Menu',
                 style: TextStyle(
                   color: Colors.white,
@@ -32,7 +33,7 @@ class MainScreenState extends State<MainScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.person),
-              title: const Text('Perfil'),
+              title: Text('Perfil'.tr()),
               onTap: () {
                 // Navegar a la pantalla de perfil
                 Navigator.pushNamed(context, '/profile');
@@ -40,7 +41,7 @@ class MainScreenState extends State<MainScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.settings),
-              title: const Text('Ajustes'),
+              title: Text('Ajustes'.tr()),
               onTap: () {
                 // Navegar a la pantalla de ajustes
                 Navigator.pushNamed(context, '/settings');
@@ -67,7 +68,7 @@ class MainScreenState extends State<MainScreen> {
                         horizontal: 40, vertical: 20),
                     textStyle: const TextStyle(fontSize: 18),
                   ),
-                  child: const Text('Registrar Hospital'),
+                  child: Text('Registrar Hospital'.tr()),
                 ),
               ),
               const SizedBox(height: 30), // Espaciado entre los dos botones
@@ -80,7 +81,7 @@ class MainScreenState extends State<MainScreen> {
                         horizontal: 40, vertical: 20),
                     textStyle: const TextStyle(fontSize: 18),
                   ),
-                  child: const Text('Ingresar a Hospital'),
+                  child: Text('Ingresar a Hospital'.tr()),
                 ),
               ),
             ],

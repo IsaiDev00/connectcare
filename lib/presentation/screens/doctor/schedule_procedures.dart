@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:connectcare/core/constants/constants.dart';
 import 'package:connectcare/data/services/shared_preferences_service.dart';
 import 'package:connectcare/presentation/screens/general/dynamic_wrapper.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
@@ -385,7 +386,7 @@ class _ProcedureScheduleScreenState extends State<ProcedureScheduleScreen> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: const Text('Selecciona un Paciente'),
+              title: Text('Selecciona un Paciente'.tr()),
               content: SingleChildScrollView(
                 // Asegura que el contenido sea desplazable
                 child: Column(
@@ -451,7 +452,7 @@ class _ProcedureScheduleScreenState extends State<ProcedureScheduleScreen> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('Cerrar'),
+                  child: Text('Cerrar'),
                 ),
               ],
             );
@@ -473,7 +474,7 @@ class _ProcedureScheduleScreenState extends State<ProcedureScheduleScreen> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: const Text('Selecciona un Procedimiento'),
+              title: Text('Selecciona un Procedimiento'.tr()),
               content: SingleChildScrollView(
                 // Manejar el desbordamiento dinámico
                 child: Column(
@@ -538,7 +539,7 @@ class _ProcedureScheduleScreenState extends State<ProcedureScheduleScreen> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('Cerrar'),
+                  child: Text('Cerrar'.tr()),
                 ),
               ],
             );
@@ -742,12 +743,12 @@ class _ProcedureScheduleScreenState extends State<ProcedureScheduleScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Finished Procedures'),
+          title: Text('Finished Procedures'),
           content: _buildFinishedList(context),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cerrar'),
+              child: Text('Cerrar'.tr()),
             ),
           ],
         );
@@ -834,8 +835,8 @@ class _ProcedureScheduleScreenState extends State<ProcedureScheduleScreen> {
     _generateTimeSlots();
 
     if (_timeSlots.isEmpty) {
-      return const Text(
-        'Sin intervalos de tiempo disponibles',
+      return Text(
+        'Sin intervalos de tiempo disponibles'.tr(),
         style: TextStyle(fontSize: 14),
       );
     }
@@ -1164,7 +1165,7 @@ Urgencia: ${_selectedPriority ?? 'No seleccionado'}
                 DropdownButton<Map<String, dynamic>>(
                   isExpanded: true,
                   value: _selectedSala,
-                  hint: const Text('Sala', style: TextStyle(fontSize: 14)),
+                  hint: Text('Sala'.tr(), style: TextStyle(fontSize: 14)),
                   items: _salas.map((sala) {
                     return DropdownMenuItem<Map<String, dynamic>>(
                       value: sala,
@@ -1210,7 +1211,7 @@ Urgencia: ${_selectedPriority ?? 'No seleccionado'}
                 DropdownButton<String>(
                   isExpanded: true,
                   value: _selectedPriority,
-                  hint: const Text('Urgencia', style: TextStyle(fontSize: 14)),
+                  hint: Text('Urgencia'.tr(), style: TextStyle(fontSize: 14)),
                   items: _priorityOptions.map((urgency) {
                     return DropdownMenuItem<String>(
                       value: urgency,
@@ -1284,7 +1285,7 @@ Urgencia: ${_selectedPriority ?? 'No seleccionado'}
 
           ElevatedButton(
             onPressed: canSchedule ? _scheduleProcedure : null,
-            child: const Text('Schedule Procedure',
+            child: Text('Schedule Procedure'.tr(),
                 style: TextStyle(fontSize: 14)),
           ),
           const SizedBox(height: 20),
@@ -1297,16 +1298,16 @@ Urgencia: ${_selectedPriority ?? 'No seleccionado'}
     final horario = _salaSchedule?['horarioAtencion'] ?? {};
     String? diaKey = _weekdayToSpanishKey(_selectedDate!.weekday);
     if (diaKey == null) {
-      return const Text(
-        'Sin horario disponible',
+      return Text(
+        'Sin horario disponible'.tr(),
         style: TextStyle(fontSize: 14),
       );
     }
     final inicioStr = horario['${diaKey}_hora_inicio'];
     final finStr = horario['${diaKey}_hora_fin'];
     if (inicioStr == null || finStr == null) {
-      return const Text(
-        'Sin horario disponible',
+      return Text(
+        'Sin horario disponible'.tr(),
         style: TextStyle(fontSize: 14),
       );
     }
@@ -1326,8 +1327,8 @@ Urgencia: ${_selectedPriority ?? 'No seleccionado'}
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                _buildMenuItem('Scheduled', 0),
-                _buildMenuItem('Add', 1),
+                _buildMenuItem('Scheduled'.tr(), 0),
+                _buildMenuItem('Add'.tr(), 1),
               ],
             ),
             const Divider(),
@@ -1351,7 +1352,7 @@ Urgencia: ${_selectedPriority ?? 'No seleccionado'}
                         right: 8,
                         child: ElevatedButton(
                           onPressed: _showFinishedProcedures,
-                          child: const Text('Show Finished'),
+                          child: Text('Show Finished'.tr()),
                         ),
                       ),
                     ],

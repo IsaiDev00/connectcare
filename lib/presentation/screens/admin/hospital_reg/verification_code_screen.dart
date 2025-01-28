@@ -1,5 +1,6 @@
 import 'package:connectcare/core/constants/constants.dart';
 import 'package:connectcare/data/services/shared_preferences_service.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -63,7 +64,7 @@ class _VerificationCodeScreenState extends State<VerificationCodeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Verificación de Código'),
+        title: Text('Verificación de Código'.tr()),
         centerTitle: true,
       ),
       body: Padding(
@@ -72,8 +73,8 @@ class _VerificationCodeScreenState extends State<VerificationCodeScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            const Text(
-              'Tu código de verificación es:',
+            Text(
+              'Tu código de verificación es:'.tr(),
               style: TextStyle(fontSize: 18),
               textAlign: TextAlign.center,
             ),
@@ -87,8 +88,8 @@ class _VerificationCodeScreenState extends State<VerificationCodeScreen> {
               ),
             ),
             const SizedBox(height: 40),
-            const Text(
-              'Deberás teclear este código al contestar la llamada de verificación desde el teléfono proporcionado al CLUES.',
+            Text(
+              'Deberás teclear este código al contestar la llamada de verificación desde el teléfono proporcionado al CLUES.'.tr(),
               style: TextStyle(fontSize: 16),
               textAlign: TextAlign.center,
             ),
@@ -97,14 +98,14 @@ class _VerificationCodeScreenState extends State<VerificationCodeScreen> {
               onPressed: () {
                 Navigator.pushNamed(context, '/hospitalNameScreen');
               },
-              child: const Text('Generar llamada'),
+              child: Text('Generar llamada'.tr()),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: const Text('Volver al inicio'),
+              child: Text('Volver al inicio'.tr()),
             ),
           ],
         ),

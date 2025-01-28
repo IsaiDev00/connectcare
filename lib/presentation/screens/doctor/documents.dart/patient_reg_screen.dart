@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:connectcare/presentation/screens/doctor/documents.dart/triage_screen.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -102,11 +103,11 @@ class PatientRegState extends State<PatientRegScreen> {
   // Función para validar que solo se ingresen números
   String? _validateNumeric(String? value, String fieldName) {
     if (value == null || value.isEmpty) {
-      return '$fieldName is required';
+      return '$fieldName is required'.tr();
     }
     final numericRegex = RegExp(r'^[0-9]+$');
     if (!numericRegex.hasMatch(value)) {
-      return '$fieldName must be numeric only';
+      return '$fieldName must be numeric only'.tr();
     }
     return null;
   }
@@ -114,10 +115,10 @@ class PatientRegState extends State<PatientRegScreen> {
   // Función para validar campos de texto con límite de caracteres
   String? _validateText(String? value, String fieldName, int maxLength) {
     if (value == null || value.isEmpty) {
-      return '$fieldName is required';
+      return '$fieldName is required'.tr();
     }
     if (value.length > maxLength) {
-      return '$fieldName must not exceed $maxLength characters';
+      return '$fieldName must not exceed $maxLength characters'.tr();
     }
     return null;
   }
@@ -125,12 +126,12 @@ class PatientRegState extends State<PatientRegScreen> {
   // Función para validar la fecha de nacimiento
   String? _validateDate(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Date of Birth is required';
+      return 'Date of Birth is required'.tr();
     }
     try {
       DateFormat('dd/MM/yyyy').parseStrict(value);
     } catch (e) {
-      return 'The format must be DD/MM/YYYY';
+      return 'The format must be DD/MM/YYYY'.tr();
     }
     return null;
   }

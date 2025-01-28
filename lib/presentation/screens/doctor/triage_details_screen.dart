@@ -60,12 +60,12 @@ class TriageDetailsScreenState extends State<TriageDetailsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Triage Details').tr(),
+        title: Text('Triage Details').tr(),
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : triageRecords.isEmpty
-              ? Center(child: const Text('No Triage Records Found').tr())
+              ? Center(child: Text('No Triage Records Found').tr())
               : ListView.builder(
                   itemCount: triageRecords.length,
                   itemBuilder: (context, index) {

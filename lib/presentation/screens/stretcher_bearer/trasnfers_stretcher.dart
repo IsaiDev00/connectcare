@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:connectcare/core/constants/constants.dart';
 import 'package:connectcare/data/services/shared_preferences_service.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -93,7 +94,7 @@ class _TrasnfersStretcherState extends State<TrasnfersStretcher> {
               );
               await _fetchTransfers();
             },
-            child: const Text('Recogido'),
+            child: Text('Recogido'.tr()),
           ),
           const SizedBox(height: 4),
           ElevatedButton(
@@ -111,7 +112,7 @@ class _TrasnfersStretcherState extends State<TrasnfersStretcher> {
               );
               await _fetchTransfers();
             },
-            child: const Text('No encontrado'),
+            child: Text('No encontrado'.tr()),
           ),
         ],
       );
@@ -135,7 +136,7 @@ class _TrasnfersStretcherState extends State<TrasnfersStretcher> {
           );
           await _fetchTransfers();
         },
-        child: const Text('Terminado'),
+        child: Text('Terminado'.tr()),
       );
     } else {
       // Para "No encontrado" que ya no muestra botones aquí y "Terminado" sin botones.
@@ -147,7 +148,7 @@ class _TrasnfersStretcherState extends State<TrasnfersStretcher> {
   Widget build(BuildContext context) {
     final filteredTransfers = _filterTransfers(transfers);
     return Scaffold(
-      appBar: AppBar(title: const Text('Traslados Camillero')),
+      appBar: AppBar(title: Text('Traslados Camillero'.tr())),
       body: Column(
         children: [
           Padding(

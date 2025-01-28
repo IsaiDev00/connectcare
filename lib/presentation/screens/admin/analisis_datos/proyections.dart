@@ -1,4 +1,5 @@
 // proyections.dart
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'services.dart';
 import 'models.dart';
@@ -64,7 +65,7 @@ class _ProyectionsState extends State<Proyections> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Proyecciones ARIMA'),
+        title: Text('Proyecciones ARIMA'.tr()),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -73,8 +74,8 @@ class _ProyectionsState extends State<Proyections> {
             DropdownButton<String>(
               value: selectedOption,
               isExpanded: true,
-              hint: const Text(
-                'Seleccione una opción',
+              hint: Text(
+                'Seleccione una opción'.tr(),
                 style: TextStyle(fontSize: 16),
               ),
               onChanged: (String? newValue) {
@@ -190,7 +191,7 @@ class _ProyectionsState extends State<Proyections> {
 
   Widget buildContent() {
     if (projections.isEmpty) {
-      return const Center(child: Text('No hay proyecciones disponibles.'));
+      return Center(child: Text('No hay proyecciones disponibles.').tr());
     }
 
     return ListView.builder(
@@ -238,8 +239,8 @@ class _ProyectionsState extends State<Proyections> {
                         );
                       },
                       errorBuilder: (context, error, stackTrace) {
-                        return const Text(
-                          'Error al cargar la imagen',
+                        return Text(
+                          'Error al cargar la imagen'.tr(),
                           style: TextStyle(fontSize: 14),
                         );
                       },
@@ -322,8 +323,8 @@ class FullScreenImage extends StatelessWidget {
                 );
               },
               errorBuilder: (context, error, stackTrace) {
-                return const Text(
-                  'Error al cargar la imagen',
+                return Text(
+                  'Error al cargar la imagen'.tr(),
                   style: TextStyle(color: Colors.white, fontSize: 14),
                 );
               },

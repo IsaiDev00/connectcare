@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:connectcare/core/constants/constants.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'dart:convert';
@@ -168,39 +169,39 @@ class _TriageScreenState extends State<TriageScreen> {
   // Métodos de validación
   String? _validateInteger(String? value, String fieldName) {
     if (value == null || value.isEmpty) {
-      return '$fieldName is required';
+      return '$fieldName is required'.tr();
     }
     final integerRegex = RegExp(r'^[0-9]+$');
     if (!integerRegex.hasMatch(value)) {
-      return '$fieldName must be an integer';
+      return '$fieldName must be an integer'.tr();
     }
     return null;
   }
 
   String? _validateDecimal(String? value, String fieldName) {
     if (value == null || value.isEmpty) {
-      return '$fieldName is required';
+      return '$fieldName is required'.tr();
     }
     final decimalRegex = RegExp(r'^\d+(\.\d+)?$');
     if (!decimalRegex.hasMatch(value)) {
-      return '$fieldName must be a decimal number';
+      return '$fieldName must be a decimal number'.tr();
     }
     return null;
   }
 
   String? _validateText(String? value, String fieldName, int maxLength) {
     if (value == null || value.isEmpty) {
-      return '$fieldName is required';
+      return '$fieldName is required'.tr();
     }
     if (value.length > maxLength) {
-      return '$fieldName must not exceed $maxLength characters';
+      return '$fieldName must not exceed $maxLength characters'.tr();
     }
     return null;
   }
 
   String? _validateSelection(String? value, String fieldName) {
     if (value == null || value.isEmpty) {
-      return '$fieldName is required';
+      return '$fieldName is required'.tr();
     }
     return null;
   }
@@ -1065,11 +1066,11 @@ class _TriageScreenState extends State<TriageScreen> {
                             if (medication.brand.isNotEmpty)
                               Text('Brand: ${medication.brand}')
                             else
-                              const Text('No brand specified'),
+                              Text('No brand specified'.tr()),
                             if (medication.route.isNotEmpty)
                               Text('Route: ${medication.route}')
                             else
-                              const Text('No route specified'),
+                              Text('No route specified'.tr()),
                           ],
                         ),
                       ),
@@ -1373,7 +1374,7 @@ class _MedicationDialogState extends State<MedicationDialog> {
                 maxLength: 100,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Route of Administration is required';
+                    return 'Route of Administration is required'.tr();
                   }
                   return null;
                 },
@@ -1391,11 +1392,11 @@ class _MedicationDialogState extends State<MedicationDialog> {
                       keyboardType: TextInputType.number,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Quantity is required';
+                          return 'Quantity is required'.tr();
                         }
                         final intValue = int.tryParse(value);
                         if (intValue == null || intValue <= 0) {
-                          return 'Enter a valid quantity';
+                          return 'Enter a valid quantity'.tr();
                         }
                         return null;
                       },
@@ -1537,7 +1538,7 @@ class _ReagentWidgetState extends State<ReagentWidget> {
           maxLength: 100,
           validator: (value) {
             if (value == null || value.isEmpty) {
-              return 'Reagent is required';
+              return 'Reagent is required'.tr();
             }
             return null;
           },
@@ -1552,7 +1553,7 @@ class _ReagentWidgetState extends State<ReagentWidget> {
           maxLength: 100,
           validator: (value) {
             if (value == null || value.isEmpty) {
-              return 'Concentration is required';
+              return 'Concentration is required'.tr();
             }
             return null;
           },

@@ -6,6 +6,7 @@ import 'package:connectcare/presentation/screens/general/dynamic_wrapper.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:connectcare/data/services/shared_preferences_service.dart';
 import 'package:connectcare/presentation/widgets/snack_bar.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -61,7 +62,7 @@ class SubmitCluesScreenState extends State<SubmitCluesScreen> {
           openAppSettings();
           return false;
         } else {
-          showCustomSnackBar(context, "Permiso para leer imágenes denegado.");
+          showCustomSnackBar(context, "Permiso para leer imágenes denegado.".tr());
           return false;
         }
       }
@@ -91,7 +92,7 @@ class SubmitCluesScreenState extends State<SubmitCluesScreen> {
           openAppSettings();
           return false;
         } else {
-          showCustomSnackBar(context, "Permiso de almacenamiento denegado.");
+          showCustomSnackBar(context, "Permiso de almacenamiento denegado.".tr());
           return false;
         }
       }
@@ -200,7 +201,7 @@ class SubmitCluesScreenState extends State<SubmitCluesScreen> {
       }
 
       if (response.statusCode == 201) {
-        showCustomSnackBar(context, "Solicitud registrada con éxito");
+        showCustomSnackBar(context, "Solicitud registrada con éxito".tr());
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -209,11 +210,11 @@ class SubmitCluesScreenState extends State<SubmitCluesScreen> {
         );
       } else {
         showCustomSnackBar(
-            context, "Error al registrar la solicitud: ${response.body}");
+            context, "Error al registrar la solicitud: ${response.body}".tr());
       }
     } catch (e) {
       print('Excepción al hacer POST: $e');
-      showCustomSnackBar(context, "Ocurrió un error al registrar la solicitud");
+      showCustomSnackBar(context, "Ocurrió un error al registrar la solicitud".tr());
     }
   }
 
@@ -373,7 +374,7 @@ class SubmitCluesScreenState extends State<SubmitCluesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Submit Clues'),
+        title: Text('Submit Clues'.tr()),
         centerTitle: true,
       ),
       body: Padding(
@@ -384,9 +385,9 @@ class SubmitCluesScreenState extends State<SubmitCluesScreen> {
             Center(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 600),
-                child: const Center(
+                child: Center(
                   child: Text(
-                    'Now you must upload the image of the CLUES certificate, it is important that it is legible and clear.',
+                    'Now you must upload the image of the CLUES certificate, it is important that it is legible and clear.'.tr(),
                     style: TextStyle(fontSize: 16),
                     textAlign: TextAlign.center,
                   ),
@@ -404,7 +405,7 @@ class SubmitCluesScreenState extends State<SubmitCluesScreen> {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: pickedFile != null ? _startLoadingAndAnalyze : null,
-              child: const Text('Upload'),
+              child: Text('Upload'.tr()),
             ),
             if (isLoading)
               const Padding(
@@ -413,8 +414,8 @@ class SubmitCluesScreenState extends State<SubmitCluesScreen> {
               ),
             if (detectedText != null) ...[
               const SizedBox(height: 20),
-              const Text(
-                'Texto detectado:',
+              Text(
+                'Texto detectado:'.tr(),
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               Text(
@@ -424,7 +425,7 @@ class SubmitCluesScreenState extends State<SubmitCluesScreen> {
             ],
             if (croppedImage != null) ...[
               const SizedBox(height: 20),
-              const Text(
+              Text(
                 'Imagen recortada:',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
@@ -441,7 +442,7 @@ class SubmitCluesScreenState extends State<SubmitCluesScreen> {
   }
 
   void _fileErrorResponse(e) {
-    showCustomSnackBar(context, "Error al seleccionar el archivo: $e");
+    showCustomSnackBar(context, "Error al seleccionar el archivo: $e".tr());
   }
 
   void _invalidApiResponse() {
@@ -454,7 +455,7 @@ class SubmitCluesScreenState extends State<SubmitCluesScreen> {
   void _errorParsingFile(e) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text("Error al analizar el archivo: $e"),
+        content: Text("Error al analizar el archivo: $e".tr()),
       ),
     );
   }

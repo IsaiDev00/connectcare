@@ -140,7 +140,7 @@ class _NursingSheetHistoryState extends State<NursingSheetHistory> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("nursing_sheet_history").tr(),
+        title: Text("nursing_sheet_history").tr(),
       ),
       body: Column(
         children: [
@@ -149,7 +149,7 @@ class _NursingSheetHistoryState extends State<NursingSheetHistory> {
             child: isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : nursingRecords.isEmpty
-                    ? Center(child: const Text("no_records_found").tr())
+                    ? Center(child: Text("no_records_found").tr())
                     : ListView.builder(
                         itemCount: nursingRecords.length,
                         itemBuilder: (context, index) {

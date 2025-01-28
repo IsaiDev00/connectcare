@@ -141,7 +141,7 @@ class _ProgressNoteHistoryState extends State<ProgressNoteHistory> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("progress_note_history").tr(),
+        title: Text("progress_note_history").tr(),
       ),
       body: Column(
         children: [
@@ -150,7 +150,7 @@ class _ProgressNoteHistoryState extends State<ProgressNoteHistory> {
             child: isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : progressNotes.isEmpty
-                    ? Center(child: const Text("no_records_found").tr())
+                    ? Center(child: Text("no_records_found").tr())
                     : ListView.builder(
                         itemCount: progressNotes.length,
                         itemBuilder: (context, index) {

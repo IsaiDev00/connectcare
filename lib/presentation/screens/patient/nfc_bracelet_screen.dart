@@ -1,5 +1,6 @@
 import 'package:connectcare/core/constants/constants.dart';
 import 'package:connectcare/data/services/shared_preferences_service.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'dart:async';
@@ -211,7 +212,7 @@ class _NfcBraceletScreenState extends State<NfcBraceletScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Bracelet NFC'),
+        title: Text('Bracelet NFC'.tr()),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -220,11 +221,11 @@ class _NfcBraceletScreenState extends State<NfcBraceletScreen> {
           child: Column(
             children: [
               const SizedBox(height: 30),
-              const Center(child: Text("Please choose one patient")),
+              Center(child: Text("Please choose one patient").tr()),
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: readNFC,
-                child: const Text("READ NFC"),
+                child: Text("READ NFC".tr()),
               ),
               const SizedBox(height: 10),
               Text(_status),

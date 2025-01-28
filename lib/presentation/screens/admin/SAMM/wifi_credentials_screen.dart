@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:connectcare/core/constants/constants.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
@@ -14,7 +15,7 @@ class WifiCredentialsScreen extends StatefulWidget {
 
 class _WifiCredentialsScreen extends State<WifiCredentialsScreen> {
   static const platform = MethodChannel('com.tu_paquete/nfc');
-  String _status = "Acerque una tarjeta NFC para interactuar...";
+  String _status = "Acerque una tarjeta NFC para interactuar...".tr();
   final _formKey = GlobalKey<FormState>();
 
   final TextEditingController _ssid = TextEditingController();
@@ -66,17 +67,17 @@ class _WifiCredentialsScreen extends State<WifiCredentialsScreen> {
 
   String? _validateText(String? value, String fieldName, int maxLength) {
     if (value == null || value.isEmpty) {
-      return '$fieldName is required';
+      return '$fieldName is required'.tr();
     }
     if (value.length > maxLength) {
-      return '$fieldName must not exceed $maxLength characters';
+      return '$fieldName must not exceed $maxLength characters'.tr();
     }
     return null;
   }
 
   String? _validateSelection(String? value, String fieldName) {
     if (value == null || value.isEmpty) {
-      return '$fieldName is required';
+      return '$fieldName is required'.tr();
     }
     return null;
   }
@@ -216,7 +217,7 @@ class _WifiCredentialsScreen extends State<WifiCredentialsScreen> {
                 ),
               ),
               const SizedBox(height: 40),
-              ElevatedButton(onPressed: readNFC, child: Text("Leer nfc")),
+              ElevatedButton(onPressed: readNFC, child: Text("Leer nfc").tr()),
               SizedBox(height: 10),
               TextFormField(
                 controller: _ssid,

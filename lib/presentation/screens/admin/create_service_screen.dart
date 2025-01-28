@@ -1,5 +1,6 @@
 import 'package:connectcare/core/constants/constants.dart';
 import 'package:connectcare/data/services/shared_preferences_service.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
@@ -89,7 +90,7 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Create service"),
+        title: Text("Create service".tr()),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () {
@@ -132,7 +133,7 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                     if (value == null || value.isEmpty) {
                       return "Please enter a name for the service";
                     } else if (value.length > 25) {
-                      return 'Please enter a shorter name, less than 26 char';
+                      return 'Please enter a shorter name, less than 26 char'.tr();
                     }
                     return null;
                   },
@@ -187,7 +188,7 @@ class _CreateServiceScreenState extends State<CreateServiceScreen> {
                       );
                     }
                   },
-                  child: const Text("Register service"),
+                  child: Text("Register service".tr()),
                 ),
               ],
             ),

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:connectcare/presentation/widgets/snack_bar.dart';
 import 'package:connectcare/core/constants/constants.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
@@ -231,7 +232,7 @@ class _EditProcedureScreenState extends State<EditProcedureScreen> {
   }
 
   void _responseUpdateProcedure() {
-    showCustomSnackBar(context, "Procedimiento actualizado exitosamente");
+    showCustomSnackBar(context, "Procedimiento actualizado exitosamente".tr());
     Navigator.pushNamed(context, '/manageProcedureScreen');
   }
 
@@ -245,7 +246,7 @@ class _EditProcedureScreenState extends State<EditProcedureScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Edit Procedure"),
+        title: Text("Edit Procedure".tr()),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () {
@@ -288,9 +289,9 @@ class _EditProcedureScreenState extends State<EditProcedureScreen> {
                         autofocus: true,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter a name for the procedure';
+                            return 'Please enter a name for the procedure'.tr();
                           } else if (value.length > 25) {
-                            return 'Please enter a shorter name, less than 26 char';
+                            return 'Please enter a shorter name, less than 26 char'.tr();
                           }
                           return null;
                         },
@@ -309,9 +310,9 @@ class _EditProcedureScreenState extends State<EditProcedureScreen> {
                         autofocus: true,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter a description for the procedure';
+                            return 'Please enter a description for the procedure'.tr();
                           } else if (value.length > 500) {
-                            return 'Please enter a shorter description, less than 501 char';
+                            return 'Please enter a shorter description, less than 501 char'.tr();
                           }
                           return null;
                         },
@@ -342,7 +343,7 @@ class _EditProcedureScreenState extends State<EditProcedureScreen> {
                         },
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please select a room';
+                            return 'Please select a room'.tr();
                           }
                           return null;
                         },
@@ -365,9 +366,9 @@ class _EditProcedureScreenState extends State<EditProcedureScreen> {
                         keyboardType: TextInputType.number,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter an amount of nurses';
+                            return 'Please enter an amount of nurses'.tr();
                           } else if (int.parse(value) > 25) {
-                            return 'Please enter a number less or equal than 25';
+                            return 'Please enter a number less or equal than 25'.tr();
                           }
                           return null;
                         },
@@ -390,9 +391,9 @@ class _EditProcedureScreenState extends State<EditProcedureScreen> {
                         keyboardType: TextInputType.number,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter an amount of doctors';
+                            return 'Please enter an amount of doctors'.tr();
                           } else if (int.parse(value) > 25) {
-                            return 'Please enter a number less or equal than 25';
+                            return 'Please enter a number less or equal than 25'.tr();
                           }
                           return null;
                         },
@@ -420,7 +421,7 @@ class _EditProcedureScreenState extends State<EditProcedureScreen> {
                             );
                           }
                         },
-                        child: const Text("Save Changes"),
+                        child: Text("Save Changes".tr()),
                       ),
                     ],
                   ),

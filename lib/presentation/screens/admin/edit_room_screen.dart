@@ -1,4 +1,5 @@
 import 'package:connectcare/core/constants/constants.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:convert';
@@ -345,7 +346,7 @@ class EditRoomScreenState extends State<EditRoomScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Edit Room"),
+        title: Text("Edit Room".tr()),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () {
@@ -386,9 +387,9 @@ class EditRoomScreenState extends State<EditRoomScreen> {
                         autofocus: true,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter a name for the room';
+                            return 'Please enter a name for the room'.tr();
                           } else if (value.length > 30) {
-                            return 'Please enter a shorter name, less than 31 char';
+                            return 'Please enter a shorter name, less than 31 char'.tr();
                           }
                           return null;
                         },
@@ -407,18 +408,18 @@ class EditRoomScreenState extends State<EditRoomScreen> {
                         keyboardType: TextInputType.number,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter a number for the room';
+                            return 'Please enter a number for the room'.tr();
                           }
                           return null;
                         },
                       ),
                       const SizedBox(height: 30),
-                      const Text("Opening hours"),
+                      Text("Opening hours".tr()),
                       const SizedBox(height: 5),
                       SizedBox(
                         width: 200,
                         child: CheckboxListTile(
-                          title: const Text("24/7"),
+                          title: Text("24/7".tr()),
                           value: is24_7,
                           onChanged: (value) {
                             setState(() {
@@ -465,7 +466,7 @@ class EditRoomScreenState extends State<EditRoomScreen> {
                                           }
                                         });
                                       },
-                                      title: const Text("Closed"),
+                                      title: Text("Closed".tr()),
                                       contentPadding: EdgeInsets.zero,
                                     ),
                                   ),
@@ -487,7 +488,7 @@ class EditRoomScreenState extends State<EditRoomScreen> {
                                             if (!isClosed[day]! &&
                                                 (value == null ||
                                                     value.isEmpty)) {
-                                              return 'Required';
+                                              return 'Required'.tr();
                                             }
                                             return null;
                                           },
@@ -509,7 +510,7 @@ class EditRoomScreenState extends State<EditRoomScreen> {
                                             if (!isClosed[day]! &&
                                                 (value == null ||
                                                     value.isEmpty)) {
-                                              return 'Required';
+                                              return 'Required'.tr();
                                             }
                                             return null;
                                           },
@@ -528,7 +529,7 @@ class EditRoomScreenState extends State<EditRoomScreen> {
                       SizedBox(
                         width: 200,
                         child: CheckboxListTile(
-                          title: const Text("Add Visiting Hours"),
+                          title: Text("Add Visiting Hours".tr()),
                           value: hasVisitingHours,
                           onChanged: (value) {
                             setState(() {
@@ -547,7 +548,7 @@ class EditRoomScreenState extends State<EditRoomScreen> {
                         child: Column(
                           children: [
                             const SizedBox(height: 10),
-                            const Text("Visiting hours"),
+                            Text("Visiting hours".tr()),
                             const SizedBox(height: 10),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -565,7 +566,7 @@ class EditRoomScreenState extends State<EditRoomScreen> {
                                     validator: (value) {
                                       if (hasVisitingHours &&
                                           (value == null || value.isEmpty)) {
-                                        return 'Required';
+                                        return 'Required'.tr();
                                       }
                                       return null;
                                     },
@@ -585,7 +586,7 @@ class EditRoomScreenState extends State<EditRoomScreen> {
                                     validator: (value) {
                                       if (hasVisitingHours &&
                                           (value == null || value.isEmpty)) {
-                                        return 'Required';
+                                        return 'Required'.tr();
                                       }
                                       return null;
                                     },
@@ -607,14 +608,14 @@ class EditRoomScreenState extends State<EditRoomScreen> {
                               validator: (value) {
                                 if (hasVisitingHours) {
                                   if (value == null || value.isEmpty) {
-                                    return 'Please enter a number of visitors';
+                                    return 'Please enter a number of visitors'.tr();
                                   }
                                   int? num = int.tryParse(value);
                                   if (num == null) {
-                                    return 'Invalid number';
+                                    return 'Invalid number'.tr();
                                   }
                                   if (num > 20) {
-                                    return 'Please enter a number below 20 visitors';
+                                    return 'Please enter a number below 20 visitors'.tr();
                                   }
                                 }
                                 return null;
@@ -636,14 +637,14 @@ class EditRoomScreenState extends State<EditRoomScreen> {
                         keyboardType: TextInputType.number,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter a max number of beds/incubators/cribs';
+                            return 'Please enter a max number of beds/incubators/cribs'.tr();
                           }
                           int? num = int.tryParse(value);
                           if (num == null) {
-                            return 'Invalid number';
+                            return 'Invalid number'.tr();
                           }
                           if (num > 50) {
-                            return 'Please enter a number below 50 beds/incubators/cribs';
+                            return 'Please enter a number below 50 beds/incubators/cribs'.tr();
                           }
                           return null;
                         },
@@ -691,7 +692,7 @@ class EditRoomScreenState extends State<EditRoomScreen> {
                             );
                           }
                         },
-                        child: const Text("Save Changes"),
+                        child: Text("Save Changes".tr()),
                       ),
                     ],
                   ),

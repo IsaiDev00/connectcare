@@ -1340,14 +1340,14 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
 
     if (responseGet.statusCode != 200) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text("Este paciente no tiene familiares vinculados")));
+          content: Text("Este paciente no tiene familiares vinculados".tr())));
       return;
     }
 
     final jsonGet = jsonDecode(responseGet.body);
     if (jsonGet["id_familiar"] == null) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text("Este paciente no tiene familiares vinculados")));
+          content: Text("Este paciente no tiene familiares vinculados".tr())));
       return;
     }
 
@@ -1367,10 +1367,10 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
     // Opcional: manejar la respuesta del envío de la notificación
     if (responsePost.statusCode == 200) {
       ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("The family member has been notificated")));
+          SnackBar(content: Text("The family member has been notificated".tr())));
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error notificating the family member")));
+          SnackBar(content: Text("Error notificating the family member".tr())));
     }
   }
 
@@ -1389,7 +1389,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
             children: [
               Center(
                 child: Text(
-                  "General Information",
+                  "General Information".tr(),
                   style: TextStyle(
                     fontSize: 30,
                   ),
@@ -1397,32 +1397,32 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
               ),
               const SizedBox(height: 40),
 
-              Text("Name:  $nombrePaciente"),
+              Text("Name:  $nombrePaciente".tr()),
               const SizedBox(height: 10),
-              Text("Age: $edad"),
+              Text("Age: $edad".tr()),
               const SizedBox(height: 10),
-              Text("Current days interned: $diasInterno"),
+              Text("Current days interned: $diasInterno".tr()),
               const SizedBox(height: 10),
-              Text("Service: $servicio"),
+              Text("Service: $servicio".tr()),
               const SizedBox(height: 10),
-              Text("Room: $sala"),
+              Text("Room: $sala".tr()),
               const SizedBox(height: 10),
-              Text("Bed number $camaNum"),
+              Text("Bed number $camaNum".tr()),
               const SizedBox(height: 10),
-              Text("NSS: $nss"),
+              Text("NSS: $nss".tr()),
               const SizedBox(height: 10),
-              Text("Entry date: $fechaIngreso"),
+              Text("Entry date: $fechaIngreso".tr()),
               const SizedBox(height: 10),
-              Text("Sex: $sexo"),
+              Text("Sex: $sexo".tr()),
               const SizedBox(height: 10),
-              Text("Gpo and RH: $gpo_rh"),
+              Text("Gpo and RH: $gpo_rh".tr()),
               const SizedBox(height: 10),
-              Text("Date of birth: $fechaNacimiento"),
+              Text("Date of birth: $fechaNacimiento".tr()),
               const SizedBox(height: 10),
-              Text("Today's date: $fechaHoy"),
+              Text("Today's date: $fechaHoy".tr()),
               const SizedBox(height: 20),
 
-              Text("Actual nurse/s:"),
+              Text("Actual nurse/s:".tr()),
 
               ListView.builder(
                 shrinkWrap: true,
@@ -1440,7 +1440,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
               const SizedBox(height: 20),
 
               Text(
-                "Actual Medical Diagnosis:",
+                "Actual Medical Diagnosis:".tr(),
                 style: TextStyle(
                   fontSize: 20,
                 ),
@@ -1448,7 +1448,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
 
               const SizedBox(height: 10),
 
-              Text("(Change it if required)"),
+              Text("(Change it if required)".tr()),
 
               const SizedBox(height: 30),
 
@@ -1463,7 +1463,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                 maxLength: 100,
                 validator: (value) {
                   if ((value?.isEmpty ?? true)) {
-                    return 'Please enter the medical diagnosis';
+                    return 'Please enter the medical diagnosis'.tr();
                   }
                   return null;
                 },
@@ -1481,7 +1481,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                 maxLength: 100,
                 validator: (value) {
                   if ((value?.length ?? 0) > 100) {
-                    return 'Must be less than 100 characters';
+                    return 'Must be less than 100 characters'.tr();
                   }
                   return null;
                 },
@@ -1502,7 +1502,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                 keyboardType: TextInputType.numberWithOptions(decimal: true),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter the patient weight';
+                    return 'Please enter the patient weight'.tr();
                   }
                   return null;
                 },
@@ -1523,7 +1523,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                 keyboardType: TextInputType.numberWithOptions(decimal: true),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter the patient height';
+                    return 'Please enter the patient height'.tr();
                   }
                   return null;
                 },
@@ -1544,7 +1544,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                 keyboardType: TextInputType.numberWithOptions(decimal: true),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter a perimeter in cm';
+                    return 'Please enter a perimeter in cm'.tr();
                   }
                   return null;
                 },
@@ -1575,7 +1575,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                 },
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please choose an option';
+                    return 'Please choose an option'.tr();
                   }
                   return null;
                 },
@@ -1606,7 +1606,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                 },
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please choose a code';
+                    return 'Please choose a code'.tr();
                   }
                   return null;
                 },
@@ -1616,8 +1616,8 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
 
               // VITAL SIGNS
               Center(
-                  child: const Text(
-                "Vital Signs",
+                  child: Text(
+                "Vital Signs".tr(),
                 style: TextStyle(
                   fontSize: 20.0,
                 ),
@@ -1625,7 +1625,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
               const SizedBox(height: 15),
 
               // FC (Heart Rate)
-              Center(child: const Text("Heart Rate (FC)")),
+              Center(child: Text("Heart Rate (FC)".tr())),
               const SizedBox(height: 10),
               ...fcControllers.map((controller) {
                 int index = fcControllers.indexOf(controller);
@@ -1643,7 +1643,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                     keyboardType: TextInputType.number,
                     validator: (value) {
                       if ((value?.isEmpty ?? true)) {
-                        return 'Please enter FC ${index + 1}';
+                        return 'Please enter FC ${index + 1}'.tr();
                       }
                       return null;
                     },
@@ -1670,7 +1670,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
 
               // TI (Internal Temperature)
               const SizedBox(height: 15),
-              Center(child: const Text("Internal Temperature (TI)")),
+              Center(child: Text("Internal Temperature (TI)".tr())),
               const SizedBox(height: 10),
               ...tiControllers.map((controller) {
                 int index = tiControllers.indexOf(controller);
@@ -1690,7 +1690,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                         TextInputType.numberWithOptions(decimal: true),
                     validator: (value) {
                       if ((value?.isEmpty ?? true)) {
-                        return 'Please enter TI ${index + 1}';
+                        return 'Please enter TI ${index + 1}'.tr();
                       }
                       return null;
                     },
@@ -1717,7 +1717,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
 
               // TC (Body Temperature)
               const SizedBox(height: 15),
-              Center(child: const Text("Body Temperature (TC)")),
+              Center(child: Text("Body Temperature (TC)".tr())),
               const SizedBox(height: 10),
               ...tcControllers.map((controller) {
                 int index = tcControllers.indexOf(controller);
@@ -1737,7 +1737,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                         TextInputType.numberWithOptions(decimal: true),
                     validator: (value) {
                       if ((value?.isEmpty ?? true)) {
-                        return 'Please enter TC ${index + 1}';
+                        return 'Please enter TC ${index + 1}'.tr();
                       }
                       return null;
                     },
@@ -1764,7 +1764,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
 
               // TAS (Systolic Blood Pressure)
               const SizedBox(height: 15),
-              Center(child: const Text("Systolic Blood Pressure (TAS)")),
+              Center(child: Text("Systolic Blood Pressure (TAS)".tr())),
               const SizedBox(height: 10),
               ...tasControllers.map((controller) {
                 int index = tasControllers.indexOf(controller);
@@ -1782,7 +1782,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                     keyboardType: TextInputType.number,
                     validator: (value) {
                       if ((value?.isEmpty ?? true)) {
-                        return 'Please enter TAS ${index + 1}';
+                        return 'Please enter TAS ${index + 1}'.tr();
                       }
                       return null;
                     },
@@ -1810,7 +1810,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
 
               // TAD (Diastolic Blood Pressure)
               const SizedBox(height: 15),
-              Center(child: const Text("Diastolic Blood Pressure (TAD)")),
+              Center(child: Text("Diastolic Blood Pressure (TAD)".tr())),
               const SizedBox(height: 10),
               ...tadControllers.map((controller) {
                 int index = tadControllers.indexOf(controller);
@@ -1828,7 +1828,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                     keyboardType: TextInputType.number,
                     validator: (value) {
                       if ((value?.isEmpty ?? true)) {
-                        return 'Please enter TAD ${index + 1}';
+                        return 'Please enter TAD ${index + 1}'.tr();
                       }
                       return null;
                     },
@@ -1856,7 +1856,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
 
               // PVC (Central Venous Pressure)
               const SizedBox(height: 15),
-              Center(child: const Text("Central Venous Pressure (PVC)")),
+              Center(child: Text("Central Venous Pressure (PVC)".tr())),
               const SizedBox(height: 10),
               ...pvcControllers.map((controller) {
                 int index = pvcControllers.indexOf(controller);
@@ -1876,7 +1876,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                         TextInputType.numberWithOptions(decimal: true),
                     validator: (value) {
                       if ((value?.isEmpty ?? true)) {
-                        return 'Please enter PVC ${index + 1}';
+                        return 'Please enter PVC ${index + 1}'.tr();
                       }
                       return null;
                     },
@@ -1904,7 +1904,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
 
               // Respiratory Rate
               const SizedBox(height: 15),
-              Center(child: const Text("Respiratory Rate")),
+              Center(child: Text("Respiratory Rate".tr())),
               const SizedBox(height: 10),
               ...frecRespiratoriaControllers.map((controller) {
                 int index = frecRespiratoriaControllers.indexOf(controller);
@@ -1922,7 +1922,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                     keyboardType: TextInputType.number,
                     validator: (value) {
                       if ((value?.isEmpty ?? true)) {
-                        return 'Please enter Respiratory Rate ${index + 1}';
+                        return 'Please enter Respiratory Rate ${index + 1}'.tr();
                       }
                       return null;
                     },
@@ -1950,7 +1950,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
 
               // Interventions in Collaboration
               const SizedBox(height: 15),
-              Center(child: const Text("Interventions in Collaboration")),
+              Center(child: Text("Interventions in Collaboration".tr())),
               const SizedBox(height: 10),
               ...interColaboControllers.map((controller) {
                 int index = interColaboControllers.indexOf(controller);
@@ -1965,7 +1965,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                     maxLength: 200,
                     validator: (value) {
                       if ((value?.length ?? 0) > 200) {
-                        return 'Must be less than 200 characters';
+                        return 'Must be less than 200 characters'.tr();
                       }
                       return null;
                     },
@@ -1994,8 +1994,8 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
               // NUEVA SECCIÓN: INFUSIÓN INTRAVENOSA
               const SizedBox(height: 30),
               Center(
-                  child: const Text(
-                "Intravenous Infusion",
+                  child: Text(
+                "Intravenous Infusion".tr(),
                 style: TextStyle(
                   fontSize: 20.0,
                 ),
@@ -2004,7 +2004,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
 
               // Formula
               const SizedBox(height: 15),
-              Center(child: const Text("Formula")),
+              Center(child: Text("Formula".tr())),
               const SizedBox(height: 10),
               ...formulaControllers.map((controller) {
                 int index = formulaControllers.indexOf(controller);
@@ -2044,7 +2044,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
 
               // Dieta
               const SizedBox(height: 15),
-              Center(child: const Text("Diet")),
+              Center(child: Text("Diet".tr())),
               const SizedBox(height: 10),
               ...dietaControllers.map((controller) {
                 int index = dietaControllers.indexOf(controller);
@@ -2084,7 +2084,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
 
               // Líquidos orales
               const SizedBox(height: 15),
-              Center(child: const Text("Oral Liquids")),
+              Center(child: Text("Oral Liquids".tr())),
               const SizedBox(height: 10),
               ...liquidosOralesInfControllers.map((controller) {
                 int index = liquidosOralesInfControllers.indexOf(controller);
@@ -2124,7 +2124,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
 
               // Total (un solo campo)
               const SizedBox(height: 15),
-              Center(child: const Text("Total Infusion")),
+              Center(child: Text("Total Infusion".tr())),
               const SizedBox(height: 10),
               TextFormField(
                 controller: totalInfusionController,
@@ -2141,8 +2141,8 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
               // CONTROL OF LIQUIDS
               const SizedBox(height: 30),
               Center(
-                  child: const Text(
-                "Control of Liquids",
+                  child: Text(
+                "Control of Liquids".tr(),
                 style: TextStyle(
                   fontSize: 20.0,
                 ),
@@ -2151,7 +2151,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
 
               // Oral Intake
               const SizedBox(height: 15),
-              Center(child: const Text("Oral Intake")),
+              Center(child: Text("Oral Intake".tr())),
               const SizedBox(height: 10),
               ...ingOralControllers.map((controller) {
                 int index = ingOralControllers.indexOf(controller);
@@ -2166,7 +2166,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                     maxLength: 100,
                     validator: (value) {
                       if ((value?.length ?? 0) > 100) {
-                        return 'Must be less than 100 characters';
+                        return 'Must be less than 100 characters'.tr();
                       }
                       return null;
                     },
@@ -2194,7 +2194,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
 
               // Sonda
               const SizedBox(height: 15),
-              Center(child: const Text("Sonda")),
+              Center(child: Text("Sonda".tr())),
               const SizedBox(height: 10),
               ...sondaControllers.map((controller) {
                 int index = sondaControllers.indexOf(controller);
@@ -2209,7 +2209,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                     maxLength: 100,
                     validator: (value) {
                       if ((value?.length ?? 0) > 100) {
-                        return 'Must be less than 100 characters';
+                        return 'Must be less than 100 characters'.tr();
                       }
                       return null;
                     },
@@ -2237,7 +2237,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
 
               // Hemoderivatives
               const SizedBox(height: 15),
-              Center(child: const Text("Hemoderivatives")),
+              Center(child: Text("Hemoderivatives".tr())),
               const SizedBox(height: 10),
               ...hemoControllers.map((controller) {
                 int index = hemoControllers.indexOf(controller);
@@ -2252,7 +2252,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                     maxLength: 100,
                     validator: (value) {
                       if ((value?.length ?? 0) > 100) {
-                        return 'Must be less than 100 characters';
+                        return 'Must be less than 100 characters'.tr();
                       }
                       return null;
                     },
@@ -2280,7 +2280,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
 
               // Nutri Parenteral Total
               const SizedBox(height: 15),
-              Center(child: const Text("Total Parenteral Nutrition")),
+              Center(child: Text("Total Parenteral Nutrition".tr())),
               const SizedBox(height: 10),
               ...nutriParControllers.map((controller) {
                 int index = nutriParControllers.indexOf(controller);
@@ -2295,7 +2295,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                     maxLength: 100,
                     validator: (value) {
                       if ((value?.length ?? 0) > 100) {
-                        return 'Must be less than 100 characters';
+                        return 'Must be less than 100 characters'.tr();
                       }
                       return null;
                     },
@@ -2323,7 +2323,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
 
               // IV Solutions
               const SizedBox(height: 15),
-              Center(child: const Text("IV Solutions")),
+              Center(child: Text("IV Solutions".tr())),
               const SizedBox(height: 10),
               ...solucionControllers.map((controller) {
                 int index = solucionControllers.indexOf(controller);
@@ -2338,7 +2338,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                     maxLength: 100,
                     validator: (value) {
                       if ((value?.length ?? 0) > 100) {
-                        return 'Must be less than 100 characters';
+                        return 'Must be less than 100 characters'.tr();
                       }
                       return null;
                     },
@@ -2366,7 +2366,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
 
               // Other
               const SizedBox(height: 15),
-              Center(child: const Text("Other")),
+              Center(child: Text("Other".tr())),
               const SizedBox(height: 10),
               ...otroControllers.map((controller) {
                 int index = otroControllers.indexOf(controller);
@@ -2381,7 +2381,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                     maxLength: 100,
                     validator: (value) {
                       if ((value?.length ?? 0) > 100) {
-                        return 'Must be less than 100 characters';
+                        return 'Must be less than 100 characters'.tr();
                       }
                       return null;
                     },
@@ -2409,7 +2409,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
 
               // Balance 24 hrs
               const SizedBox(height: 15),
-              Center(child: const Text("24-Hour Balance")),
+              Center(child: Text("24-Hour Balance".tr())),
               const SizedBox(height: 10),
               ...balanceControllers.map((controller) {
                 int index = balanceControllers.indexOf(controller);
@@ -2424,7 +2424,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                     maxLength: 100,
                     validator: (value) {
                       if ((value?.length ?? 0) > 100) {
-                        return 'Must be less than 100 characters';
+                        return 'Must be less than 100 characters'.tr();
                       }
                       return null;
                     },
@@ -2452,7 +2452,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
 
               // Egress via Uresis
               const SizedBox(height: 15),
-              Center(child: const Text("Egress via Uresis")),
+              Center(child: Text("Egress via Uresis".tr())),
               const SizedBox(height: 10),
               ...egresosUresisControllers.map((controller) {
                 int index = egresosUresisControllers.indexOf(controller);
@@ -2467,7 +2467,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                     maxLength: 100,
                     validator: (value) {
                       if ((value?.length ?? 0) > 100) {
-                        return 'Must be less than 100 characters';
+                        return 'Must be less than 100 characters'.tr();
                       }
                       return null;
                     },
@@ -2495,7 +2495,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
 
               // Evacuations
               const SizedBox(height: 15),
-              Center(child: const Text("Evacuations")),
+              Center(child: Text("Evacuations".tr())),
               const SizedBox(height: 10),
               ...evacuacionesControllers.map((controller) {
                 int index = evacuacionesControllers.indexOf(controller);
@@ -2510,7 +2510,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                     maxLength: 100,
                     validator: (value) {
                       if ((value?.length ?? 0) > 100) {
-                        return 'Must be less than 100 characters';
+                        return 'Must be less than 100 characters'.tr();
                       }
                       return null;
                     },
@@ -2538,7 +2538,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
 
               // Hemorrhages
               const SizedBox(height: 15),
-              Center(child: const Text("Hemorrhages")),
+              Center(child: Text("Hemorrhages".tr())),
               const SizedBox(height: 10),
               ...hemorragiaControllers.map((controller) {
                 int index = hemorragiaControllers.indexOf(controller);
@@ -2553,7 +2553,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                     maxLength: 100,
                     validator: (value) {
                       if ((value?.isEmpty ?? true)) {
-                        return 'Please enter the hemorrhage No. ${index + 1}';
+                        return 'Please enter the hemorrhage No. ${index + 1}'.tr();
                       }
                       return null;
                     },
@@ -2582,7 +2582,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
 
               // Vomits/Aspiration
               const SizedBox(height: 15),
-              Center(child: const Text("Vomits/Aspiration")),
+              Center(child: Text("Vomits/Aspiration".tr())),
               const SizedBox(height: 10),
               ...vomAspControllers.map((controller) {
                 int index = vomAspControllers.indexOf(controller);
@@ -2597,7 +2597,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                     maxLength: 100,
                     validator: (value) {
                       if ((value?.length ?? 0) > 100) {
-                        return 'Must be less than 100 characters';
+                        return 'Must be less than 100 characters'.tr();
                       }
                       return null;
                     },
@@ -2626,7 +2626,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
 
               // Drains
               const SizedBox(height: 15),
-              Center(child: const Text("Drains")),
+              Center(child: Text("Drains".tr())),
               const SizedBox(height: 10),
               ...drenesControllers.map((controller) {
                 int index = drenesControllers.indexOf(controller);
@@ -2641,7 +2641,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                     maxLength: 100,
                     validator: (value) {
                       if ((value?.length ?? 0) > 100) {
-                        return 'Must be less than 100 characters';
+                        return 'Must be less than 100 characters'.tr();
                       }
                       return null;
                     },
@@ -2683,7 +2683,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                 keyboardType: TextInputType.numberWithOptions(decimal: true),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter the total income';
+                    return 'Please enter the total income'.tr();
                   }
                   return null;
                 },
@@ -2705,7 +2705,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                 keyboardType: TextInputType.numberWithOptions(decimal: true),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter the total expenses';
+                    return 'Please enter the total expenses'.tr();
                   }
                   return null;
                 },
@@ -2727,7 +2727,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                 keyboardType: TextInputType.numberWithOptions(decimal: true),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter the total liquid balance';
+                    return 'Please enter the total liquid balance'.tr();
                   }
                   return null;
                 },
@@ -2736,8 +2736,8 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
               // MEDICATIONS
               const SizedBox(height: 30),
               Center(
-                  child: const Text(
-                "Medications",
+                  child: Text(
+                "Medications".tr(),
                 style: TextStyle(
                   fontSize: 20.0,
                 ),
@@ -2781,8 +2781,8 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
               // SCALES
               const SizedBox(height: 30),
               Center(
-                  child: const Text(
-                "Scales",
+                  child: Text(
+                "Scales".tr(),
                 style: TextStyle(
                   fontSize: 20.0,
                 ),
@@ -2813,7 +2813,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                 },
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please select an option';
+                    return 'Please select an option'.tr();
                   }
                   return null;
                 },
@@ -2844,7 +2844,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                 },
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please select an option';
+                    return 'Please select an option'.tr();
                   }
                   return null;
                 },
@@ -2875,7 +2875,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                 },
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please select an option';
+                    return 'Please select an option'.tr();
                   }
                   return null;
                 },
@@ -2884,7 +2884,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
               const SizedBox(height: 15),
 
               //PF
-              Center(child: const Text("Functional Plan (PF)")),
+              Center(child: Text("Functional Plan (PF)".tr())),
               const SizedBox(height: 10),
               ...pfControllers.map((controller) {
                 int index = pfControllers.indexOf(controller);
@@ -2905,7 +2905,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                         return 'Please enter PF ${index + 1}';
                       } else if (int.parse(value!) > 11 ||
                           int.parse(value) < 1) {
-                        return 'PF ${index + 1} must be between 1 and 11';
+                        return 'PF ${index + 1} must be between 1 and 11'.tr();
                       }
                       return null;
                     },
@@ -2933,7 +2933,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
               const SizedBox(height: 15),
 
               //SINTOMAS Y SIGNOS
-              Center(child: const Text("Symptoms and Signs")),
+              Center(child: Text("Symptoms and Signs".tr())),
               const SizedBox(height: 10),
               ...sinSigControllers.map((controller) {
                 int index = sinSigControllers.indexOf(controller);
@@ -2947,7 +2947,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                     ),
                     validator: (value) {
                       if ((value?.isEmpty ?? true)) {
-                        return 'Please enter the symptom or sign No. ${index + 1}';
+                        return 'Please enter the symptom or sign No. ${index + 1}'.tr();
                       }
                       return null;
                     },
@@ -2976,7 +2976,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
               const SizedBox(height: 15),
 
               //PROBLEMA INTERDEPENDIENTE
-              Center(child: const Text("Interdependent problem")),
+              Center(child: Text("Interdependent problem".tr())),
               const SizedBox(height: 10),
               ...problemaInterControllers.map((controller) {
                 int index = problemaInterControllers.indexOf(controller);
@@ -2990,7 +2990,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                     ),
                     validator: (value) {
                       if ((value?.isEmpty ?? true)) {
-                        return 'Please enter the interdependent problem No. ${index + 1}';
+                        return 'Please enter the interdependent problem No. ${index + 1}'.tr();
                       }
                       return null;
                     },
@@ -3019,7 +3019,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
               const SizedBox(height: 15),
 
               //JUICIO CLINICO
-              Center(child: const Text("Clinical trial")),
+              Center(child: Text("Clinical trial".tr())),
               const SizedBox(height: 10),
               ...juicioClinicoControllers.map((controller) {
                 int index = juicioClinicoControllers.indexOf(controller);
@@ -3033,7 +3033,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                     ),
                     validator: (value) {
                       if ((value?.isEmpty ?? true)) {
-                        return 'Please enter the clinical trial No. ${index + 1}';
+                        return 'Please enter the clinical trial No. ${index + 1}'.tr();
                       }
                       return null;
                     },
@@ -3062,7 +3062,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
               const SizedBox(height: 15),
 
               //ACTIVIDADES DE ENFERMERIA
-              Center(child: const Text("Nursing activities")),
+              Center(child: Text("Nursing activities".tr())),
               const SizedBox(height: 10),
               ...actEnfermeriaControllers.map((controller) {
                 int index = actEnfermeriaControllers.indexOf(controller);
@@ -3076,7 +3076,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                     ),
                     validator: (value) {
                       if ((value?.isEmpty ?? true)) {
-                        return 'Please enter the nurse activity No. ${index + 1}';
+                        return 'Please enter the nurse activity No. ${index + 1}'.tr();
                       }
                       return null;
                     },
@@ -3105,7 +3105,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
               const SizedBox(height: 15),
 
               //RESPUESTA Y EVOLUCION
-              Center(child: const Text("Response and evolution")),
+              Center(child: Text("Response and evolution".tr())),
               const SizedBox(height: 10),
               ...respEvoControllers.map((controller) {
                 int index = respEvoControllers.indexOf(controller);
@@ -3119,7 +3119,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                     ),
                     validator: (value) {
                       if ((value?.isEmpty ?? true)) {
-                        return 'Please enter the response and evo No. ${index + 1}';
+                        return 'Please enter the response and evo No. ${index + 1}'.tr();
                       }
                       return null;
                     },
@@ -3148,7 +3148,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
               const SizedBox(height: 15),
 
               //OBSERVACIONES
-              Center(child: const Text("Observations")),
+              Center(child: Text("Observations".tr())),
               const SizedBox(height: 10),
               ...obsControllers.map((controller) {
                 int index = obsControllers.indexOf(controller);
@@ -3162,7 +3162,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                     ),
                     validator: (value) {
                       if ((value?.isEmpty ?? true)) {
-                        return 'Please enter the observation No. ${index + 1}';
+                        return 'Please enter the observation No. ${index + 1}'.tr();
                       }
                       return null;
                     },
@@ -3191,7 +3191,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
               const SizedBox(height: 15),
 
               //PLAN DE EGRESO
-              Center(child: const Text("Egress plan")),
+              Center(child: Text("Egress plan".tr())),
               const SizedBox(height: 10),
               ...planEgresoControllers.map((controller) {
                 int index = planEgresoControllers.indexOf(controller);
@@ -3205,7 +3205,7 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                     ),
                     validator: (value) {
                       if ((value?.isEmpty ?? true)) {
-                        return 'Please enter the egress plan No. ${index + 1}';
+                        return 'Please enter the egress plan No. ${index + 1}'.tr();
                       }
                       return null;
                     },
@@ -3252,13 +3252,13 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                       builder: (context) {
                         String message = "";
                         return AlertDialog(
-                          title: Text("Report lack of requested medications"),
+                          title: Text("Report lack of requested medications".tr()),
                           content: TextField(
                             onChanged: (value) {
                               message = value;
                             },
                             decoration:
-                                InputDecoration(hintText: "Optional message"),
+                                InputDecoration(hintText: "Optional message".tr()),
                           ),
                           actions: [
                             TextButton(
@@ -3266,21 +3266,21 @@ class _HojaEnfermeriaScreen extends State<HojaEnfermeriaScreen> {
                                 message = "";
                                 Navigator.pop(context);
                               },
-                              child: Text("Cancel"),
+                              child: Text("Cancel".tr()),
                             ),
                             TextButton(
                               onPressed: () {
                                 sendReport(message);
                                 Navigator.pop(context);
                               },
-                              child: Text("Send"),
+                              child: Text("Send".tr()),
                             ),
                           ],
                         );
                       },
                     );
                   },
-                  child: Text("Report lack of requested medications"),
+                  child: Text("Report lack of requested medications".tr()),
                 ),
               ),
 

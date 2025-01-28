@@ -1,4 +1,5 @@
 import 'package:connectcare/core/constants/constants.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
@@ -64,7 +65,7 @@ class CompletedTransferRequestsHistoryState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Completed Transfer Requests'),
+        title: Text('Completed Transfer Requests'.tr()),
       ),
       body: Column(
         children: [
@@ -144,7 +145,7 @@ class CompletedTransferRequestsHistoryState
                           _fetchTransferRequests();
                         }
                       : null,
-                  child: const Text('Previous'),
+                  child: Text('Previous'.tr()),
                 ),
                 Text('Page $_currentPage of $_totalPages'),
                 TextButton(
@@ -156,7 +157,7 @@ class CompletedTransferRequestsHistoryState
                           _fetchTransferRequests();
                         }
                       : null,
-                  child: const Text('Next'),
+                  child: Text('Next'.tr()),
                 ),
               ],
             ),

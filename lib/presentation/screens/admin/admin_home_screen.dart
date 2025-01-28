@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:connectcare/core/constants/constants.dart';
 import 'package:connectcare/data/services/shared_preferences_service.dart';
 import 'package:connectcare/data/services/user_service.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -86,7 +87,7 @@ class AdminHomeScreenState extends State<AdminHomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Inicio del Administrador'),
+        title: Text('Inicio del Administrador'.tr()),
       ),
       drawer: Drawer(
         child: ListView(
@@ -96,7 +97,7 @@ class AdminHomeScreenState extends State<AdminHomeScreen> {
               decoration: BoxDecoration(
                 color: Theme.of(context).primaryColor,
               ),
-              child: const Text(
+              child: Text(
                 'Menu',
                 style: TextStyle(
                   color: Colors.white,
@@ -106,7 +107,7 @@ class AdminHomeScreenState extends State<AdminHomeScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.person),
-              title: const Text('Info'),
+              title: Text('Info'.tr()),
               onTap: () {
                 // Navegar a la pantalla de perfil
                 Navigator.pushNamed(context, '/profile');
@@ -114,7 +115,7 @@ class AdminHomeScreenState extends State<AdminHomeScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.settings),
-              title: const Text('Settings'),
+              title: Text('Settings'.tr()),
               onTap: () {
                 // Navegar a la pantalla de ajustes
                 Navigator.pushNamed(context, '/settings');
@@ -136,8 +137,8 @@ class AdminHomeScreenState extends State<AdminHomeScreen> {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const CircularProgressIndicator(); // Mientras espera los datos
                 } else if (snapshot.hasError) {
-                  return const Text(
-                    'Error al cargar el nombre del hospital',
+                  return Text(
+                    'Error al cargar el nombre del hospital'.tr(),
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -145,8 +146,8 @@ class AdminHomeScreenState extends State<AdminHomeScreen> {
                     textAlign: TextAlign.center,
                   );
                 } else if (!snapshot.hasData || snapshot.data == null) {
-                  return const Text(
-                    'Hospital no encontrado',
+                  return Text(
+                    'Hospital no encontrado'.tr(),
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -177,7 +178,7 @@ class AdminHomeScreenState extends State<AdminHomeScreen> {
                       const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
                   textStyle: const TextStyle(fontSize: 18),
                 ),
-                child: const Text('Iniciar!'),
+                child: Text('Iniciar!'.tr()),
               ),
             ),
           ],

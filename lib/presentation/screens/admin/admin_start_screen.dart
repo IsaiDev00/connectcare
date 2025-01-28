@@ -1,5 +1,6 @@
 import 'package:connectcare/core/constants/constants.dart';
 import 'package:connectcare/data/services/shared_preferences_service.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -42,7 +43,7 @@ class _AdminStartScreen extends State<AdminStartScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Iniciar configuracion'),
+        title: Text('Iniciar configuracion'.tr()),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -56,8 +57,8 @@ class _AdminStartScreen extends State<AdminStartScreen> {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const CircularProgressIndicator();
                 } else if (snapshot.hasError) {
-                  return const Text(
-                    'Error loading the hospital name',
+                  return Text(
+                    'Error loading the hospital name'.tr(),
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -65,8 +66,8 @@ class _AdminStartScreen extends State<AdminStartScreen> {
                     textAlign: TextAlign.center,
                   );
                 } else if (!snapshot.hasData || snapshot.data == null) {
-                  return const Text(
-                    'Hospital not found',
+                  return Text(
+                    'Hospital not found'.tr(),
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -87,7 +88,7 @@ class _AdminStartScreen extends State<AdminStartScreen> {
             ),
             const SizedBox(height: 40),
             Text(
-              "It seems that you haven't done the initial configuration of your hospital",
+              "It seems that you haven't done the initial configuration of your hospital".tr(),
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w500,
@@ -95,7 +96,7 @@ class _AdminStartScreen extends State<AdminStartScreen> {
             ),
             const SizedBox(height: 15),
             Text(
-              "Press Start! to start the hospital configuration",
+              "Press Start! to start the hospital configuration".tr(),
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w500,
@@ -112,8 +113,8 @@ class _AdminStartScreen extends State<AdminStartScreen> {
                       const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
                   textStyle: const TextStyle(fontSize: 18),
                 ),
-                child: const Text(
-                  'Start!',
+                child: Text(
+                  'Start!'.tr(),
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.w600,

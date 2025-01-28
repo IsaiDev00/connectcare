@@ -2,6 +2,7 @@ import 'package:connectcare/core/constants/constants.dart';
 import 'package:connectcare/data/services/shared_preferences_service.dart';
 import 'package:connectcare/presentation/screens/admin/SAMM/wifi_credentials_screen.dart';
 import 'package:connectcare/presentation/screens/admin/edit_room_screen.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -67,21 +68,21 @@ class ManageRoomScreenState extends State<ManageRoomScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Confirm Deletion'),
-          content: const Text('Are you sure you want to delete this room?'),
+          title: Text('Confirm Deletion'.tr()),
+          content: Text('Are you sure you want to delete this room?'.tr()),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(); // Cerrar el cuadro de diálogo
               },
-              child: const Text('Cancel'),
+              child: Text('Cancel'.tr()),
             ),
             TextButton(
               onPressed: () {
                 deleteRoom(roomID);
                 Navigator.of(context).pop(); // Cerrar el cuadro de diálogo
               },
-              child: const Text('Delete'),
+              child: Text('Delete'.tr()),
             ),
           ],
         );
@@ -113,7 +114,7 @@ class ManageRoomScreenState extends State<ManageRoomScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Manage Rooms'),
+        title: Text('Manage Rooms'.tr()),
         centerTitle: true,
       ),
       body: Padding(
@@ -135,7 +136,7 @@ class ManageRoomScreenState extends State<ManageRoomScreen> {
             const SizedBox(height: 20),
 
             Text(
-                "To program the SAMM devices of a room, just click on the room"),
+                "To program the SAMM devices of a room, just click on the room".tr()),
             const SizedBox(height: 20),
 
             // Lista de salas
@@ -217,7 +218,7 @@ class ManageRoomScreenState extends State<ManageRoomScreen> {
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   textStyle: const TextStyle(fontSize: 18),
                 ),
-                child: const Text('Add Room'),
+                child: Text('Add Room'.tr()),
               ),
             ),
           ],

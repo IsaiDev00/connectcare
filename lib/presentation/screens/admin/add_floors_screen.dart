@@ -1,5 +1,6 @@
 import 'package:connectcare/core/constants/constants.dart';
 import 'package:connectcare/data/services/shared_preferences_service.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -59,7 +60,7 @@ class _AddFloorsScreen extends State<AddFloorsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Set Hospital Floors"),
+        title: Text("Set Hospital Floors".tr()),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -70,8 +71,8 @@ class _AddFloorsScreen extends State<AddFloorsScreen> {
             SizedBox(height: 70),
             // Mensaje inicial con estilo
             Center(
-              child: const Text(
-                "First of all, we need to know how many floors does your hospital have",
+              child: Text(
+                "First of all, we need to know how many floors does your hospital have".tr(),
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -96,11 +97,11 @@ class _AddFloorsScreen extends State<AddFloorsScreen> {
                     keyboardType: TextInputType.number,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter the number of floors';
+                        return 'Please enter the number of floors'.tr();
                       }
                       final n = int.tryParse(value);
                       if (n == null || n <= 0) {
-                        return 'Please enter a valid positive number';
+                        return 'Please enter a valid positive number'.tr();
                       }
                       return null;
                     },
@@ -110,7 +111,7 @@ class _AddFloorsScreen extends State<AddFloorsScreen> {
                   // Botón para agregar pisos
                   ElevatedButton(
                     onPressed: _addFloors,
-                    child: const Text("Add Floors"),
+                    child: Text("Add Floors".tr()),
                   ),
                 ],
               ),

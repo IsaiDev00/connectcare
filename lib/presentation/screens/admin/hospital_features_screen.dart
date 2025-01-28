@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 class HospitalFeaturesScreen extends StatefulWidget {
@@ -12,7 +13,7 @@ class HospitalFeaturesScreenState extends State<HospitalFeaturesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Características del Hospital'),
+        title: Text('Características del Hospital'.tr()),
         centerTitle: true,
       ),
       body: Padding(
@@ -22,8 +23,8 @@ class HospitalFeaturesScreenState extends State<HospitalFeaturesScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             Center(
-              child: const Text(
-                'Agrega las características de tu hospital',
+              child: Text(
+                'Agrega las características de tu hospital'.tr(),
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -41,7 +42,7 @@ class HospitalFeaturesScreenState extends State<HospitalFeaturesScreen> {
                     const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
                 textStyle: const TextStyle(fontSize: 18),
               ),
-              child: const Text('Agregar salas'),
+              child: Text('Agregar salas'.tr()),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
@@ -53,7 +54,7 @@ class HospitalFeaturesScreenState extends State<HospitalFeaturesScreen> {
                     const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
                 textStyle: const TextStyle(fontSize: 18),
               ),
-              child: const Text('Agregar servicios'),
+              child: Text('Agregar servicios'.tr()),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
@@ -65,7 +66,7 @@ class HospitalFeaturesScreenState extends State<HospitalFeaturesScreen> {
                     const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
                 textStyle: const TextStyle(fontSize: 18),
               ),
-              child: const Text('Agregar procedimientos'),
+              child: Text('Agregar procedimientos'.tr()),
             ),
           ],
         ),

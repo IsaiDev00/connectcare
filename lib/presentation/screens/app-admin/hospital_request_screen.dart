@@ -1,4 +1,5 @@
 import 'package:connectcare/core/constants/constants.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -55,12 +56,12 @@ class _HospitalRequestScreen extends State<HospitalRequestScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Error'),
+          title: Text('Error'.tr()),
           content: Text(message),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('OK'),
+              child: Text('OK'.tr()),
             ),
           ],
         );
@@ -139,14 +140,14 @@ class _HospitalRequestScreen extends State<HospitalRequestScreen> {
                     onPressed: () {
                       showReasonDialog('Accept', reasonController, request);
                     },
-                    child: const Text('Accept Request'),
+                    child: Text('Accept Request'.tr()),
                   ),
                   const SizedBox(height: 10),
                   ElevatedButton(
                     onPressed: () {
                       showReasonDialog('Deny', reasonController, request);
                     },
-                    child: const Text('Deny Request'),
+                    child: Text('Deny Request'.tr()),
                   ),
                 ],
               ),
@@ -182,7 +183,7 @@ class _HospitalRequestScreen extends State<HospitalRequestScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+              child: Text('Cancel'.tr()),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -279,7 +280,7 @@ class _HospitalRequestScreen extends State<HospitalRequestScreen> {
                   await fetchHospitalRequests();
                 }
               },
-              child: const Text('Submit'),
+              child: Text('Submit'.tr()),
             ),
           ],
         );
@@ -291,7 +292,7 @@ class _HospitalRequestScreen extends State<HospitalRequestScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Hospital Requests'),
+        title: Text('Hospital Requests'.tr()),
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())

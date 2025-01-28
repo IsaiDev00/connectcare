@@ -143,7 +143,7 @@ class _MedicalInstructionsHistoryState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("medical_instructions_history").tr(),
+        title: Text("medical_instructions_history").tr(),
       ),
       body: Column(
         children: [
@@ -152,7 +152,7 @@ class _MedicalInstructionsHistoryState
             child: isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : medicalInstructions.isEmpty
-                    ? Center(child: const Text("no_records_found").tr())
+                    ? Center(child: Text("no_records_found").tr())
                     : ListView.builder(
                         itemCount: medicalInstructions.length,
                         itemBuilder: (context, index) {

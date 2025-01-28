@@ -528,11 +528,11 @@ class _UpdateMedicamentScreenState extends State<UpdateMedicamentScreen> {
                       autofocus: true,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Ingrese las unidades disponibles';
+                          return 'Ingrese las unidades disponibles'.tr();
                         }
                         int valueInt = int.parse(value);
                         if (valueInt > 100) {
-                          return 'Unidades disponibles maximo de 100';
+                          return 'Unidades disponibles maximo de 100'.tr();
                         }
                         return null;
                       },

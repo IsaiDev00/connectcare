@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:connectcare/core/constants/constants.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:connectcare/data/services/shared_preferences_service.dart';
@@ -62,7 +63,7 @@ class ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profile'),
+        title: Text('Profile'.tr()),
         centerTitle: true,
       ),
       body: Padding(

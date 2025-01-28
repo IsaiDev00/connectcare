@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 class CluesErrScreen extends StatefulWidget {
@@ -12,7 +13,7 @@ class CluesErrScreenState extends State<CluesErrScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Error de Certificado CLUES'),
+        title: Text('Error de Certificado CLUES'.tr()),
         centerTitle: true,
       ),
       body: Padding(
@@ -22,8 +23,8 @@ class CluesErrScreenState extends State<CluesErrScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             Center(
-              child: const Text(
-                'El certificado CLUES no es reconocible, la imagen no es legible.',
+              child: Text(
+                'El certificado CLUES no es reconocible, la imagen no es legible.'.tr(),
                 style: TextStyle(fontSize: 18),
                 textAlign: TextAlign.center,
               ),
@@ -33,14 +34,14 @@ class CluesErrScreenState extends State<CluesErrScreen> {
               onPressed: () {
                 Navigator.pushNamed(context, '/submitCluesScreen');
               },
-              child: const Text('Volver a Enviar'),
+              child: Text('Volver a Enviar'.tr()),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
                 Navigator.pushNamed(context, '/mainScreen');
               },
-              child: const Text('Volver al Menú'),
+              child: Text('Volver al Menú'.tr()),
             ),
           ],
         ),

@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 class RegisterHospitalScreen extends StatefulWidget {
@@ -19,8 +20,8 @@ class RegisterHospitalScreenState extends State<RegisterHospitalScreen> {
           children: <Widget>[
             // Importante
             Center(
-              child: const Text(
-                'IMPORTANT',
+              child: Text(
+                'IMPORTANT'.tr(),
                 style: TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
@@ -34,8 +35,8 @@ class RegisterHospitalScreenState extends State<RegisterHospitalScreen> {
               constraints: const BoxConstraints(
                 maxWidth: 600,
               ),
-              child: const Text(
-                'Before starting a hospital registration, you must ensure that your mobile device has a readable image of your hospitals CLUES certificate.',
+              child: Text(
+                'Before starting a hospital registration, you must ensure that your mobile device has a readable image of your hospitals CLUES certificate.'.tr(),
                 style: TextStyle(
                   fontSize: 16,
                 ),
@@ -49,7 +50,7 @@ class RegisterHospitalScreenState extends State<RegisterHospitalScreen> {
               onPressed: () {
                 Navigator.pushNamed(context, '/submitCluesScreen');
               },
-              child: const Text('Got it'),
+              child: Text('Got it'.tr()),
             ),
           ],
         ),

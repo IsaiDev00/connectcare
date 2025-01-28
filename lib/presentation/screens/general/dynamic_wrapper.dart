@@ -305,7 +305,7 @@ class _DynamicWrapperState extends State<DynamicWrapper> {
       );
       _navItems.insert(
         2,
-        TabItem(icon: Icons.move_down, title: 'Transfers'),
+        TabItem(icon: Icons.move_down, title: 'Transfers'.tr()),
       );
     } else if (userType == 'stretcher bearer') {
       _pages.insert(0, const StretcherBearerHomeScreen());
@@ -316,7 +316,7 @@ class _DynamicWrapperState extends State<DynamicWrapper> {
       );
       _navItems.insert(
         1,
-        TabItem(icon: Icons.move_down, title: 'Transfers'),
+        TabItem(icon: Icons.move_down, title: 'Transfers'.tr()),
       );
     } else if (userType == 'doctor' && hasServices) {
       _pages.insert(0, const DoctorHomeScreen());
@@ -458,7 +458,7 @@ class _DynamicWrapperState extends State<DynamicWrapper> {
                       icon: Icons.stacked_bar_chart_rounded,
                       title: 'Reports'.tr()));
               _navItems.insert(3,
-                  TabItem(icon: Icons.add_chart_rounded, title: 'Projections'));
+                  TabItem(icon: Icons.add_chart_rounded, title: 'Projections'.tr()));
             }
           } else {
             // Si no es 0 ni 1, tal vez la respuesta no está bien definida
@@ -483,7 +483,7 @@ class _DynamicWrapperState extends State<DynamicWrapper> {
                       icon: Icons.stacked_bar_chart_rounded,
                       title: 'Reports'.tr()));
               _navItems.insert(3,
-                  TabItem(icon: Icons.add_chart_rounded, title: 'Projections'));
+                  TabItem(icon: Icons.add_chart_rounded, title: 'Projections'.tr()));
             }
           }
         } else {
@@ -508,7 +508,7 @@ class _DynamicWrapperState extends State<DynamicWrapper> {
                     icon: Icons.stacked_bar_chart_rounded,
                     title: 'Reports'.tr()));
             _navItems.insert(3,
-                TabItem(icon: Icons.add_chart_rounded, title: 'Projections'));
+                TabItem(icon: Icons.add_chart_rounded, title: 'Projections'.tr()));
           }
         }
       }

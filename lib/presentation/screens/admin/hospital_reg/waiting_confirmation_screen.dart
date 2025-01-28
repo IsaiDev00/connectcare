@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 class WaitingConfirmationScreen extends StatefulWidget {
@@ -12,7 +13,7 @@ class _WaitingConfirmationScreen extends State<WaitingConfirmationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Waiting Confirmation'),
+        title: Text('Waiting Confirmation'.tr()),
       ),
       body: Center(
         child: Column(
@@ -24,8 +25,8 @@ class _WaitingConfirmationScreen extends State<WaitingConfirmationScreen> {
               color: Colors.blueAccent,
             ),
             const SizedBox(height: 20),
-            const Text(
-              'Your application is under review.\nPlease wait for our confirmation.',
+            Text(
+              'Your application is under review.\nPlease wait for our confirmation.'.tr(),
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 16),
             ),

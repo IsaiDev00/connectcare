@@ -1,4 +1,5 @@
 import 'package:connectcare/presentation/screens/general/dynamic_wrapper.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -15,7 +16,7 @@ class _ShortTutorialScreen extends State<ShortTutorialScreen> {
     var brightness = Theme.of(context).brightness;
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Short Tutorial"),
+        title: Text("Short Tutorial".tr()),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () {
@@ -46,7 +47,7 @@ class _ShortTutorialScreen extends State<ShortTutorialScreen> {
                   const SizedBox(height: 30),
                   Center(
                     child: Text(
-                      "Excellent, now I am going to briefly explain how to add more functionalities to your hospital. ",
+                      "Excellent, now I am going to briefly explain how to add more functionalities to your hospital.".tr(),
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -57,7 +58,7 @@ class _ShortTutorialScreen extends State<ShortTutorialScreen> {
                   ),
                   const SizedBox(height: 40),
                   Text(
-                    "First of all, you must add the areas that your hospital has, such as Anesthesiology, Pediatrics, etc.",
+                    "First of all, you must add the areas that your hospital has, such as Anesthesiology, Pediatrics, etc.".tr(),
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w500,
@@ -67,7 +68,7 @@ class _ShortTutorialScreen extends State<ShortTutorialScreen> {
                   ),
                   const SizedBox(height: 20),
                   Text(
-                    "Then you must add the rooms that your areas have, such as the operating room or emergency room, \nyou can also add a room number in case you have several for the same purpose.\nHere you must add the number of beds that said room has.",
+                    "Then you must add the rooms that your areas have, such as the operating room or emergency room, \nyou can also add a room number in case you have several for the same purpose.\nHere you must add the number of beds that said room has.".tr(),
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w500,
@@ -77,7 +78,7 @@ class _ShortTutorialScreen extends State<ShortTutorialScreen> {
                   ),
                   const SizedBox(height: 20),
                   Text(
-                    "Remember that you can also specify the services of each area and the procedures of each room in your home page.",
+                    "Remember that you can also specify the services of each area and the procedures of each room in your home page.".tr(),
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w500,
@@ -87,7 +88,7 @@ class _ShortTutorialScreen extends State<ShortTutorialScreen> {
                   ),
                   const SizedBox(height: 20),
                   Text(
-                    "You can also administer the medications that your hospital handles.",
+                    "You can also administer the medications that your hospital handles.".tr(),
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w500,
@@ -97,7 +98,7 @@ class _ShortTutorialScreen extends State<ShortTutorialScreen> {
                   ),
                   const SizedBox(height: 20),
                   Text(
-                    "You can manage the information of your workers and even generate predictions of the demand for rooms, \nmedications and an estimated number of patients per condition.",
+                    "You can manage the information of your workers and even generate predictions of the demand for rooms, \nmedications and an estimated number of patients per condition.".tr(),
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w500,
@@ -107,7 +108,7 @@ class _ShortTutorialScreen extends State<ShortTutorialScreen> {
                   ),
                   const SizedBox(height: 20),
                   Text(
-                    "Thank you for using ConnectCare",
+                    "Thank you for using ConnectCare".tr(),
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -125,7 +126,7 @@ class _ShortTutorialScreen extends State<ShortTutorialScreen> {
                         ),
                       );
                     },
-                    child: const Text("Got it"),
+                    child: Text("Got it".tr()),
                   ),
                 ],
               ),

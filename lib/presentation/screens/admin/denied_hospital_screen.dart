@@ -1,4 +1,5 @@
 import 'package:connectcare/core/constants/constants.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:connectcare/data/services/shared_preferences_service.dart';
@@ -23,7 +24,7 @@ class _DeniedHospitalScreenState extends State<DeniedHospitalScreen> {
       SharedPreferencesService();
   String formatFecha(String? fechaStr) {
     if (fechaStr == null || fechaStr.isEmpty) {
-      return 'No date available.';
+      return 'No date available.'.tr();
     }
     try {
       final parsedDate = DateTime.parse(fechaStr);
@@ -87,7 +88,7 @@ class _DeniedHospitalScreenState extends State<DeniedHospitalScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Hospital Request Denied'),
+        title: Text('Hospital Request Denied'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -104,8 +105,8 @@ class _DeniedHospitalScreenState extends State<DeniedHospitalScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            const Text(
-              'Reason given:',
+            Text(
+              'Reason given:'.tr(),
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -121,8 +122,8 @@ class _DeniedHospitalScreenState extends State<DeniedHospitalScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            const Text(
-              'Date of denial:',
+            Text(
+              'Date of denial:'.tr(),
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -138,7 +139,7 @@ class _DeniedHospitalScreenState extends State<DeniedHospitalScreen> {
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: _handleGoBack,
-              child: const Text('Go Back'),
+              child: Text('Go Back'),
             ),
           ],
         ),

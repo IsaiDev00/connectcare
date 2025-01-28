@@ -142,7 +142,7 @@ class _TriageHistoryState extends State<TriageHistory> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("triage_history").tr(),
+        title: Text("triage_history").tr(),
       ),
       body: Column(
         children: [
@@ -151,7 +151,7 @@ class _TriageHistoryState extends State<TriageHistory> {
             child: isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : triageRecords.isEmpty
-                    ? Center(child: const Text("no_records_found").tr())
+                    ? Center(child: Text("no_records_found").tr())
                     : ListView.builder(
                         itemCount: triageRecords.length,
                         itemBuilder: (context, index) {

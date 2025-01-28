@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:connectcare/core/constants/constants.dart';
 import 'package:connectcare/data/services/shared_preferences_service.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -76,7 +77,7 @@ class _TransfersState extends State<Transfers> {
       builder: (context) {
         final filteredArchived = _filterTransfers(archivedTransfers);
         return AlertDialog(
-          title: const Text('Traslados Archivados'),
+          title: Text('Traslados Archivados'.tr()),
           content: SizedBox(
             width: double.maxFinite,
             height: 300,
@@ -147,7 +148,7 @@ class _TransfersState extends State<Transfers> {
                                         },
                                         style: ElevatedButton.styleFrom(
                                             backgroundColor: Colors.blue),
-                                        child: const Text('Desarchivar'),
+                                        child: Text('Desarchivar'.tr()),
                                       ),
                                     ],
                                   ),
@@ -165,7 +166,7 @@ class _TransfersState extends State<Transfers> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: const Text('Atrás'),
+              child: Text('Atrás'.tr()),
             )
           ],
         );
@@ -190,7 +191,7 @@ class _TransfersState extends State<Transfers> {
               );
               await _fetchTransfers();
             },
-            child: const Text('Confirmar'),
+            child: Text('Confirmar'.tr()),
           ),
           const SizedBox(height: 4),
           ElevatedButton(
@@ -204,7 +205,7 @@ class _TransfersState extends State<Transfers> {
               );
               await _fetchTransfers();
             },
-            child: const Text('Denegar'),
+            child: Text('Denegar'.tr()),
           ),
         ],
       );
@@ -220,7 +221,7 @@ class _TransfersState extends State<Transfers> {
           );
           await _fetchTransfers();
         },
-        child: const Text('Archivar'),
+        child: Text('Archivar'.tr()),
       );
     } else if (estado == 'Confirmado') {
       return ElevatedButton(
@@ -234,7 +235,7 @@ class _TransfersState extends State<Transfers> {
           );
           await _fetchTransfers();
         },
-        child: const Text('Archivar'),
+        child: Text('Archivar'.tr()),
       );
     } else if (estado == 'Esperando' ||
         estado == 'Pospuesto' ||
@@ -256,7 +257,7 @@ class _TransfersState extends State<Transfers> {
               );
               await _fetchTransfers();
             },
-            child: const Text('Cancelar'),
+            child: Text('Cancelar'.tr()),
           ),
           const SizedBox(width: 4),
           if (estado == 'No encontrado')
@@ -265,7 +266,7 @@ class _TransfersState extends State<Transfers> {
               onPressed: () {
                 _showPosponerDialog(traslado['id_traslado']);
               },
-              child: const Text('Posponer'),
+              child: Text('Posponer'.tr()),
             ),
         ],
       );
@@ -289,7 +290,7 @@ class _TransfersState extends State<Transfers> {
               );
               await _fetchTransfers();
             },
-            child: const Text('Cancelar'),
+            child: Text('Cancelar'.tr()),
           ),
           const SizedBox(height: 4),
           ElevatedButton(
@@ -297,7 +298,7 @@ class _TransfersState extends State<Transfers> {
             onPressed: () {
               _showPosponerDialog(traslado['id_traslado']);
             },
-            child: const Text('Posponer'),
+            child: Text('Posponer'.tr()),
           ),
         ],
       );
@@ -311,7 +312,7 @@ class _TransfersState extends State<Transfers> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Posponer traslado'),
+          title: Text('Posponer traslado'.tr()),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -343,7 +344,7 @@ class _TransfersState extends State<Transfers> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cerrar'),
+              child: Text('Cerrar'.tr()),
             ),
           ],
         );
@@ -355,7 +356,7 @@ class _TransfersState extends State<Transfers> {
   Widget build(BuildContext context) {
     final filteredActive = _filterTransfers(activeTransfers);
     return Scaffold(
-      appBar: AppBar(title: const Text('Traslados')),
+      appBar: AppBar(title: Text('Traslados'.tr())),
       body: Column(
         children: [
           Padding(
@@ -430,7 +431,7 @@ class _TransfersState extends State<Transfers> {
           const SizedBox(height: 20),
           ElevatedButton(
             onPressed: _showArchivedTransfers,
-            child: const Text('Mostrar archivadas'),
+            child: Text('Mostrar archivadas'.tr()),
           ),
           const SizedBox(height: 20),
         ],

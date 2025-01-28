@@ -134,7 +134,7 @@ class _DischargesHistoryState extends State<DischargesHistory> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("discharges_history").tr(),
+        title: Text("discharges_history").tr(),
       ),
       body: Column(
         children: [
@@ -143,7 +143,7 @@ class _DischargesHistoryState extends State<DischargesHistory> {
             child: isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : discharges.isEmpty
-                    ? Center(child: const Text("no_records_found").tr())
+                    ? Center(child: Text("no_records_found").tr())
                     : ListView.builder(
                         itemCount: discharges.length,
                         itemBuilder: (context, index) {

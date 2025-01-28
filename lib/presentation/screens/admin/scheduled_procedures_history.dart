@@ -157,7 +157,7 @@ class _ScheduledProceduresHistoryState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("scheduled_procedures_history").tr(),
+        title: Text("scheduled_procedures_history").tr(),
       ),
       body: Column(
         children: [
@@ -166,7 +166,7 @@ class _ScheduledProceduresHistoryState
             child: isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : scheduledProcedures.isEmpty
-                    ? Center(child: const Text("no_records_found").tr())
+                    ? Center(child: Text("no_records_found").tr())
                     : ListView.builder(
                         itemCount: scheduledProcedures.length,
                         itemBuilder: (context, index) {
