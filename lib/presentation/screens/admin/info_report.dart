@@ -19,7 +19,7 @@ class _ViewDailyReportState extends State<ViewDailyReport> {
   String loadingText = 'Loading';
   Timer? _timer;
   List<String> graphs = [];
-  Map<String, int> counts = {};
+  Map<String, dynamic> counts = {};
 
   final List<Map<String, dynamic>> titlesWithIcons = [
     {
@@ -105,7 +105,8 @@ class _ViewDailyReportState extends State<ViewDailyReport> {
   @override
   void initState() {
     super.initState();
-    date = DateFormat('dd/MM/yy').format(widget.date);
+    date = DateFormat('MM/dd/yyyy').format(widget.date);
+
     _startLoadingAnimation();
     _fetchGraphs();
   }
@@ -117,15 +118,30 @@ class _ViewDailyReportState extends State<ViewDailyReport> {
   }
 
   Future<void> _fetchGraphs() async {
+    var formattedDate = DateFormat('yyyy/MM/dd').format(widget.date);
+
     var url = Uri.parse(
-        'https://connectcare-graphics-320080170162.us-central1.run.app/generate_image/12/04/enfermeros,medicos,camilleros,trabajo_social,Hhoja_enfermeria,Hindicaciones_medicas,Htriage,Hnotas_evolucion,Haltas_paciente,Hsolicitudes_traslado,Htraslado_pacientes_completados,Htraslado_pacientes_no_completados,Hvinculaciones_cuentas_familiares');
+        'https://connectcare-graphics-320080170162.us-central1.run.app/generate_image/$formattedDate/enfermeros,medicos,camilleros,trabajo_social,hoja_enfermeria,indicaciones_medicas,triage,notas_evolucion,altas_paciente,solicitudes_traslado,traslado_pacientes_completados,traslado_pacientes_no_completados,vinculaciones_cuentas_familiares');
+
     var response = await http.get(url);
 
     if (response.statusCode == 200) {
       var responseBody = jsonDecode(response.body);
       graphs = List<String>.from(responseBody['images']);
-      counts = Map<String, int>.from(responseBody['counts']);
+      Map<String, int> generalCounts = {};
+      Map<String, Map<String, int>> hourlyCounts = {};
+
+      (responseBody['counts'] as Map<String, dynamic>).forEach((key, value) {
+        if (value is Map<String, dynamic>) {
+          hourlyCounts[key] = value.map((hourKey, hourValue) => MapEntry(
+              hourKey.toString(), int.tryParse(hourValue.toString()) ?? 0));
+        } else {
+          generalCounts[key] = int.tryParse(value.toString()) ?? 0;
+        }
+      });
+
       setState(() {
+        counts = responseBody['counts']?['general'] ?? {};
         _isLoading = false;
       });
     }
@@ -193,8 +209,8 @@ class _ViewDailyReportState extends State<ViewDailyReport> {
                     final List<String> stats = keys.map((key) {
                       if (key.contains("nurse")) {
                         return key == "solicitudes_traslado_nurse"
-                            ? "Solicitudes de traslado por enfermeros: ${counts[key] ?? 0}"
-                            : "Actualizaciones a hojas de enfermería por enfermeros: ${counts[key] ?? 0}";
+                            ? "Solicitudes de traslado por enfermeros: ${counts["solicitudes_traslado_nurse"] ?? 0}"
+                            : "Actualizaciones a hojas de enfermería por enfermeros: ${counts["hoja_enfermeria_nurse"] ?? 0}";
                       } else if (key.contains("doctor")) {
                         return key == "solicitudes_traslado_doctor"
                             ? "Solicitudes de traslado por médicos: ${counts[key] ?? 0}"

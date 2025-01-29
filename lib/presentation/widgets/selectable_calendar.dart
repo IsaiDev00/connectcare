@@ -107,17 +107,24 @@ class _SelectableCalendarPushState extends State<SelectableCalendarPush> {
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDate;
 
+  final DateTime _firstAllowedDay = DateTime.now().subtract(Duration(days: 30));
+  final DateTime _lastAllowedDay = DateTime.now();
+
   @override
   Widget build(BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         TableCalendar(
-          firstDay: DateTime.now(),
-          lastDay: DateTime.utc(2026, 12, 31),
+          firstDay: _firstAllowedDay,
+          lastDay: _lastAllowedDay,
           focusedDay: _focusedDay,
           selectedDayPredicate: (day) => isSameDay(_selectedDate, day),
           onDaySelected: (selectedDay, focusedDay) {
+            if (selectedDay.isAfter(_lastAllowedDay) ||
+                selectedDay.isBefore(_firstAllowedDay)) {
+              return;
+            }
             setState(() {
               _focusedDay = focusedDay;
               _selectedDate = selectedDay;
